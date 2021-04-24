@@ -1,0 +1,13 @@
+kaktusz\kaktuszlogistics\commands\GiveSubcommand.class
+kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
+kaktusz\kaktuszlogistics\commands\CommandManager.class
+kaktusz\kaktuszlogistics\commands\HelloCommand.class
+kaktusz\kaktuszlogistics\items\ItemBlock.class
+kaktusz\kaktuszlogistics\items\CustomItem.class
+kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
+kaktusz\kaktuszlogistics\items\ItemEventsListener.class
+kaktusz\kaktuszlogistics\commands\Subcommand.class
+kaktusz\kaktuszlogistics\commands\KLCommand.class
+kaktusz\kaktuszlogistics\items\InspectionTool.class
+kaktusz\kaktuszlogistics\KaktuszLogistics.class
+kaktusz\kaktuszlogistics\items\CustomItemManager.class

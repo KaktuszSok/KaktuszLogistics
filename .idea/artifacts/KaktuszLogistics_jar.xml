@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KaktuszLogistics:jar">
+    <output-path>$PROJECT_DIR$/out/jar</output-path>
+    <root id="archive" name="KaktuszLogistics.jar">
+      <element id="module-output" name="KaktuszLogistics" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../buildtools/spigot-1.16.5.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

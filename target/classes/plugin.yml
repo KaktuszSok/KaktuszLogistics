@@ -1,0 +1,14 @@
+name: KaktuszLogistics
+version: 1.0
+author: KaktuszSok
+main: kaktusz.kaktuszlogistics.KaktuszLogistics
+api-version: 1.16
+
+commands:
+  hello:
+    description: Says hello
+    usage: /<command>
+  kl:
+    description: KaktuszLogistics root command
+    usage: /<command> <subcommand>
+    permission: kaktuszlogistics.give
