@@ -55,7 +55,7 @@ public class EnchantsContainer implements PersistentDataType<String, EnchantsTup
             }
             String enchantLevelStr = elements[1];
             int enchantLevel;
-            if(!NumberUtils.isNumber(enchantLevelStr)) {
+            if(!NumberUtils.isDigits(enchantLevelStr)) {
                 KaktuszLogistics.LOGGER.warning("Failed parsing enchantment level: " + enchantLevelStr + " (could not convert to integer)");
                 continue;
             } else {

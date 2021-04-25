@@ -11,5 +11,6 @@ public class CommandManager {
         //KL Command
         main.getCommand(KLCommand.COMMAND_NAME).setExecutor(new KLCommand());
         KLCommand.registerSubcommand(new GiveSubcommand("give"));
+        KLCommand.registerSubcommand(new GiveQSubcommand("giveq"));
     }
 }

@@ -5,20 +5,17 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemBlock extends CustomItem {
-    public boolean placeable;
 
-    public ItemBlock(String type, String displayName, Material material, boolean canPlace) {
+    public ItemBlock(String type, String displayName, Material material) {
         super(type, displayName, material);
-        this.placeable = canPlace;
     }
 
     @Override
     public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
         if(e.isCancelled()) return;
 
-        if(!placeable)
-            e.setCancelled(true);
+        //TODO: implement block placing
+        e.setCancelled(true);
     }
-
 
 }

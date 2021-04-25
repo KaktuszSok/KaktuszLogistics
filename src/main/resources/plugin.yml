@@ -11,4 +11,4 @@ commands:
   kl:
     description: KaktuszLogistics root command
     usage: /<command> <subcommand>
-    permission: kaktuszlogistics.give
+    permission: kaktuszlogistics.kl

@@ -15,14 +15,15 @@ public class CustomItemManager {
     public static void initialise() {
         CustomItem.TYPE_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "CustomItemType");
         CustomItem.ENCHANTS_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "DefaultEnchants");
+        TieredItem.QUALITY_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Quality");
 
         //register items
-        registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT));
-        registerItem(new CustomItem("dustSteel", "Steel Dust", Material.GUNPOWDER));
-        registerItem(new CustomItem("ingotSilver", "Silver Ingot", Material.IRON_INGOT))
+        registerItem(new MetalItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT));
+        registerItem(new MetalItem("dustSteel", "Steel Dust", Material.GUNPOWDER));
+        registerItem(new MetalItem("ingotSilver", "Silver Ingot", Material.IRON_INGOT))
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
-        registerItem(new ItemBlock("blockSilver", "Block of Silver", Material.IRON_BLOCK, false))
-                .addEnchantment(Enchantment.DAMAGE_UNDEAD, 3);;
+        registerItem(new MetalItem("blockSilver", "Block of Silver", Material.IRON_BLOCK))
+                .addEnchantment(Enchantment.DAMAGE_UNDEAD, 3);
         registerItem(new InspectionTool("inspectionTool", "Inspection Tool", Material.OAK_SIGN))
                 .addEnchantment(Enchantment.LOYALTY, 1)
                 .addEnchantment(Enchantment.KNOCKBACK, 10)

@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class InspectionTool extends ItemBlock {
     public InspectionTool(String type, String displayName, Material material) {
-        super(type, displayName, material, false);
+        super(type, displayName, material);
     }
 
     @Override

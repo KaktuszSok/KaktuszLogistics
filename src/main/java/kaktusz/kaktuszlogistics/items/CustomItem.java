@@ -15,7 +15,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class CustomItem {
+public class CustomItem implements IHeldListener, IPlacedListener {
     public static NamespacedKey TYPE_KEY;
     public static NamespacedKey ENCHANTS_KEY;
 
@@ -24,7 +24,7 @@ public class CustomItem {
     public final Material material; //vanilla item that represents this
 
     private String nameFormatting = ChatColor.RESET.toString();
-    private List<String> lore = null;
+    private List<String> lore = new ArrayList<>();
     @SuppressWarnings("FieldMayBeFinal")
     private Map<Enchantment, Integer> enchants = new HashMap<>();
 
@@ -61,9 +61,18 @@ public class CustomItem {
 
     //ITEMSTACK
     public ItemStack createStack(int amount) {
+        ItemStack stack = createStackEarly(amount);
+        updateStack(stack);
+        return stack;
+    }
+
+    /**
+     * Initialise the stack but don't run updateStack()
+     */
+    public ItemStack createStackEarly(int amount) {
         ItemStack stack = new ItemStack(material, amount);
         addTypeNBT(stack);
-        updateStack(stack);
+
         return stack;
     }
 
@@ -105,35 +114,18 @@ public class CustomItem {
         setNBT(stack, TYPE_KEY, PersistentDataType.STRING, type);
     }
     public boolean isStackThisType(ItemStack stack) {
-        ItemMeta meta = stack.getItemMeta();
-        if(meta == null) return false;
-
-        if(meta.getPersistentDataContainer().has(TYPE_KEY, PersistentDataType.STRING)) {
-            String type = meta.getPersistentDataContainer().get(TYPE_KEY, PersistentDataType.STRING);
-            return type != null && type.equals(this.type);
-        }
-
-        return false;
+        String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
+        return type != null && type.equals(this.type);
     }
 
     /**
      * Adds an NBT tag listing all the enchantments added by default to this item, so that player-added enchants don't get cleared when updating
      */
     private void addEnchantMarker(ItemStack stack) {
-        ItemMeta meta = stack.getItemMeta();
-        if(meta == null) return;
-        meta.getPersistentDataContainer().set(ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS, new EnchantsTupleCollection(enchants));
-        stack.setItemMeta(meta);
+        setNBT(stack, ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS, new EnchantsTupleCollection(enchants));
     }
     private EnchantsTupleCollection readEnchantMarker(ItemStack stack) {
-        ItemMeta meta = stack.getItemMeta();
-        if(meta == null) return null;
-
-        if(meta.getPersistentDataContainer().has(ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS)) {
-            return meta.getPersistentDataContainer().get(ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS);
-        }
-
-        return null;
+        return readNBT(stack, ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS);
     }
 
     protected static <T,Z> void setNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
@@ -173,7 +165,7 @@ public class CustomItem {
     private void setItemLore(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return;
-        meta.setLore(lore);
+        meta.setLore(getItemLore(stack));
         stack.setItemMeta(meta);
     }
 
@@ -195,10 +187,21 @@ public class CustomItem {
         return displayName;
     }
 
-    //EVENTS
-    public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {}
+    /**
+     * Returns the lore that should be given to a particular ItemStack.
+     */
+    public List<String> getItemLore(ItemStack stack) {
+        return lore;
+    }
 
+    //EVENTS
+    @Override
     public void onHeld(PlayerItemHeldEvent e, ItemStack stack) {
         updateStack(stack);
+    }
+
+    @Override
+    public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
+        e.setCancelled(true);
     }
 }
