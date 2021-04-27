@@ -6,7 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,7 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class CustomItem implements IHeldListener, IPlacedListener {
+public class CustomItem implements IHeldListener, IUseListener {
     public static NamespacedKey TYPE_KEY;
     public static NamespacedKey ENCHANTS_KEY;
 
@@ -201,7 +203,12 @@ public class CustomItem implements IHeldListener, IPlacedListener {
     }
 
     @Override
-    public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
+    public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
+        e.setUseItemInHand(Event.Result.DENY);
+    }
+
+    @Override
+    public void onTryUseEntity(PlayerInteractEntityEvent e, ItemStack stack) {
         e.setCancelled(true);
     }
 }

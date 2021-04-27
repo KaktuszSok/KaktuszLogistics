@@ -28,6 +28,13 @@ public class CustomItemManager {
                 .addEnchantment(Enchantment.LOYALTY, 1)
                 .addEnchantment(Enchantment.KNOCKBACK, 10)
                 .setLore(ChatColor.GRAY + "A debugging tool. " + ChatColor.BOLD + "Right click" + ChatColor.GRAY + " to use.");
+        registerItem(new BlockItem("blockPralka", ChatColor.GOLD + "Pralka Wibrująco-Bisująca", Material.FURNACE))
+                .addEnchantment(Enchantment.DIG_SPEED, 4)
+                .addEnchantment(Enchantment.ARROW_DAMAGE, 3)
+                .setLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Nowoczesna pralka marki " + ChatColor.DARK_RED + ChatColor.BOLD + ChatColor.ITALIC + "Mejstar");
+        registerItem(new CustomItem("scrap", "Scrap", Material.BONE_MEAL));
+        registerItem(new CustomItem("rubber", "Rubber", Material.BLACK_DYE));
+
     }
 
     public static CustomItem registerItem(CustomItem item) {
@@ -40,6 +47,8 @@ public class CustomItemManager {
      * Returns the matching CustomItem or null if it does not exist
      */
     public static CustomItem tryGetItem(String type) {
+        if(type == null)
+            return null;
         return CUSTOM_ITEMS.getOrDefault(type, null);
     }
 }

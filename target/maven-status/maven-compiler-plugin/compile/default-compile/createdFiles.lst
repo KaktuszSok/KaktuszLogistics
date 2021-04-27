@@ -12,12 +12,13 @@ kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class
 kaktusz\kaktuszlogistics\commands\Subcommand$1.class
 kaktusz\kaktuszlogistics\items\MetalItem$MetalTiers.class
 kaktusz\kaktuszlogistics\KaktuszLogistics.class
+kaktusz\kaktuszlogistics\items\BlockItem.class
+kaktusz\kaktuszlogistics\items\IUseListener.class
 kaktusz\kaktuszlogistics\commands\GiveSubcommand.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\commands\CommandManager.class
 kaktusz\kaktuszlogistics\items\IPlacedListener.class
-kaktusz\kaktuszlogistics\items\ItemBlock.class
 kaktusz\kaktuszlogistics\items\InspectionTool.class
 kaktusz\kaktuszlogistics\items\IHeldListener.class
 kaktusz\kaktuszlogistics\items\CustomItemManager.class
