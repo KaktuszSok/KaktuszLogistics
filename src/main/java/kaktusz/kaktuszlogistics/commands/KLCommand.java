@@ -127,7 +127,7 @@ public class KLCommand implements CommandExecutor, TabCompleter {
         if(autocompletes == null)
             return result;
         for(String ac : autocompletes) {
-            if(ac.startsWith(lastArg))
+            if(ac.toLowerCase().startsWith(lastArg.toLowerCase()))
                 result.add(ac);
         }
         return result;

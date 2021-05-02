@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.world;
 
+import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -14,6 +15,8 @@ import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,10 +96,15 @@ public class WorldEventsListener implements Listener {
             return;
         }
 
-        e.setCancelled(true);
+        e.setCancelled(true); //we need to handle block breaking manually
 
+        //call block events
         block.onMined(e);
         block.onDamaged(1, b, true);
+
+        //damage tool
+        ItemStack held = e.getPlayer().getInventory().getItemInMainHand();
+        VanillaUtils.damageTool(held, e.getPlayer());
     }
 
     //General events that destroy (or otherwise mess up) our block

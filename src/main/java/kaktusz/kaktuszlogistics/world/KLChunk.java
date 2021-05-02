@@ -3,7 +3,6 @@ package kaktusz.kaktuszlogistics.world;
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -72,7 +71,6 @@ public class KLChunk {
 
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         blocks.put(new LocCoordinate(x, y, z), block);
-        Bukkit.broadcastMessage("Setting custom block " + block.type.type + " at " + x + "," + y + "," + z);
         return block;
     }
 
@@ -81,7 +79,6 @@ public class KLChunk {
      * @return Whether there was a block at this position
      */
     public boolean removeBlock(int x, int y, int z) {
-        Bukkit.broadcastMessage("Removing custom block at " + x + "," + y + "," + z);
         return blocks.remove(new LocCoordinate(x, y, z)) != null;
     }
 

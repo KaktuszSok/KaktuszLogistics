@@ -25,6 +25,7 @@ kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\commands\CommandManager.class
 kaktusz\kaktuszlogistics\items\IPlacedListener.class
+kaktusz\kaktuszlogistics\util\VanillaUtils.class
 kaktusz\kaktuszlogistics\world\DurableBlock.class
 kaktusz\kaktuszlogistics\items\InspectionTool.class
 kaktusz\kaktuszlogistics\world\KLWorld.class
