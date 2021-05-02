@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onItemUsed(PlayerInteractEvent e) {
         if(e.useItemInHand() == Event.Result.DENY)
             return;
@@ -23,33 +23,24 @@ public class ItemEventsListener implements Listener {
             ((IUseListener)customItem).onTryUse(e, item);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onItemUsedOnEntity(PlayerInteractEntityEvent e) {
-        if(e.isCancelled())
-            return;
-
         ItemStack item = e.getPlayer().getInventory().getItem(e.getHand());
         CustomItem customItem = CustomItem.getFromStack(item);
         if(customItem instanceof IUseListener)
             ((IUseListener)customItem).onTryUseEntity(e, item);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlaceBlock(BlockPlaceEvent e) {
-        if(e.isCancelled())
-            return;
-
         ItemStack item = e.getItemInHand();
         CustomItem customItem = CustomItem.getFromStack(item);
         if(customItem instanceof IPlacedListener)
             ((IPlacedListener)customItem).onTryPlace(e, item);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onItemHeld(PlayerItemHeldEvent e) {
-        if(e.isCancelled())
-            return;
-
         ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
         CustomItem customItem = CustomItem.getFromStack(item);
         if(customItem instanceof IHeldListener)

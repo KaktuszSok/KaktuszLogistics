@@ -2,11 +2,16 @@ package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.items.nbt.EnchantsContainer;
 import kaktusz.kaktuszlogistics.items.nbt.EnchantsTupleCollection;
+import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -17,7 +22,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class CustomItem implements IHeldListener, IUseListener {
+public class CustomItem implements IHeldListener, IUseListener, IPlacedListener {
     public static NamespacedKey TYPE_KEY;
     public static NamespacedKey ENCHANTS_KEY;
 
@@ -25,6 +30,7 @@ public class CustomItem implements IHeldListener, IUseListener {
     private final String displayName; //name of item seen by players
     public final Material material; //vanilla item that represents this
 
+    protected boolean placeable = false;
     private String nameFormatting = ChatColor.RESET.toString();
     private List<String> lore = new ArrayList<>();
     @SuppressWarnings("FieldMayBeFinal")
@@ -37,6 +43,12 @@ public class CustomItem implements IHeldListener, IUseListener {
         this.material = material;
 
         CustomItemManager.registerItem(this);
+    }
+
+    public CustomItem allowPlacement() {
+        placeable = true;
+
+        return this;
     }
 
     public CustomItem setNameFormatting(ChatColor... formatting) {
@@ -134,14 +146,22 @@ public class CustomItem implements IHeldListener, IUseListener {
         if(stack == null) return;
 
         ItemMeta meta = stack.getItemMeta();
-        if(meta == null) return;
-        meta.getPersistentDataContainer().set(key, dataType, data);
+        setNBT(meta, key, dataType, data);
         stack.setItemMeta(meta);
     }
     protected static <T,Z> Z readNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T,Z> dataType) {
         if(stack == null) return null;
 
         ItemMeta meta = stack.getItemMeta();
+        return readNBT(meta, key, dataType);
+    }
+
+    //for blocks:
+    protected static <T,Z> void setNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
+        if(meta == null) return;
+        meta.getPersistentDataContainer().set(key, dataType, data);
+    }
+    protected static <T,Z> Z readNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType) {
         if(meta == null) return null;
 
         if(meta.getPersistentDataContainer().has(key, dataType)) {
@@ -204,11 +224,36 @@ public class CustomItem implements IHeldListener, IUseListener {
 
     @Override
     public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
-        e.setUseItemInHand(Event.Result.DENY);
+        if (e.getAction() == Action.LEFT_CLICK_BLOCK)
+            return; //allow
+
+        if(!e.isBlockInHand() || e.getAction() != Action.RIGHT_CLICK_BLOCK)
+            e.setUseItemInHand(Event.Result.DENY);
     }
 
     @Override
     public void onTryUseEntity(PlayerInteractEntityEvent e, ItemStack stack) {
         e.setCancelled(true);
+    }
+
+    @Override
+    public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
+        if(!placeable) {
+            e.setCancelled(true);
+            return;
+        }
+
+        Block b = e.getBlockPlaced();
+        int x = b.getX();
+        int y = b.getY();
+        int z = b.getZ();
+        KLWorld world = KLWorld.get(b.getWorld());
+
+        CustomBlock block = world.setBlock(createCustomBlock(stack), x,y,z); //set block in KLWorld
+        block.onPlaced(e);
+    }
+
+    protected CustomBlock createCustomBlock(ItemStack stack) {
+        return new CustomBlock(this, stack);
     }
 }

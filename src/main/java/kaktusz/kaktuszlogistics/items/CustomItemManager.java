@@ -28,7 +28,8 @@ public class CustomItemManager {
                 .addEnchantment(Enchantment.LOYALTY, 1)
                 .addEnchantment(Enchantment.KNOCKBACK, 10)
                 .setLore(ChatColor.GRAY + "A debugging tool. " + ChatColor.BOLD + "Right click" + ChatColor.GRAY + " to use.");
-        registerItem(new BlockItem("blockPralka", ChatColor.GOLD + "Pralka Wibrująco-Bisująca", Material.FURNACE))
+        registerItem(new DurableItem("blockPralka", ChatColor.GOLD + "Pralka Wibrująco-Bisująca", Material.FURNACE, 4))
+                .allowPlacement()
                 .addEnchantment(Enchantment.DIG_SPEED, 4)
                 .addEnchantment(Enchantment.ARROW_DAMAGE, 3)
                 .setLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Nowoczesna pralka marki " + ChatColor.DARK_RED + ChatColor.BOLD + ChatColor.ITALIC + "Mejstar");

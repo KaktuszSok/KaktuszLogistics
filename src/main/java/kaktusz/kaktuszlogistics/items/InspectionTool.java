@@ -1,9 +1,10 @@
 package kaktusz.kaktuszlogistics.items;
 
+import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -18,7 +19,12 @@ public class InspectionTool extends CustomItem {
     public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
         Block b = e.getClickedBlock();
         if(b != null) {
-            e.getPlayer().sendMessage("This is " + b.getType().name() + " at " + b.getLocation().toString());
+            CustomBlock cb = KLWorld.get(e.getClickedBlock().getWorld()).getBlockAt(b.getX(), b.getY(), b.getZ());
+            if(cb == null) {
+                e.getPlayer().sendMessage("This is " + b.getType().name());
+            } else {
+                e.getPlayer().sendMessage("This is " + cb.type.getFullDisplayName(cb.getDrop()));
+            }
         }
 
         e.setUseInteractedBlock(Event.Result.DENY);

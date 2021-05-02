@@ -7,12 +7,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+@SuppressWarnings("UnusedReturnValue")
 public abstract class TieredItem extends CustomItem {
     public static NamespacedKey QUALITY_KEY;
 
@@ -83,8 +85,7 @@ public abstract class TieredItem extends CustomItem {
 
         //set quality if item didn't have it before
         if(!stack.getItemMeta().getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
-            KaktuszLogistics.LOGGER.info("TieredItem " + getUnformattedDisplayName(stack) + " did not have quality info. Updating to random quality.");
-            setQuality(stack, RandomUtils.nextFloat(), true);
+            fixQuality(stack);
         }
 
         //update quality if it no longer exactly matches a tier
@@ -112,6 +113,14 @@ public abstract class TieredItem extends CustomItem {
         super.updateStack(stack);
     }
 
+    /**
+     * Called if the itemstack does not have qualify info attached (e.g. after updating, where before it was not a tiered item)
+     */
+    public void fixQuality(ItemStack stack) {
+        KaktuszLogistics.LOGGER.info("TieredItem " + getUnformattedDisplayName(stack) + " did not have quality info. Updating to random quality.");
+        setQuality(stack, RandomUtils.nextFloat(), true);
+    }
+
     public void setQuality(ItemStack stack, float quality) {
         setQuality(stack, quality, false);
     }
@@ -125,6 +134,10 @@ public abstract class TieredItem extends CustomItem {
             updateStack(stack);
     }
     public float getQuality(ItemStack stack) {
+        //noinspection ConstantConditions
+        if(!stack.hasItemMeta() || !stack.getItemMeta().getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
+            fixQuality(stack);
+        }
         return readNBT(stack, QUALITY_KEY, PersistentDataType.FLOAT);
     }
 
@@ -133,6 +146,24 @@ public abstract class TieredItem extends CustomItem {
     }
     public QualityTier getTier(float quality) {
         return tiers.floorEntry(quality).getValue();
+    }
+
+    //for blocks:
+    public void fixQuality(ItemMeta meta) {
+        KaktuszLogistics.LOGGER.info("TieredItem meta " + meta.getDisplayName() + " did not have quality info. Updating to random quality.");
+        setQuality(meta, RandomUtils.nextFloat());
+    }
+    public void setQuality(ItemMeta meta, float quality) {
+        if(!saveQuality) {
+            quality = tiers.floorKey(quality);
+        }
+        setNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT, quality);
+    }
+    public float getQuality(ItemMeta meta) {
+        if(!meta.getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
+            fixQuality(meta);
+        }
+        return readNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT);
     }
 
     //DISPLAY
