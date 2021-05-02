@@ -1,11 +1,14 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
@@ -183,8 +186,15 @@ public class KLChunk {
                 coord.z = in.readByte(); //byte
                 //read block data
                 ItemMeta blockData = (ItemMeta)in.readObject(); //ItemMeta
-                CustomBlock block = new CustomBlock(blockData);
-                result.blocks.put(coord, block);
+                String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
+                CustomItem type = CustomItemManager.tryGetItem(typeStr);
+                if(type == null) {
+                    KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);
+                }
+                else {
+                    CustomBlock block = type.createCustomBlock(blockData);
+                    result.blocks.put(coord, block);
+                }
             }
 
             in.close();

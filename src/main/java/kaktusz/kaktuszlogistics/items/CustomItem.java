@@ -249,11 +249,11 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
         int z = b.getZ();
         KLWorld world = KLWorld.get(b.getWorld());
 
-        CustomBlock block = world.setBlock(createCustomBlock(stack), x,y,z); //set block in KLWorld
+        CustomBlock block = world.setBlock(createCustomBlock(stack.getItemMeta()), x,y,z); //set block in KLWorld
         block.onPlaced(e);
     }
 
-    protected CustomBlock createCustomBlock(ItemStack stack) {
-        return new CustomBlock(this, stack);
+    public CustomBlock createCustomBlock(ItemMeta stackMeta) {
+        return new CustomBlock(this, stackMeta);
     }
 }

@@ -15,11 +15,8 @@ public class DurableBlock extends CustomBlock {
     public float damagePitchMin = 0.35f;
     public float damagePitchMax = 0.8f;
 
-    public DurableBlock(ItemMeta customItemData) {
-        super(customItemData);
-    }
-    public DurableBlock(DurableItem item, ItemStack stack) {
-        super(item, stack);
+    public DurableBlock(DurableItem item, ItemMeta meta) {
+        super(item, meta);
     }
 
     public void setDamageSound(Sound sound, float volume, float pitchMin, float pitchMax) {

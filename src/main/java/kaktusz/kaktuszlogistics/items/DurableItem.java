@@ -97,7 +97,7 @@ public class DurableItem extends TieredItem {
     }
 
     @Override
-    protected DurableBlock createCustomBlock(ItemStack stack) {
-        return new DurableBlock(this, stack);
+    public DurableBlock createCustomBlock(ItemMeta stackMeta) {
+        return new DurableBlock(this, stackMeta);
     }
 }

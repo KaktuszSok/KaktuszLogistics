@@ -17,23 +17,19 @@ public class CustomBlock {
     public transient final CustomItem type;
     public ItemMeta data;
 
-    public CustomBlock(ItemMeta customItemData) {
-        this.data = customItemData.clone();
-
-        //read type from data
-        String typeStr = data.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
-        this.type = CustomItemManager.tryGetItem(typeStr);
-        if(this.type == null) {
-            KaktuszLogistics.LOGGER.warning("Invalid item for CustomBlock! type not found: " + typeStr);
-        }
-    }
-    public CustomBlock(CustomItem item, ItemStack stack) {
-        if(stack != null && stack.getItemMeta() != null)
-            this.data = stack.getItemMeta();
-        else
-            KaktuszLogistics.LOGGER.warning("Failed to create CustomBlock for item " + item.type + " as the stack did not contain a PDC");
-
+    public CustomBlock(CustomItem item, ItemMeta meta) {
+        this.data = meta.clone();
         this.type = item;
+    }
+
+    /**
+     * Creates a CustomBlock with the correct class given some item meta
+     */
+    public static CustomBlock createFromMeta(ItemMeta customItemData) {
+        //read type from data
+        String typeStr = customItemData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
+        CustomItem type = CustomItemManager.tryGetItem(typeStr);
+        return type.createCustomBlock(customItemData);
     }
 
     /**
