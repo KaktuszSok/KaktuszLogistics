@@ -3,6 +3,7 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\CustomBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\WorldEventsListener.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\ItemEventsListener.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\DurableItem.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\MetalItem.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\TieredItem.java
@@ -13,8 +14,10 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\KaktuszLogistics.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\MathsUtils.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\CustomItemManager.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\DurableBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\CustomItem.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\Subcommand.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\KLCommand.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\GiveQSubcommand.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\VanillaUtils.java

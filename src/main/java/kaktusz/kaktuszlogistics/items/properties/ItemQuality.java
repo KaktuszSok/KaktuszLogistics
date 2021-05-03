@@ -1,24 +1,24 @@
-package kaktusz.kaktuszlogistics.items;
+package kaktusz.kaktuszlogistics.items.properties;
 
-import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-@SuppressWarnings("UnusedReturnValue")
-public abstract class TieredItem extends CustomItem {
+/**
+ * Property which adds a quality tag to the item
+ */
+@SuppressWarnings({"UnusedReturnValue", "unused"})
+public abstract class ItemQuality extends ItemProperty {
     public static NamespacedKey QUALITY_KEY;
 
-    interface QualityTier {
+    public interface QualityTier {
 
         String getName();
 
@@ -26,36 +26,36 @@ public abstract class TieredItem extends CustomItem {
 
     public TreeMap<Float, QualityTier> tiers = new TreeMap<>();
 
-    private boolean saveQuality = false; //making this true results in (almost certainly) unstackable items, but their true quality is preserved. Otherwise, quality is rounded down to the tier's minimum quality.
+    private boolean saveQuality = false;
 
     //SETUP
-    public TieredItem(String type, String displayName, Material material) {
-        super(type, displayName, material);
+    public ItemQuality(CustomItem item) {
+        super(item);
         loadDefaultTiers();
     }
 
-    public TieredItem addTier(float minQuality, QualityTier tier) {
+    public ItemQuality addTier(float minQuality, QualityTier tier) {
         tiers.put(minQuality, tier);
 
         return this;
     }
 
-    public TieredItem setTiers(TreeMap<Float, QualityTier> tiers) {
+    public ItemQuality setTiers(TreeMap<Float, QualityTier> tiers) {
         this.tiers = tiers;
 
         return this;
     }
 
-    public TieredItem clearTiers() {
+    public ItemQuality clearTiers() {
         this.tiers.clear();
 
         return this;
     }
 
     /**
-     * Override this to set up default tiers for a newly registered TieredItem
+     * Override this to set up default tiers for a newly registered tiered item
      */
-    public abstract TieredItem loadDefaultTiers();
+    public abstract ItemQuality loadDefaultTiers();
 
     /**
      * Setting this to true will result in (almost certainly) unstackable items!
@@ -67,21 +67,14 @@ public abstract class TieredItem extends CustomItem {
 
     //ITEMSTACK
     @Override
-    public ItemStack createStack(int amount) {
-        return createStack(RandomUtils.nextFloat(), amount);
-    }
-    public ItemStack createStack(float quality, int amount) {
-        ItemStack stack = super.createStackEarly(amount);
-        setQuality(stack, quality, true);
-        updateStack(stack);
-        return stack;
+    public void onCreateStack(ItemStack stack) {
+        setQuality(stack, RandomUtils.nextFloat(), true);
     }
 
     @Override
-    public void updateStack(ItemStack stack) {
-        if(stack == null || stack.getItemMeta() == null) {
+    public void onUpdateStack(ItemStack stack) {
+        if(stack.getItemMeta() == null)
             return;
-        }
 
         //set quality if item didn't have it before
         if(!stack.getItemMeta().getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
@@ -109,36 +102,34 @@ public abstract class TieredItem extends CustomItem {
                 setQuality(stack, quality, true);
             }
         }
-
-        super.updateStack(stack);
     }
 
     /**
-     * Called if the itemstack does not have qualify info attached (e.g. after updating, where before it was not a tiered item)
+     * Called if the itemstack does not have quality info attached (e.g. after updating, where before it was not a tiered item)
      */
     public void fixQuality(ItemStack stack) {
-        KaktuszLogistics.LOGGER.info("TieredItem " + getUnformattedDisplayName(stack) + " did not have quality info. Updating to random quality.");
-        setQuality(stack, RandomUtils.nextFloat(), true);
+        if(stack.getItemMeta() == null)
+            return;
+
+        fixQuality(stack.getItemMeta());
     }
 
     public void setQuality(ItemStack stack, float quality) {
         setQuality(stack, quality, false);
     }
     public void setQuality(ItemStack stack, float quality, boolean dontUpdateStack) {
-        if(!saveQuality) {
-            quality = tiers.floorKey(quality);
-        }
-        setNBT(stack, QUALITY_KEY, PersistentDataType.FLOAT, quality);
+        ItemMeta meta = stack.getItemMeta();
+        setQuality(meta, quality);
+        stack.setItemMeta(meta);
 
         if(!dontUpdateStack)
-            updateStack(stack);
+            item.updateStack(stack);
     }
     public float getQuality(ItemStack stack) {
-        //noinspection ConstantConditions
-        if(!stack.hasItemMeta() || !stack.getItemMeta().getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
-            fixQuality(stack);
-        }
-        return readNBT(stack, QUALITY_KEY, PersistentDataType.FLOAT);
+        if(stack.getItemMeta() == null)
+            return 0;
+
+        return getQuality(stack.getItemMeta());
     }
 
     public QualityTier getTier(ItemStack stack) {
@@ -150,32 +141,25 @@ public abstract class TieredItem extends CustomItem {
 
     //for blocks:
     public void fixQuality(ItemMeta meta) {
-        KaktuszLogistics.LOGGER.info("TieredItem meta " + meta.getDisplayName() + " did not have quality info. Updating to random quality.");
         setQuality(meta, RandomUtils.nextFloat());
     }
     public void setQuality(ItemMeta meta, float quality) {
         if(!saveQuality) {
             quality = tiers.floorKey(quality);
         }
-        setNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT, quality);
+        CustomItem.setNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT, quality);
     }
     public float getQuality(ItemMeta meta) {
         if(!meta.getPersistentDataContainer().has(QUALITY_KEY, PersistentDataType.FLOAT)) {
             fixQuality(meta);
         }
-        return readNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT);
+        return CustomItem.readNBT(meta, QUALITY_KEY, PersistentDataType.FLOAT);
     }
 
     //DISPLAY
-
     @Override
-    public List<String> getItemLore(ItemStack stack) {
-        List<String> lore = new ArrayList<>();
-
-        QualityTier tier = getTier(stack);
+    public void modifyLore(List<String> lore, ItemStack item) {
+        QualityTier tier = getTier(item);
         lore.add(tier.getName());
-
-        lore.addAll(super.getItemLore(stack));
-        return lore;
     }
 }

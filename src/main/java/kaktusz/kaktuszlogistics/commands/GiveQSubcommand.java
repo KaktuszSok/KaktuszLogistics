@@ -2,7 +2,7 @@ package kaktusz.kaktuszlogistics.commands;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.TieredItem;
+import kaktusz.kaktuszlogistics.items.properties.ItemQuality;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -59,10 +59,10 @@ public class GiveQSubcommand extends Subcommand {
             return true;
         }
 
-        TieredItem tieredItem = (TieredItem) item;
         for(int i = 0; i < amount; i++) {
             float q = MathsUtils.randomRange(min_quality, max_quality);
-            ItemStack stack = tieredItem.createStack(q, 1);
+            ItemStack stack = item.createStack(1);
+            item.findProperty(ItemQuality.class).setQuality(stack, q);
             target.getInventory().addItem(stack);
         }
 

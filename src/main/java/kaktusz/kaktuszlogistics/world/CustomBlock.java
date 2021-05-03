@@ -3,6 +3,7 @@ package kaktusz.kaktuszlogistics.world;
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
+import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -12,14 +13,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 public class CustomBlock {
-    private static final long serialVersionUID = 100L;
 
-    public transient final CustomItem type;
+    public transient final ItemPlaceable type;
     public ItemMeta data;
 
-    public CustomBlock(CustomItem item, ItemMeta meta) {
+    public CustomBlock(ItemPlaceable prop, ItemMeta meta) {
         this.data = meta.clone();
-        this.type = item;
+        this.type = prop;
     }
 
     /**
@@ -29,7 +29,8 @@ public class CustomBlock {
         //read type from data
         String typeStr = customItemData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
         CustomItem type = CustomItemManager.tryGetItem(typeStr);
-        return type.createCustomBlock(customItemData);
+        //noinspection ConstantConditions
+        return type.findProperty(ItemPlaceable.class).createCustomBlock(customItemData);
     }
 
     /**
@@ -48,12 +49,12 @@ public class CustomBlock {
         return verify(world.world.getBlockAt(x, y, z));
     }
     public boolean verify(Block block) {
-        return block.getType() == type.material;
+        return block.getType() == type.item.material;
     }
 
     //GETTERS
     public ItemStack getDrop() {
-        ItemStack drop = type.createStack(1);
+        ItemStack drop = type.item.createStack(1);
         drop.setItemMeta(data);
         return drop;
     }
@@ -64,6 +65,7 @@ public class CustomBlock {
         update(KLWorld.get(b.getWorld()), b.getX(), b.getY(), b.getZ());
     }
 
+    @SuppressWarnings("unused")
     public void onMined(BlockBreakEvent e) {
 
     }

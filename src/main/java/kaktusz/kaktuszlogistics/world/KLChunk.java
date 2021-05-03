@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -14,7 +13,6 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,9 +22,7 @@ public class KLChunk {
     /**
      * A local coordinate in the chunk
      */
-    public static class LocCoordinate implements Serializable {
-        private static final long serialVersionUID = 100L;
-
+    public static class LocCoordinate {
         public byte x;
         public short y;
         public byte z;
@@ -183,13 +179,12 @@ public class KLChunk {
                 coord.z = in.readByte(); //byte
                 //read block data
                 ItemMeta blockData = (ItemMeta)in.readObject(); //ItemMeta
-                String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
-                CustomItem type = CustomItemManager.tryGetItem(typeStr);
-                if(type == null) {
+                CustomBlock block = CustomBlock.createFromMeta(blockData);
+                if(block == null) {
+                    String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
                     KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);
                 }
                 else {
-                    CustomBlock block = type.createCustomBlock(blockData);
                     result.blocks.put(coord, block);
                 }
             }

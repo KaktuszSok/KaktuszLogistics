@@ -1,53 +1,44 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.DurableItem;
+import kaktusz.kaktuszlogistics.items.properties.BlockDurability;
+import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class DurableBlock extends CustomBlock {
 
-    Sound damageSound = Sound.BLOCK_ANVIL_LAND;
-    public float damageVolume = 0.45f;
-    public float damagePitchMin = 0.35f;
-    public float damagePitchMax = 0.8f;
-
-    public DurableBlock(DurableItem item, ItemMeta meta) {
-        super(item, meta);
-    }
-
-    public void setDamageSound(Sound sound, float volume, float pitchMin, float pitchMax) {
-        damageSound = sound;
-        damageVolume = volume;
-        damagePitchMin = pitchMin;
-        damagePitchMax = pitchMax;
+    /**
+     * The item that this block is based on MUST have the ItemDurability property
+     */
+    public DurableBlock(ItemPlaceable placeProperty, ItemMeta meta) {
+        super(placeProperty, meta);
     }
 
     @Override
     public ItemStack getDrop() {
         ItemStack drop = super.getDrop();
-        ((DurableItem)type).setQuality(drop, 1.0f);
+        type.item.findProperty(BlockDurability.class).setPercent(drop, 1.0f);
         return drop;
     }
 
     @Override
     public void onDamaged(int damage, Block b, boolean doSound) {
-        DurableItem type = (DurableItem)this.type;
+        BlockDurability dura = type.item.findProperty(BlockDurability.class);
 
         if(doSound) {
-            float duraBeforeHit = type.getDurability(data);
-            if (damageSound != null) {
-                float pitchPerStep = (damagePitchMax-damagePitchMin)/(float)type.maxDurability;
+            float duraBeforeHit = dura.getDurability(data);
+            if (dura.damageSound != null) {
+                float pitchPerStep = (dura.damagePitchMax-dura.damagePitchMin)/Math.max(dura.getMaxDurability()-1, 1);
                 float pitchRandom = MathsUtils.randomRange(-pitchPerStep*0.2f, pitchPerStep*0.2f);
-                b.getWorld().playSound(b.getLocation(), damageSound, damageVolume, pitchRandom + MathsUtils.lerpc(damagePitchMin, damagePitchMax, duraBeforeHit / type.maxDurability));
+                b.getWorld().playSound(b.getLocation(), dura.damageSound, dura.damageVolume,
+                        pitchRandom + MathsUtils.lerpc(dura.damagePitchMin, dura.damagePitchMax, (duraBeforeHit-1) / Math.max(dura.getMaxDurability()-1, 1)));
             }
         }
 
-        type.takeDamage(data, damage);
-        if(type.getDurability(data) <= 0) {
+        dura.takeDamage(data, damage);
+        if(dura.getDurability(data) <= 0) {
             breakBlock(b, true);
         }
     }

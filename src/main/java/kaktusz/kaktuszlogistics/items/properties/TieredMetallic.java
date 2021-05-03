@@ -1,13 +1,12 @@
-package kaktusz.kaktuszlogistics.items;
+package kaktusz.kaktuszlogistics.items.properties;
 
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
-import java.util.TreeMap;
+public class TieredMetallic extends ItemQuality {
 
-public class MetalItem extends TieredItem {
-
-    public enum MetalTiers implements QualityTier {
+    public enum MetalTiers implements ItemQuality.QualityTier {
         POOR (ChatColor.DARK_GRAY + "Poor"),
         COMMON (ChatColor.GRAY + "Common"),
         GOOD (ChatColor.GREEN + "Good"),
@@ -25,12 +24,12 @@ public class MetalItem extends TieredItem {
         }
     }
 
-    public MetalItem(String type, String displayName, Material material) {
-        super(type, displayName, material);
+    public TieredMetallic(CustomItem item) {
+        super(item);
     }
 
     @Override
-    public MetalItem loadDefaultTiers() {
+    public TieredMetallic loadDefaultTiers() {
         addTier(0.0F, MetalTiers.POOR);
         addTier(0.25F, MetalTiers.COMMON);
         addTier(0.85F, MetalTiers.GOOD);

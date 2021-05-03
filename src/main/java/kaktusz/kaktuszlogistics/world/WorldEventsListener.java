@@ -124,7 +124,7 @@ public class WorldEventsListener implements Listener {
             CustomBlock cb = KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ());
             if(cb != null) {
                 e.blockList().remove(b);
-                cb.onDamaged((int)(1 + e.getYield()/4f), b, !didSound);
+                cb.onDamaged((int)(1 + (2.5f/e.getYield())), b, !didSound); //yield is inverted?
                 didSound = true;
             }
         }

@@ -1,13 +1,14 @@
 package kaktusz.kaktuszlogistics.items;
 
-import kaktusz.kaktuszlogistics.items.nbt.EnchantsContainer;
-import kaktusz.kaktuszlogistics.items.nbt.EnchantsTupleCollection;
-import kaktusz.kaktuszlogistics.world.CustomBlock;
-import kaktusz.kaktuszlogistics.world.KLWorld;
+import kaktusz.kaktuszlogistics.items.events.IHeldListener;
+import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
+import kaktusz.kaktuszlogistics.items.events.IUseListener;
+import kaktusz.kaktuszlogistics.items.properties.ItemEnchants;
+import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
+import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -19,241 +20,276 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class CustomItem implements IHeldListener, IUseListener, IPlacedListener {
-    public static NamespacedKey TYPE_KEY;
-    public static NamespacedKey ENCHANTS_KEY;
+	public static NamespacedKey TYPE_KEY;
 
-    public final String type; //internal name of item
-    private final String displayName; //name of item seen by players
-    public final Material material; //vanilla item that represents this
+	public final String type; //internal name of item
+	private final String displayName; //name of item seen by players
+	public final Material material; //vanilla item that represents this
 
-    protected boolean placeable = false;
-    private String nameFormatting = ChatColor.RESET.toString();
-    private List<String> lore = new ArrayList<>();
-    @SuppressWarnings("FieldMayBeFinal")
-    private Map<Enchantment, Integer> enchants = new HashMap<>();
+	private String nameFormatting = ChatColor.RESET.toString();
+	private List<String> lore = new ArrayList<>();
 
-    //SETUP
-    public CustomItem(String type, String displayName, Material material) {
-        this.type = type;
-        this.displayName = displayName;
-        this.material = material;
+	private final List<ItemProperty> properties = new ArrayList<>();
 
-        CustomItemManager.registerItem(this);
-    }
+	//SETUP
+	public CustomItem(String type, String displayName, Material material) {
+		this.type = type;
+		this.displayName = displayName;
+		this.material = material;
 
-    public CustomItem allowPlacement() {
-        placeable = true;
+		CustomItemManager.registerItem(this);
+	}
 
-        return this;
-    }
+	public CustomItem setNameFormatting(ChatColor... formatting) {
+		StringBuilder sb = new StringBuilder();
+		for(ChatColor c : formatting) {
+			sb.append(c);
+		}
+		nameFormatting = sb.toString();
 
-    public CustomItem setNameFormatting(ChatColor... formatting) {
-        StringBuilder sb = new StringBuilder();
-        for(ChatColor c : formatting) {
-            sb.append(c);
-        }
-        nameFormatting = sb.toString();
+		return this;
+	}
 
-        return this;
-    }
+	public CustomItem setLore(String... lines) {
+		lore = Arrays.asList(lines);
 
-    public CustomItem setLore(String... lines) {
-        lore = Arrays.asList(lines);
+		return this;
+	}
 
-        return this;
-    }
+	//PROPERTIES
+	/**
+	 * Gets the previously added property of this type or adds one if it didn't exist
+	 */
+	public <P extends ItemProperty> P getOrAddProperty(Class<P> propertyType) {
+		P prop = findProperty(propertyType);
+		if(prop != null)
+			return prop;
+		//property wasn't added yet - add one
+		try {
+			prop = propertyType.getConstructor(CustomItem.class).newInstance(this);
+			prop.onAdded();
+			properties.add(prop);
+			return prop;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-    public CustomItem addEnchantment(Enchantment enchantment, int level) {
-        enchants.put(enchantment, level);
+	/**
+	 * @return Whether the property existed on this CustomItem in the first place
+	 */
+	public <P extends ItemProperty> boolean removeProperty(Class<P> propertyType) {
+		P prop = findProperty(propertyType);
+		if(prop == null)
+			return false;
 
-        return this;
-    }
+		properties.remove(prop);
+		return true;
+	}
 
-    //ITEMSTACK
-    public ItemStack createStack(int amount) {
-        ItemStack stack = createStackEarly(amount);
-        updateStack(stack);
-        return stack;
-    }
+	@SuppressWarnings("unchecked") //using addProperty should guarantee the type casts are safe
+	public <P extends ItemProperty> P findProperty(Class<P> propertyType) {
+		for(ItemProperty p : getAllProperties()) {
+			if(propertyType.isInstance(p)) {
+				return (P)p;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Initialise the stack but don't run updateStack()
-     */
-    public ItemStack createStackEarly(int amount) {
-        ItemStack stack = new ItemStack(material, amount);
-        addTypeNBT(stack);
+	/**
+	 * @return All the properties that have been added to this CustomItem
+	 */
+	public Collection<ItemProperty> getAllProperties() {
+		return properties;
+	}
 
-        return stack;
-    }
+	//common property shortcuts
+	public CustomItem allowPlacement() {
+		getOrAddProperty(ItemPlaceable.class);
 
-    /**
-     * Returns the type of CustomItem that a stack is tagged as being, or null if it is not a custom item.
-     */
-    public static CustomItem getFromStack(ItemStack stack) {
-        String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
-        return CustomItemManager.tryGetItem(type);
-    }
+		return this;
+	}
 
-    public void updateStack(ItemStack stack) {
-        //ENCHANTMENTS
-        //clear saved default enchantments
-        EnchantsTupleCollection defaultEnchants = readEnchantMarker(stack);
-        if(defaultEnchants != null) {
-            for(Enchantment ench : defaultEnchants.enchants.keySet()) {
-                if(stack.containsEnchantment(ench))
-                    stack.removeEnchantment(ench);
-            }
-        }
-        //clear enchantments we are about to add (to avoid duplicates)
-        for(Enchantment ench : enchants.keySet()) {
-            if(stack.containsEnchantment(ench))
-                stack.removeEnchantment(ench);
-        }
-        stack.addUnsafeEnchantments(enchants);
-        addEnchantMarker(stack);
+	public CustomItem addEnchantment(Enchantment enchantment, int level) {
+		ItemEnchants e = getOrAddProperty(ItemEnchants.class);
+		e.addEnchantment(enchantment, level);
 
-        //DISPLAY
-        setDisplayName(stack);
-        setItemLore(stack);
-    }
+		return this;
+	}
 
-    /**
-     * Adds an NBT tag to an ItemStack to identify it as a particular type of CustomItem
-     */
-    private void addTypeNBT(ItemStack stack) {
-        setNBT(stack, TYPE_KEY, PersistentDataType.STRING, type);
-    }
-    public boolean isStackThisType(ItemStack stack) {
-        String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
-        return type != null && type.equals(this.type);
-    }
+	//ITEMSTACK
+	public ItemStack createStack(int amount) {
+		ItemStack stack = createStackEarly(amount);
+		for(ItemProperty p : getAllProperties()) {
+			p.onCreateStack(stack);
+		}
+		updateStack(stack);
+		return stack;
+	}
 
-    /**
-     * Adds an NBT tag listing all the enchantments added by default to this item, so that player-added enchants don't get cleared when updating
-     */
-    private void addEnchantMarker(ItemStack stack) {
-        setNBT(stack, ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS, new EnchantsTupleCollection(enchants));
-    }
-    private EnchantsTupleCollection readEnchantMarker(ItemStack stack) {
-        return readNBT(stack, ENCHANTS_KEY, EnchantsContainer.ENCHANTMENTS);
-    }
+	/**
+	 * Initialise the stack but don't run updateStack()
+	 */
+	private ItemStack createStackEarly(int amount) {
+		ItemStack stack = new ItemStack(material, amount);
+		addTypeNBT(stack);
 
-    protected static <T,Z> void setNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
-        if(stack == null) return;
+		return stack;
+	}
 
-        ItemMeta meta = stack.getItemMeta();
-        setNBT(meta, key, dataType, data);
-        stack.setItemMeta(meta);
-    }
-    protected static <T,Z> Z readNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T,Z> dataType) {
-        if(stack == null) return null;
+	/**
+	 * Returns the type of CustomItem that a stack is tagged as being, or null if it is not a custom item.
+	 */
+	public static CustomItem getFromStack(ItemStack stack) {
+		String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
+		return CustomItemManager.tryGetItem(type);
+	}
 
-        ItemMeta meta = stack.getItemMeta();
-        return readNBT(meta, key, dataType);
-    }
+	public void updateStack(ItemStack stack) {
+		//properties
+		for(ItemProperty p : getAllProperties()) {
+			p.onUpdateStack(stack);
+		}
 
-    //for blocks:
-    protected static <T,Z> void setNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
-        if(meta == null) return;
-        meta.getPersistentDataContainer().set(key, dataType, data);
-    }
-    protected static <T,Z> Z readNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType) {
-        if(meta == null) return null;
+		//display
+		setDisplayName(stack);
+		setItemLore(stack);
+	}
 
-        if(meta.getPersistentDataContainer().has(key, dataType)) {
-            return meta.getPersistentDataContainer().get(key, dataType);
-        }
+	/**
+	 * Adds an NBT tag to an ItemStack to identify it as a particular type of CustomItem
+	 */
+	private void addTypeNBT(ItemStack stack) {
+		setNBT(stack, TYPE_KEY, PersistentDataType.STRING, type);
+	}
+	public boolean isStackThisType(ItemStack stack) {
+		String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
+		return type != null && type.equals(this.type);
+	}
 
-        return null;
-    }
+	public static <T,Z> void setNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T, Z> dataType, Z data) {
+		if(stack == null) return;
 
-    /**
-     * Sets the display name of an ItemStack so that it matches this custom item
-     */
-    private void setDisplayName(ItemStack stack) {
-        ItemMeta meta = stack.getItemMeta();
-        if (meta == null) return;
-        meta.setDisplayName(getFullDisplayName(stack));
-        stack.setItemMeta(meta);
-    }
+		ItemMeta meta = stack.getItemMeta();
+		setNBT(meta, key, dataType, data);
+		stack.setItemMeta(meta);
+	}
+	public static <T,Z> Z readNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T,Z> dataType) {
+		if(stack == null) return null;
 
-    /**
-     * Sets the lore of an ItemStack so that it matches this custom item
-     */
-    private void setItemLore(ItemStack stack) {
-        ItemMeta meta = stack.getItemMeta();
-        if (meta == null) return;
-        meta.setLore(getItemLore(stack));
-        stack.setItemMeta(meta);
-    }
+		ItemMeta meta = stack.getItemMeta();
+		return readNBT(meta, key, dataType);
+	}
 
-    /**
-     * Returns the formatted name of an ItemStack
-     */
-    public String getFullDisplayName(ItemStack stack) {
-        if(!isStackThisType(stack)) {
-            return  stack.getType().name();
-        }
+	//for blocks:
+	public static <T,Z> void setNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
+		if(meta == null) return;
+		meta.getPersistentDataContainer().set(key, dataType, data);
+	}
+	public static <T,Z> Z readNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType) {
+		if(meta == null) return null;
 
-        return nameFormatting + getUnformattedDisplayName(stack);
-    }
-    public String getUnformattedDisplayName(ItemStack stack) {
-        if(!isStackThisType(stack)) {
-            return stack.getType().name();
-        }
+		if(meta.getPersistentDataContainer().has(key, dataType)) {
+			return meta.getPersistentDataContainer().get(key, dataType);
+		}
 
-        return displayName;
-    }
+		return null;
+	}
 
-    /**
-     * Returns the lore that should be given to a particular ItemStack.
-     */
-    public List<String> getItemLore(ItemStack stack) {
-        return lore;
-    }
+	/**
+	 * Sets the display name of an ItemStack so that it matches this custom item
+	 */
+	private void setDisplayName(ItemStack stack) {
+		ItemMeta meta = stack.getItemMeta();
+		if (meta == null) return;
+		meta.setDisplayName(getFullDisplayName(stack));
+		stack.setItemMeta(meta);
+	}
 
-    //EVENTS
-    @Override
-    public void onHeld(PlayerItemHeldEvent e, ItemStack stack) {
-        updateStack(stack);
-    }
+	/**
+	 * Sets the lore of an ItemStack so that it matches this custom item
+	 */
+	private void setItemLore(ItemStack stack) {
+		ItemMeta meta = stack.getItemMeta();
+		if (meta == null) return;
+		meta.setLore(getItemLore(stack));
+		stack.setItemMeta(meta);
+	}
 
-    @Override
-    public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
-        if (e.getAction() == Action.LEFT_CLICK_BLOCK)
-            return; //allow
+	//DISPLAY
+	/**
+	 * Returns the formatted name of an ItemStack
+	 */
+	public String getFullDisplayName(ItemStack stack) {
+		if(!isStackThisType(stack)) {
+			return  stack.getType().name();
+		}
 
-        if(!e.isBlockInHand() || e.getAction() != Action.RIGHT_CLICK_BLOCK)
-            e.setUseItemInHand(Event.Result.DENY);
-    }
+		String formatting = nameFormatting;
+		for(ItemProperty prop : getAllProperties()) {
+			formatting = prop.modifyDisplayNameFormatting(formatting, stack);
+		}
 
-    @Override
-    public void onTryUseEntity(PlayerInteractEntityEvent e, ItemStack stack) {
-        e.setCancelled(true);
-    }
+		return formatting + getUnformattedDisplayName(stack);
+	}
+	public String getUnformattedDisplayName(ItemStack stack) {
+		if(!isStackThisType(stack)) {
+			return stack.getType().name();
+		}
 
-    @Override
-    public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
-        if(!placeable) {
-            e.setCancelled(true);
-            return;
-        }
+		String dispName = displayName;
+		for(ItemProperty prop : getAllProperties()) {
+			dispName = prop.modifyUnformattedDisplayName(dispName, stack);
+		}
 
-        Block b = e.getBlockPlaced();
-        int x = b.getX();
-        int y = b.getY();
-        int z = b.getZ();
-        KLWorld world = KLWorld.get(b.getWorld());
+		return dispName;
+	}
 
-        CustomBlock block = world.setBlock(createCustomBlock(stack.getItemMeta()), x,y,z); //set block in KLWorld
-        block.onPlaced(e);
-    }
+	/**
+	 * Returns the lore that should be given to a particular ItemStack.
+	 */
+	public List<String> getItemLore(ItemStack stack) {
+		List<String> modifiedLore = new ArrayList<>(lore);
+		for(ItemProperty prop : getAllProperties()) {
+			prop.modifyLore(modifiedLore, stack);
+		}
 
-    public CustomBlock createCustomBlock(ItemMeta stackMeta) {
-        return new CustomBlock(this, stackMeta);
-    }
+		return modifiedLore;
+	}
+
+	//EVENTS
+	@Override
+	public void onHeld(PlayerItemHeldEvent e, ItemStack stack) {
+		updateStack(stack);
+	}
+
+	@Override
+	public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
+		if (e.getAction() == Action.LEFT_CLICK_BLOCK)
+			return; //allow
+
+		if(findProperty(ItemPlaceable.class) == null || e.getAction() != Action.RIGHT_CLICK_BLOCK)
+			e.setUseItemInHand(Event.Result.DENY);
+	}
+
+	@Override
+	public void onTryUseEntity(PlayerInteractEntityEvent e, ItemStack stack) {
+		e.setCancelled(true);
+	}
+
+	@Override
+	public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
+		if(findProperty(ItemPlaceable.class) == null) {
+			e.setCancelled(true);
+		}
+	}
 }

@@ -3,7 +3,8 @@ package kaktusz.kaktuszlogistics.commands;
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.TieredItem;
+import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
+import kaktusz.kaktuszlogistics.items.properties.ItemQuality;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -23,7 +24,7 @@ public abstract class Subcommand {
         BOOL (Boolean.class),
         PLAYER (Player.class),
         CUSTOM_ITEM (CustomItem.class),
-        TIERED_ITEM (TieredItem.class);
+        TIERED_ITEM (ItemQuality.class);
 
         public final Class<?> type;
         ArgumentType(Class<?> type) {
@@ -48,7 +49,7 @@ public abstract class Subcommand {
                     break;
                 case TIERED_ITEM:
                     for(String key : CustomItemManager.CUSTOM_ITEMS.keySet()) {
-                        if(CustomItemManager.CUSTOM_ITEMS.get(key) instanceof TieredItem) {
+                        if(CustomItemManager.CUSTOM_ITEMS.get(key).findProperty(type.asSubclass(ItemProperty.class)) != null) {
                             result.add(key);
                         }
                     }
@@ -126,7 +127,15 @@ public abstract class Subcommand {
 
         for(int i = 0; i < inputArgs.length-1; i++) {
             ArgumentType t = arguments[i].argType;
-            if(parsedObjects[i] == null || !t.type.isInstance(parsedObjects[i])) {
+            if(parsedObjects[i] == null || !t.type.isInstance(parsedObjects[i])) { //object is null or wrong type
+                //edge case: if the specified type is ItemProperty, we want to check if the passed arg is a CustomItem with the appropriate property
+                if(parsedObjects[i] != null && (ItemProperty.class.isAssignableFrom(t.type)) && parsedObjects[i] instanceof CustomItem &&
+                        ((CustomItem)parsedObjects[i]).findProperty(t.type.asSubclass(ItemProperty.class)) != null) {
+                    //we are looking for an ItemProperty, the object is a CustomItem and the CustomItem contains the specified property.
+                    //accept this input!
+                    return true;
+                }
+                //otherwise, we messed up
                 sendErrorMessage(errorTarget, "Invalid input for argument " + arguments[i].argName + "! (" + inputArgs[i+1] + " must be " + t.toString() + ")");
                 return false;
             }

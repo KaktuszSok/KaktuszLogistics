@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -9,6 +10,9 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InspectionTool extends CustomItem {
     public InspectionTool(String type, String displayName, Material material) {
@@ -23,7 +27,15 @@ public class InspectionTool extends CustomItem {
             if(cb == null) {
                 e.getPlayer().sendMessage("This is " + b.getType().name());
             } else {
-                e.getPlayer().sendMessage("This is " + cb.type.getFullDisplayName(cb.getDrop()));
+                e.getPlayer().sendMessage("This is " + cb.type.item.getFullDisplayName(cb.getDrop()));
+                if(cb instanceof DurableBlock) {
+                    DurableBlock db = (DurableBlock)cb;
+                    ItemStack dbItem = db.type.item.createStack(1);
+                    dbItem.setItemMeta(db.data);
+                    List<String> lore = new ArrayList<>();
+                    db.type.modifyLore(lore, dbItem);
+                    e.getPlayer().sendMessage(lore.toArray(new String[0]));
+                }
             }
         }
 
@@ -36,12 +48,5 @@ public class InspectionTool extends CustomItem {
         e.getPlayer().sendMessage("This is " + e.getRightClicked().getName());
 
         super.onTryUseEntity(e, stack);
-    }
-
-    @Override
-    public void onHeld(PlayerItemHeldEvent e, ItemStack stack) {
-        e.getPlayer().sendMessage("You are now holding the " + getFullDisplayName(stack));
-
-        super.onHeld(e, stack);
     }
 }

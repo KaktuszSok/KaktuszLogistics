@@ -2,9 +2,8 @@ package kaktusz.kaktuszlogistics;
 
 import kaktusz.kaktuszlogistics.commands.CommandManager;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.ItemEventsListener;
+import kaktusz.kaktuszlogistics.items.events.ItemEventsListener;
 import kaktusz.kaktuszlogistics.world.WorldEventsListener;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
