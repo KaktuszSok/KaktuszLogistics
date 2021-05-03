@@ -1,17 +1,18 @@
 package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("ConstantConditions")
@@ -89,11 +90,44 @@ public class ItemEventsListener implements Listener {
     }
 
     //CRAFTING
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onTryCraft(PrepareItemCraftEvent e) {
         for (ItemStack itemStack : e.getInventory()) {
             if(CustomItem.getFromStack(itemStack) != null) {
                 e.getInventory().setResult(new ItemStack(Material.AIR)); //make uncraftable
+            }
+        }
+    }
+
+    //OTHER USAGES
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent e) {
+        if(e.getClickedInventory() instanceof FurnaceInventory) {
+            if(CustomItem.getFromStack(e.getCursor()) != null) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent e) {
+        if(e.getInventory() instanceof FurnaceInventory) {
+            if(CustomItem.getFromStack(e.getOldCursor()) != null) {
+                for(int s : e.getInventorySlots()) {
+                    if(s == 0) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryMove(InventoryMoveItemEvent e) {
+        if(e.getDestination() instanceof FurnaceInventory) {
+            if(CustomItem.getFromStack(e.getItem()) != null) {
+                e.setCancelled(true);
             }
         }
     }
