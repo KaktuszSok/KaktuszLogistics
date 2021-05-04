@@ -2,13 +2,16 @@ package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -40,6 +43,9 @@ public class ItemEventsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemUsedOnEntity(PlayerInteractEntityEvent e) {
+        if(e.getRightClicked() instanceof ItemFrame) //allow placing into itemframes
+            return;
+
         ItemStack item = e.getPlayer().getInventory().getItem(e.getHand());
         CustomItem customItem = CustomItem.getFromStack(item);
         if(customItem == null)
