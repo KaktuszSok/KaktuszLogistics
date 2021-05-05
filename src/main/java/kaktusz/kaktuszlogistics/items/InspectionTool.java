@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.items;
 
+import kaktusz.kaktuszlogistics.items.properties.ItemQuality;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
@@ -24,17 +25,25 @@ public class InspectionTool extends CustomItem {
         Block b = e.getClickedBlock();
         if(b != null) {
             CustomBlock cb = KLWorld.get(e.getClickedBlock().getWorld()).getBlockAt(b.getX(), b.getY(), b.getZ());
+            e.getPlayer().sendMessage("");
             if(cb == null) {
                 e.getPlayer().sendMessage("This is " + b.getType().name());
             } else {
                 e.getPlayer().sendMessage("This is " + cb.type.item.getFullDisplayName(cb.getDrop()));
+                //extra info:
+                List<String> lore = new ArrayList<>();
+                ItemQuality quality = cb.type.item.findProperty(ItemQuality.class);
+                if(quality != null) {
+                    quality.modifyLore(lore, cb.getDrop());
+                }
                 if(cb instanceof DurableBlock) {
                     DurableBlock db = (DurableBlock)cb;
                     ItemStack dbItem = db.type.item.createStack(1);
                     dbItem.setItemMeta(db.data);
-                    List<String> lore = new ArrayList<>();
                     db.type.modifyLore(lore, dbItem);
-                    e.getPlayer().sendMessage(lore.toArray(new String[0]));
+                }
+                for(String line : lore) {
+                    e.getPlayer().sendMessage(line);
                 }
             }
         }

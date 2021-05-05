@@ -162,4 +162,14 @@ public abstract class ItemQuality extends ItemProperty {
         QualityTier tier = getTier(item);
         lore.add(tier.getName());
     }
+
+    //HELPER
+    public static ItemStack createStack(CustomItem item, int amount, float quality) {
+        ItemStack stack = item.createStack(amount);
+        ItemQuality qprop = item.findProperty(ItemQuality.class);
+        if(qprop != null)
+            qprop.setQuality(stack, quality);
+
+        return stack;
+    }
 }

@@ -61,8 +61,7 @@ public class GiveQSubcommand extends Subcommand {
 
         for(int i = 0; i < amount; i++) {
             float q = MathsUtils.randomRange(min_quality, max_quality);
-            ItemStack stack = item.createStack(1);
-            item.findProperty(ItemQuality.class).setQuality(stack, q);
+            ItemStack stack = ItemQuality.createStack(item, 1, q);
             target.getInventory().addItem(stack);
         }
 
