@@ -2,6 +2,11 @@ package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
+import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
+import kaktusz.kaktuszlogistics.recipe.RecipeManager;
+import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Event;
@@ -17,6 +22,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
@@ -98,6 +105,13 @@ public class ItemEventsListener implements Listener {
     //CRAFTING
     @EventHandler(ignoreCancelled = true)
     public void onTryCraft(PrepareItemCraftEvent e) {
+        List<ItemInput> inputs = ItemInput.fromStackArray(e.getInventory().getMatrix());
+        CraftingRecipe matching = RecipeManager.matchCraftingRecipe(inputs);
+        if(matching != null) {
+            e.getInventory().setResult(matching.getOutputs(inputs).get(0).getStack()); //craft special item
+            return;
+        }
+
         for (ItemStack itemStack : e.getInventory()) {
             if(CustomItem.getFromStack(itemStack) != null) {
                 e.getInventory().setResult(new ItemStack(Material.AIR)); //make uncraftable

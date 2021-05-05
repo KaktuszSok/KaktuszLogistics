@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.properties.*;
+import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -21,21 +22,25 @@ public class CustomItemManager {
         BlockDurability.DURA_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Durability");
 
         //register items
-        registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT))
-                .getOrAddProperty(TieredMetallic.class);
+        CustomItem ingotSteel = registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT))
+                .getOrAddProperty(TieredMetallic.class).item;
         registerItem(new CustomItem("dustSteel", "Steel Dust", Material.GUNPOWDER))
                 .getOrAddProperty(TieredMetallic.class);
-        registerItem(new CustomItem("blockSteel", "Steel Block", Material.NETHERITE_BLOCK))
+        CustomItem blockSteel = registerItem(new CustomItem("blockSteel", "Steel Block", Material.NETHERITE_BLOCK))
                 .getOrAddProperty(TieredMetallic.class).item
-                .getOrAddProperty(BlockDurability.class).setMaxDurability(6);
+                .getOrAddProperty(BlockDurability.class).setMaxDurability(6).item;
+        RecipeManager.addBlockRecipe(ingotSteel, blockSteel);
 
-        registerItem(new CustomItem("ingotSilver", "Silver Ingot", Material.IRON_INGOT))
+
+        CustomItem ingotSilver = registerItem(new CustomItem("ingotSilver", "Silver Ingot", Material.IRON_INGOT))
                 .getOrAddProperty(TieredMetallic.class).item
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
-        registerItem(new CustomItem("blockSilver", "Block of Silver", Material.IRON_BLOCK))
+        CustomItem blockSilver = registerItem(new CustomItem("blockSilver", "Block of Silver", Material.IRON_BLOCK))
                 .getOrAddProperty(TieredMetallic.class).item
                 .getOrAddProperty(ItemPlaceable.class).item
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 3);
+        RecipeManager.addBlockRecipe(ingotSilver, blockSilver);
+
 
         registerItem(new InspectionTool("inspectionTool", "Inspection Tool", Material.OAK_SIGN))
                 .addEnchantment(Enchantment.LOYALTY, 1)
