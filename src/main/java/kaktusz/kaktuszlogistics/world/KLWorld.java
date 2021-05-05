@@ -1,7 +1,5 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.KaktuszLogistics;
-import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.io.File;
@@ -118,10 +116,8 @@ public class KLWorld {
 
     public void loadChunk(KLChunk chunk) {
         loadedChunks.put(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk);
-        KaktuszLogistics.LOGGER.info("Loaded KL Chunk at " + chunk.chunkPosX + "," + chunk.chunkPosZ);
     }
     public boolean unloadChunk(KLChunk chunk) {
-        KaktuszLogistics.LOGGER.info("Unloaded KL Chunk at " + chunk.chunkPosX + "," + chunk.chunkPosZ);
         return loadedChunks.remove(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk);
     }
 

@@ -15,8 +15,8 @@ import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,15 @@ public class WorldEventsListener implements Listener {
             return;
 
         world.save();
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onWorldUnload(WorldUnloadEvent e) {
+        KLWorld world = KLWorld.loadedWorlds.get(e.getWorld());
+        if(world == null)
+            return;
+
+        world.unload();
     }
 
     //CHUNK
