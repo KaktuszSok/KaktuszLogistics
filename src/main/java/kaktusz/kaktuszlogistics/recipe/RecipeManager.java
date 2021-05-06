@@ -1,11 +1,18 @@
 package kaktusz.kaktuszlogistics.recipe;
 
+import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemQuality;
 import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
+import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,13 +21,41 @@ import java.util.Map;
 
 public class RecipeManager {
 	private static final List<CraftingRecipe> craftingTableRecipes = new ArrayList<>();
-	private static final Map<List<? extends CustomRecipe>, CustomRecipe> recipesCache = new HashMap<>(); //cache last used recipe from each list
+	private static final List<SmeltingRecipe> furnaceRecipes = new ArrayList<>();
+	private static final Map<List<? extends CustomRecipe<?>>, CustomRecipe<?>> recipesCache = new HashMap<>(); //cache last used recipe from each list
 
+	//CRAFTING
 	public static void addCraftingRecipe(CraftingRecipe r) {
 		craftingTableRecipes.add(r);
 	}
-	public static CraftingRecipe matchCraftingRecipe(List<ItemInput> inputs) {
-		return matchInputsToRecipeList(inputs, craftingTableRecipes);
+	public static CraftingRecipe matchCraftingRecipe(ItemInput... inputs) {
+		return matchInputsToRecipeList(craftingTableRecipes, inputs);
+	}
+
+	//SMELTING
+	/**
+	 * @param keySuffix required to ensure no duplication for furnace recipe keys. e.g. "steelDust_1xsteel" for a recipe that smelts steel dust into 1 steel ingot.
+	 */
+	public static void addSmeltingRecipe(ItemIngredient in, ItemOutput out, String keySuffix, float xp, int cookingTime) {
+		addSmeltingRecipe(new SmeltingRecipe(in, out), keySuffix, xp, cookingTime);
+	}
+	/**
+	 * @param keySuffix required to ensure no duplication for furnace recipe keys
+	 */
+	public static void addSmeltingRecipe(SmeltingRecipe r, String keySuffix, float xp, int cookingTime) {
+		furnaceRecipes.add(r);
+		//add furnace recipe so stuff starts burning. We will intercept the output.
+		ItemStack output = r.getQuickOutput().getStack();
+		RecipeChoice.MaterialChoice choice = new RecipeChoice.MaterialChoice(r.recipe.getValidInputMaterials());
+		NamespacedKey key = new NamespacedKey(KaktuszLogistics.INSTANCE, "smelt_" + keySuffix);
+		FurnaceRecipe furnaceRecipe = new FurnaceRecipe(key, output, choice, xp, cookingTime);
+		Bukkit.addRecipe(furnaceRecipe);
+	}
+	public static void addQualitySmeltingRecipe(CustomItemIngredient in, ItemOutput out, String keySuffix, float xp, int cookingTime) {
+		addSmeltingRecipe(new QualitySmeltingRecipe(in, out), keySuffix, xp, cookingTime);
+	}
+	public static SmeltingRecipe matchSmeltingRecipe(ItemInput... inputs) {
+		return matchInputsToRecipeList(furnaceRecipes, inputs);
 	}
 
 	//HELPER
@@ -52,14 +87,14 @@ public class RecipeManager {
 	}
 
 	@SuppressWarnings("unchecked") //as long as we only fill the cache with the proper typed variables, there should be no problems
-	private static <R extends CustomRecipe> R matchInputsToRecipeList(List<? extends IRecipeInput> inputs, List<R> recipeList) {
+	private static <R extends CustomRecipe<?>> R matchInputsToRecipeList(List<R> recipeList, IRecipeInput... inputs) {
 		//first, check if the cached result is what we're looking for
-		CustomRecipe cache = recipesCache.get(recipeList);
-		if(cache != null && cache.getOutputs(inputs) != null)
+		CustomRecipe<?> cache = recipesCache.get(recipeList);
+		if(cache != null && cache.getOutputsMatching(inputs) != null)
 			return (R)cache;
 		//if not, iterate through recipe list to try and find a matching one
 		for(R r : recipeList) {
-			if(r.getOutputs(inputs) != null) { //match!
+			if(r.getOutputsMatching(inputs) != null) { //match!
 				recipesCache.put(recipeList, r); //cache result
 				return r;
 			}

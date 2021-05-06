@@ -7,6 +7,7 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import kaktusz.kaktuszlogistics.util.ListUtils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -20,12 +21,12 @@ public class QualityPersistingRecipe extends CraftingRecipe {
 	}
 
 	@Override
-	protected List<ItemOutput> getOutputs(List<? extends IRecipeInput> inputs, int squareSize, int Xoffset, int Yoffset) {
+	protected List<ItemOutput> getOutputs(int squareSize, int Xoffset, int Yoffset, IRecipeInput... inputs) {
 		Map<CustomItem, Float> qualities = new HashMap<>();
 
 		for(int y = 0; y < squareSize; y++) {
 			for(int x = 0; x < squareSize; x++) {
-				IRecipeInput input = inputs.get(squareSize*y + x);
+				IRecipeInput input = inputs[squareSize*y + x];
 
 				//check if quality is consistent among same items
 				if(!isInputQualityConsistent(input, qualities))
@@ -38,7 +39,7 @@ public class QualityPersistingRecipe extends CraftingRecipe {
 		}
 
 		//passed check
-		List<ItemOutput> result = new ArrayList<>();
+		ItemOutput result = output;
 		//if output has quality, make it average of all the input qualities
 		CustomItem outputCustom = CustomItem.getFromStack(output.getStack());
 		if(outputCustom != null) {
@@ -51,14 +52,10 @@ public class QualityPersistingRecipe extends CraftingRecipe {
 				float avgQ = totalQ / qualities.values().size();
 				ItemStack outputStack = output.getStack();
 				outputQ.setQuality(outputStack, avgQ);
-				ItemOutput adjustedOutput = new ItemOutput(outputStack);
-				result.add(adjustedOutput);
+				result = new ItemOutput(outputStack);
 			}
 		}
-		else {
-			result.add(output);
-		}
-		return result;
+		return ListUtils.listFromSingle(result);
 	}
 
 	private boolean isInputQualityConsistent(IRecipeInput input, Map<CustomItem, Float> qualities) {

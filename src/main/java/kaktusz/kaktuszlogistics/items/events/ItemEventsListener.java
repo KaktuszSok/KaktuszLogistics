@@ -4,26 +4,21 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
+import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
-import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
@@ -102,13 +97,40 @@ public class ItemEventsListener implements Listener {
         }
     }
 
+    //SPECIAL INVENTORIES
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent e) {
+        if(e.getClickedInventory() instanceof FurnaceInventory) {
+            onTryInsertFurnace(e.getCursor(), e);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent e) {
+        if(e.getInventory() instanceof FurnaceInventory) {
+            for(int s : e.getInventorySlots()) {
+                if(s == 0) {
+                    onTryInsertFurnace(e.getOldCursor(), e);
+                    return;
+                }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryMove(InventoryMoveItemEvent e) {
+        if(e.getDestination() instanceof FurnaceInventory) {
+            onTryInsertFurnace(e.getItem(), e);
+        }
+    }
+
     //CRAFTING
     @EventHandler(ignoreCancelled = true)
     public void onTryCraft(PrepareItemCraftEvent e) {
-        List<ItemInput> inputs = ItemInput.fromStackArray(e.getInventory().getMatrix());
+        ItemInput[] inputs = ItemInput.fromStackArray(e.getInventory().getMatrix());
         CraftingRecipe matching = RecipeManager.matchCraftingRecipe(inputs);
         if(matching != null) {
-            e.getInventory().setResult(matching.getOutputs(inputs).get(0).getStack()); //craft special item
+            e.getInventory().setResult(matching.getCachedOutputs().get(0).getStack()); //craft special item
             return;
         }
 
@@ -119,36 +141,26 @@ public class ItemEventsListener implements Listener {
         }
     }
 
-    //OTHER USAGES
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent e) {
-        if(e.getClickedInventory() instanceof FurnaceInventory) {
-            if(CustomItem.getFromStack(e.getCursor()) != null) {
+    //SMELTING
+    public void onTryInsertFurnace(ItemStack stack, Cancellable e) {
+        if(CustomItem.getFromStack(stack) != null) {
+            if(RecipeManager.matchSmeltingRecipe(new ItemInput(stack)) == null) {
                 e.setCancelled(true);
             }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onInventoryDrag(InventoryDragEvent e) {
-        if(e.getInventory() instanceof FurnaceInventory) {
-            if(CustomItem.getFromStack(e.getOldCursor()) != null) {
-                for(int s : e.getInventorySlots()) {
-                    if(s == 0) {
-                        e.setCancelled(true);
-                        return;
-                    }
-                }
-            }
+    public void onSmelt(FurnaceSmeltEvent e) {
+        ItemInput input = new ItemInput(e.getSource());
+        SmeltingRecipe matching = RecipeManager.matchSmeltingRecipe(input);
+        if (matching != null) {
+            e.setResult(matching.getCachedOutputs().get(0).getStack()); //intercept recipe and apply correct output
+            return;
         }
-    }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryMove(InventoryMoveItemEvent e) {
-        if(e.getDestination() instanceof FurnaceInventory) {
-            if(CustomItem.getFromStack(e.getItem()) != null) {
-                e.setCancelled(true);
-            }
+        if(CustomItem.getFromStack(e.getSource()) != null) {
+            e.setCancelled(true);
         }
     }
 }

@@ -10,4 +10,13 @@ public interface IRecipeInput {
 
 	boolean isNull();
 
+	public static IRecipeInput getFirstNonNull(IRecipeInput... inputs) {
+		for(IRecipeInput in : inputs) { //get first non-null input
+			if(!isNull(in)) {
+				return in;
+			}
+		}
+		return null;
+	}
+
 }

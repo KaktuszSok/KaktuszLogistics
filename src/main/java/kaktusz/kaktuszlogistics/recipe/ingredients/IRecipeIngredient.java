@@ -16,5 +16,4 @@ public interface IRecipeIngredient {
 	}
 
 	boolean match(IRecipeInput input);
-
 }

@@ -3,9 +3,6 @@ package kaktusz.kaktuszlogistics.recipe.inputs;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ItemInput implements IRecipeInput {
 
 	public final ItemStack stack;
@@ -19,10 +16,10 @@ public class ItemInput implements IRecipeInput {
 		return stack == null || stack.getAmount() == 0 || stack.getType() == Material.AIR;
 	}
 
-	public static List<ItemInput> fromStackArray(ItemStack[] items) {
-		List<ItemInput> result = new ArrayList<>();
-		for(ItemStack i : items) {
-			result.add(new ItemInput(i));
+	public static ItemInput[] fromStackArray(ItemStack[] items) {
+		ItemInput[] result = new ItemInput[items.length];
+		for(int i = 0; i < items.length; i++) {
+			result[i] = new ItemInput(items[i]);
 		}
 		return result;
 	}

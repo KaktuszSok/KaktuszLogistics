@@ -9,6 +9,7 @@ kaktusz\kaktuszlogistics\commands\KLCommand.class
 kaktusz\kaktuszlogistics\items\properties\ItemPlaceable.class
 kaktusz\kaktuszlogistics\KaktuszLogistics.class
 kaktusz\kaktuszlogistics\recipe\RecipeManager.class
+kaktusz\kaktuszlogistics\recipe\SmeltingRecipe.class
 kaktusz\kaktuszlogistics\recipe\ingredients\ItemIngredient.class
 kaktusz\kaktuszlogistics\recipe\ingredients\CustomItemIngredient.class
 kaktusz\kaktuszlogistics\commands\GiveSubcommand.class
@@ -24,6 +25,7 @@ kaktusz\kaktuszlogistics\items\properties\ItemEnchants.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality$QualityTier.class
 kaktusz\kaktuszlogistics\items\events\IHeldListener.class
 kaktusz\kaktuszlogistics\commands\GiveQSubcommand.class
+kaktusz\kaktuszlogistics\recipe\QualitySmeltingRecipe.class
 kaktusz\kaktuszlogistics\commands\HelloCommand.class
 kaktusz\kaktuszlogistics\items\CustomItem.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
@@ -37,6 +39,7 @@ kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class
 kaktusz\kaktuszlogistics\commands\Subcommand$1.class
 kaktusz\kaktuszlogistics\world\WorldEventsListener.class
 kaktusz\kaktuszlogistics\world\KLChunk.class
+kaktusz\kaktuszlogistics\util\ListUtils.class
 kaktusz\kaktuszlogistics\recipe\inputs\IRecipeInput.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class

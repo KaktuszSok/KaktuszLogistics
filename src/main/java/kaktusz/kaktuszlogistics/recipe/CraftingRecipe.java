@@ -4,11 +4,11 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.IRecipeIngredient;
 import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import kaktusz.kaktuszlogistics.util.ListUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class CraftingRecipe extends CustomRecipe {
+public class CraftingRecipe extends CustomRecipe<ItemOutput> {
 
 	protected final ItemIngredient[][] recipeMatrix;
 	protected final ItemOutput output;
@@ -27,20 +27,20 @@ public class CraftingRecipe extends CustomRecipe {
 	}
 
 	@Override
-	protected boolean quickMatch(List<IRecipeInput> inputs) {
+	protected boolean quickMatch(IRecipeInput... inputs) {
 		//only allow square recipes
-		return isSquareNum(inputs.size());
+		return isSquareNum(inputs.length);
 	}
 
 	@Override
-	public List<ItemOutput> getOutputs(List<? extends IRecipeInput> inputs) {
+	public List<? extends ItemOutput> getOutputs(IRecipeInput... inputs) {
 		//we have to support the input grid being larger than the recipe matrix.
-		int inputsSideLength = (int)Math.sqrt(inputs.size()); //side length of the square produced by arranging the inputs in a square shape
+		int inputsSideLength = (int)Math.sqrt(inputs.length); //side length of the square produced by arranging the inputs in a square shape
 		int wiggleroomX = inputsSideLength - getSizeX();
 		int wiggleroomY = inputsSideLength - getSizeY();
 		for(int y = 0; y <= wiggleroomX; y++) {
 			for(int x = 0; x <= wiggleroomY; x++) {
-				List<ItemOutput> outputs = getOutputs(inputs, inputsSideLength, x, y);
+				List<? extends ItemOutput> outputs = getOutputs(inputsSideLength, x, y, inputs);
 				if(outputs != null)
 					return outputs;
 			}
@@ -61,10 +61,10 @@ public class CraftingRecipe extends CustomRecipe {
 	/**
 	 * Compares the inputs to the recipe matrix with some offset towards the bottom-right and returns the outputs (or null if none)
 	 */
-	protected List<ItemOutput> getOutputs(List<? extends IRecipeInput> inputs, int squareSize, int Xoffset, int Yoffset) {
+	protected List<? extends ItemOutput> getOutputs(int squareSize, int Xoffset, int Yoffset, IRecipeInput... inputs) {
 		for(int y = 0; y < squareSize; y++) {
 			for(int x = 0; x < squareSize; x++) {
-				IRecipeInput input = inputs.get(squareSize*y + x);
+				IRecipeInput input = inputs[squareSize*y + x];
 				ItemIngredient target = getIngredientAt(x, y, Xoffset, Yoffset);
 				if(!IRecipeIngredient.match(input, target))
 					return null;
@@ -72,9 +72,7 @@ public class CraftingRecipe extends CustomRecipe {
 		}
 
 		//passed check
-		List<ItemOutput> result = new ArrayList<>();
-		result.add(output);
-		return result;
+		return ListUtils.listFromSingle(output);
 	}
 
 	protected ItemIngredient getIngredientAt(int x, int y, int Xoffset, int Yoffset) {
