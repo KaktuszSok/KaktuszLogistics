@@ -23,6 +23,7 @@ kaktusz\kaktuszlogistics\recipe\QualityPersistingRecipe.class
 kaktusz\kaktuszlogistics\items\properties\BlockDurability.class
 kaktusz\kaktuszlogistics\items\properties\ItemEnchants.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality$QualityTier.class
+kaktusz\kaktuszlogistics\items\FluidInputBarrel.class
 kaktusz\kaktuszlogistics\items\events\IHeldListener.class
 kaktusz\kaktuszlogistics\commands\GiveQSubcommand.class
 kaktusz\kaktuszlogistics\recipe\QualitySmeltingRecipe.class
@@ -42,6 +43,7 @@ kaktusz\kaktuszlogistics\world\KLChunk.class
 kaktusz\kaktuszlogistics\util\ListUtils.class
 kaktusz\kaktuszlogistics\recipe\inputs\IRecipeInput.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
+kaktusz\kaktuszlogistics\items\properties\PlaceableOpenBarrel.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\util\VanillaUtils.class
 kaktusz\kaktuszlogistics\world\DurableBlock.class

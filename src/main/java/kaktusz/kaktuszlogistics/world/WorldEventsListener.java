@@ -7,11 +7,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -116,6 +119,22 @@ public class WorldEventsListener implements Listener {
         VanillaUtils.damageTool(held, e.getPlayer());
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockInteracted(PlayerInteractEvent e) {
+        //noinspection ConstantConditions
+        if(e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.getClickedBlock().getType().isInteractable() || e.getPlayer().isSneaking()) //ignore event if we're not interacting with the block
+            return;
+
+        Block b = e.getClickedBlock();
+        if(b == null)
+            return;
+        CustomBlock cb = getCustomBlockFromLocation(b.getLocation());
+        if(cb == null)
+            return;
+
+        e.setUseInteractedBlock(Event.Result.DENY);
+    }
+
     //General events that destroy (or otherwise mess up) our block
     @EventHandler(ignoreCancelled = true)
     public void onBlockBurned(BlockBurnEvent e) {
@@ -162,9 +181,13 @@ public class WorldEventsListener implements Listener {
     public void onBlockPistonRetract(BlockPistonRetractEvent e) {
         cancelEventIfCBlockInList(e.getBlocks(), e);
     }
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFurnaceBurn(FurnaceBurnEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
+    }
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        cancelCustomBlockEvent(getCustomBlockFromLocation(e.getBlock().getLocation()), e);
     }
 
 }

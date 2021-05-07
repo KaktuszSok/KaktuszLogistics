@@ -142,7 +142,7 @@ public class ItemEventsListener implements Listener {
     }
 
     //SMELTING
-    public void onTryInsertFurnace(ItemStack stack, Cancellable e) {
+    public void onTryInsertFurnace(ItemStack stack, Cancellable e) { //TODO: disallow if output is not stackable
         if(CustomItem.getFromStack(stack) != null) {
             if(RecipeManager.matchSmeltingRecipe(new ItemInput(stack)) == null) {
                 e.setCancelled(true);

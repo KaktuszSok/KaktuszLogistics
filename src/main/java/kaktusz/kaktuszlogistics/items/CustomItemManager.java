@@ -44,6 +44,7 @@ public class CustomItemManager {
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 3);
         RecipeManager.addBlockRecipe(ingotSilver, blockSilver);
 
+        registerItem(new FluidInputBarrel("fluidInput", "Fluid Input"));
 
         registerItem(new InspectionTool("inspectionTool", "Inspection Tool", Material.OAK_SIGN))
                 .addEnchantment(Enchantment.LOYALTY, 1)
