@@ -31,8 +31,8 @@ public class TieredMetallic extends ItemQuality {
     @Override
     public TieredMetallic loadDefaultTiers() {
         addTier(0.0F, MetalTiers.POOR);
-        addTier(0.25F, MetalTiers.COMMON);
-        addTier(0.85F, MetalTiers.GOOD);
+        addTier(0.35F, MetalTiers.COMMON);
+        addTier(0.8F, MetalTiers.GOOD);
         addTier(0.95F, MetalTiers.RARE);
         addTier(0.99F, MetalTiers.FLAWLESS);
 
