@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -50,7 +51,7 @@ public class KLChunk {
         }
     }
 
-    public static transient final short CHUNK_SIZE = 16;
+    public static transient final short CHUNK_SIZE = VanillaUtils.CHUNK_SIZE;
 
     public transient final KLWorld world;
     public transient final int chunkPosX;

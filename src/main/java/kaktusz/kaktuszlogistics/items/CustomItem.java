@@ -20,10 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class CustomItem implements IHeldListener, IUseListener, IPlacedListener {
@@ -161,6 +158,9 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 		}
 
 		//display
+		if(stack.getType() != material) {
+			stack.setType(material);
+		}
 		setDisplayName(stack);
 		setItemLore(stack);
 	}

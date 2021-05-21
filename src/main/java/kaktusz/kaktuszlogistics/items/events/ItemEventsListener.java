@@ -1,11 +1,13 @@
 package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.items.events.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Cancellable;
@@ -23,7 +25,7 @@ import org.bukkit.inventory.ItemStack;
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = false)
     public void onItemUsed(PlayerInteractEvent e) {
         if(e.useItemInHand() == Event.Result.DENY)
             return;
@@ -93,6 +95,28 @@ public class ItemEventsListener implements Listener {
         for(ItemProperty p : customItem.getAllProperties()) {
             if(p instanceof IHeldListener) {
                 ((IHeldListener)p).onHeld(e, item);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onTriggerHeld(PlayerTriggerHeldEvent e) {
+        ItemStack main = e.getPlayer().getInventory().getItemInMainHand();
+        ItemStack secondary = e.getPlayer().getInventory().getItemInOffHand();
+        onTriggerHeldForItem(e, main);
+        onTriggerHeldForItem(e, secondary);
+    }
+    private void onTriggerHeldForItem(PlayerTriggerHeldEvent e, ItemStack stack) {
+        CustomItem customItem = CustomItem.getFromStack(stack);
+        if(customItem == null)
+            return;
+        //item
+        if(customItem instanceof ITriggerHeldListener)
+            ((ITriggerHeldListener)customItem).onTriggerHeld(e, stack);
+        //properties
+        for(ItemProperty p : customItem.getAllProperties()) {
+            if(p instanceof ITriggerHeldListener) {
+                ((ITriggerHeldListener)p).onTriggerHeld(e, stack);
             }
         }
     }

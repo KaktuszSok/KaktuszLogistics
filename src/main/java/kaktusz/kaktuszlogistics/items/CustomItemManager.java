@@ -2,8 +2,11 @@ package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.properties.*;
+import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
+import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
+import kaktusz.kaktuszlogistics.recipe.ingredients.VanillaIngredient;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,8 +25,11 @@ public class CustomItemManager {
         ItemEnchants.ENCHANTS_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "DefaultEnchants");
         ItemQuality.QUALITY_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Quality");
         BlockDurability.DURA_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Durability");
+        GunItem.LAST_SHOOT_TIME_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "LastShootTime");
 
         //register items
+        registerItem(new GunItem("toolTestGun", "Gun", Material.PRISMARINE_SHARD));
+
         CustomItem ingotSteel = registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT))
                 .getOrAddProperty(TieredMetallic.class).item;
         CustomItem dustSteel = registerItem(new CustomItem("dustSteel", "Steel Dust", Material.GUNPOWDER))
@@ -34,7 +40,6 @@ public class CustomItemManager {
         RecipeManager.addBlockRecipe(ingotSteel, blockSteel);
         RecipeManager.addQualitySmeltingRecipe(new CustomItemIngredient(dustSteel), new ItemOutput(ingotSteel.createStack(1)), "dustSteel_1xingotSteel", 1f, 200);
 
-
         CustomItem ingotSilver = registerItem(new CustomItem("ingotSilver", "Silver Ingot", Material.IRON_INGOT))
                 .getOrAddProperty(TieredMetallic.class).item
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
@@ -44,7 +49,10 @@ public class CustomItemManager {
                 .addEnchantment(Enchantment.DAMAGE_UNDEAD, 3);
         RecipeManager.addBlockRecipe(ingotSilver, blockSilver);
 
-        registerItem(new FluidInputBarrel("fluidInput", "Fluid Input"));
+        CustomItem fluidInput = registerItem(new FluidInputBarrel("fluidInput", "Fluid Input"));
+        ItemIngredient bucket = new VanillaIngredient(Material.BUCKET);
+        ItemIngredient barrel = new VanillaIngredient(Material.BARREL);
+        RecipeManager.addCraftingRecipe(new CraftingRecipe(new ItemIngredient[][] {{bucket},{barrel}}, new ItemOutput(fluidInput.createStack(1))));
 
         registerItem(new InspectionTool("inspectionTool", "Inspection Tool", Material.OAK_SIGN))
                 .addEnchantment(Enchantment.LOYALTY, 1)
