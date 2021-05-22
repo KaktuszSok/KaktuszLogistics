@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -22,7 +23,7 @@ public abstract class ProjectileRenderer<P extends CustomProjectile> {
 	public abstract void onTick(Vector prevPosition);
 
 	/**
-	 * Rendering for any impact, whether it destroys the projectile or not.
+	 * Rendering (& sound) for any impact, whether it destroys the projectile or not.
 	 */
 	public void onImpact(RayTraceResult hit) {
 		Sound s = null;
@@ -30,18 +31,18 @@ public abstract class ProjectileRenderer<P extends CustomProjectile> {
 		float pitch = 1f;
 		if(hit.getHitBlock() != null) {
 			s = VanillaUtils.getBlockSound(hit.getHitBlock(), VanillaUtils.BlockSounds.BREAK);
-			vol = VanillaUtils.getBlockSFXVolume(hit.getHitBlock());
+			vol = VanillaUtils.getBlockSFXVolume(hit.getHitBlock())*1.35f;
 			pitch = VanillaUtils.getBlockSFXPitch(hit.getHitBlock())*1.7f;
 		}
 		else if(hit.getHitEntity() != null) {
 			s = Sound.ENTITY_BEE_STING;
-			vol = 0.85f;
+			vol = 0.95f;
 			pitch = 1.35f;
 		}
 
 		if(s == null)
 			return;
-		projectile.getWorld().playSound(hit.getHitPosition().toLocation(projectile.getWorld()), s, vol, pitch);
+		projectile.getWorld().playSound(hit.getHitPosition().toLocation(projectile.getWorld()), s, SoundCategory.BLOCKS, vol, pitch);
 	}
 
 	/**

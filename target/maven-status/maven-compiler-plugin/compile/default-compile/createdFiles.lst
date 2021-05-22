@@ -44,6 +44,7 @@ kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
 kaktusz\kaktuszlogistics\world\KLWorld$ChunkCoordinate.class
 kaktusz\kaktuszlogistics\recipe\ingredients\VanillaIngredient.class
 kaktusz\kaktuszlogistics\KaktuszLogistics$1.class
+kaktusz\kaktuszlogistics\util\SoundEffect.class
 kaktusz\kaktuszlogistics\commands\Subcommand.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality.class
 kaktusz\kaktuszlogistics\commands\Subcommand$ArgumentType.class
@@ -65,6 +66,7 @@ kaktusz\kaktuszlogistics\world\DurableBlock.class
 kaktusz\kaktuszlogistics\items\InspectionTool.class
 kaktusz\kaktuszlogistics\recipe\ingredients\IRecipeIngredient.class
 kaktusz\kaktuszlogistics\util\DDARaycast.class
+kaktusz\kaktuszlogistics\util\SFXCollection.class
 kaktusz\kaktuszlogistics\world\KLWorld.class
 kaktusz\kaktuszlogistics\recipe\CustomRecipe.class
 kaktusz\kaktuszlogistics\util\DDABlockIterator.class

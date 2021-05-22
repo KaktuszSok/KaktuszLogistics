@@ -6,11 +6,14 @@ import kaktusz.kaktuszlogistics.items.events.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.projectiles.BulletProjectile;
 import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectiles.ProjectileManager;
-import kaktusz.kaktuszlogistics.util.DDABlockIterator;
-import kaktusz.kaktuszlogistics.util.DDARaycast;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
+import kaktusz.kaktuszlogistics.util.SFXCollection;
+import kaktusz.kaktuszlogistics.util.SoundEffect;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
-import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -18,20 +21,25 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 @SuppressWarnings("unused")
 public class GunItem extends CustomItem implements ITriggerHeldListener {
 	public static NamespacedKey LAST_SHOOT_TIME_KEY;
 
-	private int shootDelay = 2;
+	private int shootDelay = 2; //ticks between each shot
 	private float muzzleVelocity = 5; //base muzzle velocity
 	private float dispersion = 2f; //base dispersion after 50 blocks
+
+	private SFXCollection shootSounds = new SFXCollection(
+			new SoundEffect(Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 4, 4, 0.875f, 0.925f),
+			new SoundEffect(Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.6f, 0.6f, 1.75f, 1.85f),
+			new SoundEffect(Sound.BLOCK_PISTON_CONTRACT, 0.6f, 1.5f));
 
 	//SETUP
 	public GunItem(String type, String displayName, Material material) {
 		super(type, displayName, material);
+		shootSounds.setCategory(SoundCategory.PLAYERS);
 	}
 
 	public GunItem setShootDelay(int shootDelay) {
@@ -49,6 +57,11 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		return this;
 	}
 
+	public void setShootSounds(SFXCollection shootSounds) {
+		this.shootSounds = shootSounds;
+	}
+
+	//GETTERS
 	/**
 	 * @return Muzzle velocity in blocks per tick, calculated for the provided itemStack
 	 */
@@ -122,11 +135,16 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		vel.rotateAroundX(MathsUtils.randomRange(-disp, disp));
 		vel.rotateAroundY(MathsUtils.randomRange(-disp, disp));
 		vel.rotateAroundZ(MathsUtils.randomRange(-disp, disp));
+		vel.add(player.getVelocity());
 
+		//spawn projectile
 		CustomProjectile proj = new BulletProjectile(player.getWorld(), pos, vel.multiply(getMuzzleVelocity(stack)));
 		proj.setIgnoreEntity(player, 2);
 		proj.setOwner(player);
 		ProjectileManager.spawnProjectile(proj);
+
+		//play sound 1m in front of player
+		shootSounds.playAll(player.getEyeLocation().add(forward));
 
 		setLastShootTime(stack, VanillaUtils.getTickTime());
 	}
