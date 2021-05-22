@@ -1,10 +1,14 @@
 package kaktusz.kaktuszlogistics.util;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.bukkit.util.Vector;
+
+import java.text.DecimalFormat;
 
 @SuppressWarnings("unused")
 public class MathsUtils {
 
+    @SuppressWarnings("ManualMinMaxCalculation") //readability nicer, less function calls
     public static float clamp(float t, float min, float max) {
         if(t < min)
             return min;
@@ -40,4 +44,8 @@ public class MathsUtils {
         return min + RandomUtils.nextFloat()*(max-min);
     }
 
+    private static final DecimalFormat df = new DecimalFormat("##.##");
+    public static String vectorReadableString(Vector v) {
+        return "(" + df.format(v.getX()) + ", " + df.format(v.getY()) + ", " + df.format(v.getZ()) + ")";
+    }
 }

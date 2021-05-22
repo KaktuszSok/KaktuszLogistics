@@ -7,9 +7,7 @@ import kaktusz.kaktuszlogistics.projectiles.BulletProjectile;
 import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectiles.ProjectileManager;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
-import kaktusz.kaktuszlogistics.util.Quaternion;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -113,8 +111,8 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		Vector pos = player.getEyeLocation().toVector();
 		Vector forward = player.getEyeLocation().getDirection();
 
-		//calculate inaccuracy
-		float disp = getDispersion(stack) / 50f;
+		//calculate inaccuracy angle
+		float disp = (float)Math.atan2(getDispersion(stack), 50);
 
 		//calculate final velocity
 		Vector vel = forward.clone().multiply(getMuzzleVelocity(stack));

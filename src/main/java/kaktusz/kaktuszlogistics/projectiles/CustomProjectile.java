@@ -1,21 +1,16 @@
 package kaktusz.kaktuszlogistics.projectiles;
 
 import kaktusz.kaktuszlogistics.projectiles.rendering.ProjectileRenderer;
+import kaktusz.kaktuszlogistics.util.DDABlockIterator;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
-import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public abstract class CustomProjectile {
 
@@ -48,7 +43,7 @@ public abstract class CustomProjectile {
 	private Vector vel;
 
 	//STATE
-	private int lifetime = 10000*20; //lifetime in ticks
+	private int lifetime = 5*20; //lifetime in ticks
 	private Entity ignoredEntity;
 	private int ignoreEntityTicks = 0;
 	private final Set<Entity> hitEntities = new HashSet<>();
@@ -135,7 +130,7 @@ public abstract class CustomProjectile {
 			double velMagnitude = vel.length();
 
 			//1. get all blocks we hit
-			BlockIterator blockIterator = new BlockIterator(world, pos, vel, 0, (int) Math.ceil(velMagnitude));
+			Iterator<Block> blockIterator = new DDABlockIterator(world, pos, nextPos, true, true);
 			while (blockIterator.hasNext()) {
 				Block b = blockIterator.next();
 				if (b.isPassable() || b.isLiquid()) { //ignore non-solid blocks

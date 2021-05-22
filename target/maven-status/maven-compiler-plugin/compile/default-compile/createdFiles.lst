@@ -6,6 +6,7 @@ kaktusz\kaktuszlogistics\world\CustomBlock.class
 kaktusz\kaktuszlogistics\items\GunItem.class
 kaktusz\kaktuszlogistics\world\KLChunk$LocCoordinate.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener.class
+kaktusz\kaktuszlogistics\items\properties\AmmoContainer.class
 kaktusz\kaktuszlogistics\commands\KLCommand.class
 kaktusz\kaktuszlogistics\items\properties\ItemPlaceable.class
 kaktusz\kaktuszlogistics\KaktuszLogistics.class
@@ -57,6 +58,7 @@ kaktusz\kaktuszlogistics\util\ListUtils.class
 kaktusz\kaktuszlogistics\recipe\inputs\IRecipeInput.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
 kaktusz\kaktuszlogistics\items\properties\PlaceableOpenBarrel.class
+kaktusz\kaktuszlogistics\util\DDARaycasting.class
 kaktusz\kaktuszlogistics\items\events\input\PlayerTriggerHeldEvent.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\util\VanillaUtils.class
@@ -65,4 +67,5 @@ kaktusz\kaktuszlogistics\items\InspectionTool.class
 kaktusz\kaktuszlogistics\recipe\ingredients\IRecipeIngredient.class
 kaktusz\kaktuszlogistics\world\KLWorld.class
 kaktusz\kaktuszlogistics\recipe\CustomRecipe.class
+kaktusz\kaktuszlogistics\util\DDABlockIterator.class
 kaktusz\kaktuszlogistics\items\CustomItemManager.class
