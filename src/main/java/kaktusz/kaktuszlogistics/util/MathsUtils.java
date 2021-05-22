@@ -44,8 +44,16 @@ public class MathsUtils {
         return min + RandomUtils.nextFloat()*(max-min);
     }
 
+    //VECTORS
     private static final DecimalFormat df = new DecimalFormat("##.##");
     public static String vectorReadableString(Vector v) {
         return "(" + df.format(v.getX()) + ", " + df.format(v.getY()) + ", " + df.format(v.getZ()) + ")";
+    }
+
+    /**
+     * Confidently clones a vector, i.e. does not use a try/catch
+     */
+    public static Vector cloneVectorConfident(Vector source) {
+        return new Vector(source.getX(), source.getY(), source.getZ());
     }
 }

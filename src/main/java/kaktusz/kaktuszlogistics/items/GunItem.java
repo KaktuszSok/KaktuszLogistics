@@ -6,10 +6,11 @@ import kaktusz.kaktuszlogistics.items.events.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.projectiles.BulletProjectile;
 import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectiles.ProjectileManager;
+import kaktusz.kaktuszlogistics.util.DDABlockIterator;
+import kaktusz.kaktuszlogistics.util.DDARaycast;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 @SuppressWarnings("unused")
@@ -81,6 +83,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 				reload(e, stack);
 			}
 		}
+		e.setCancelled(true);
 	}
 
 	@Override

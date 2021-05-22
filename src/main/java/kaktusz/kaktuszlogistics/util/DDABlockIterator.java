@@ -1,14 +1,10 @@
 package kaktusz.kaktuszlogistics.util;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 /**
  * Iterates over all blocks which intersect a line segment using the DDA algorithm.
@@ -16,10 +12,10 @@ import java.util.Queue;
 public class DDABlockIterator implements Iterator<Block> {
 
 	private final World world;
-	private boolean ignoreLiquids;
-	private boolean ignorePassables;
+	private final boolean ignoreLiquids;
+	private final boolean ignorePassables;
 
-	private final Queue<Vector> coordsHit;
+	private final DDARaycast raycast;
 	private Block nextBlock;
 
 	/**
@@ -30,19 +26,10 @@ public class DDABlockIterator implements Iterator<Block> {
 	 */
 	public DDABlockIterator(World world, Vector start, Vector end, boolean ignoreLiquids, boolean ignorePassables) {
 		this.world = world;
-		setIgnoreLiquids(ignoreLiquids);
-		setIgnorePassables(ignorePassables);
-		//do DDA raycast and store results
-		coordsHit = DDARaycasting.raycastWorldGrid(start, end);
-		precalcNextBlock();
-	}
-
-	public void setIgnoreLiquids(boolean ignoreLiquids) {
 		this.ignoreLiquids = ignoreLiquids;
-	}
-
-	public void setIgnorePassables(boolean ignorePassables) {
 		this.ignorePassables = ignorePassables;
+		raycast = new DDARaycast(start, end);
+		precalcNextBlock();
 	}
 
 	@Override
@@ -59,9 +46,11 @@ public class DDABlockIterator implements Iterator<Block> {
 
 	private void precalcNextBlock() {
 		nextBlock = null;
-		//go through hit coords and find the first valid block
-		while(!coordsHit.isEmpty()) {
-			Vector pos = coordsHit.poll();
+		//step through hit coords and find the first valid block
+		while(nextBlock == null) {
+			Vector pos = raycast.nextStep();
+			if(pos == null) //exhausted all steps
+				return;
 			Block b = world.getBlockAt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
 
 			if(ignorePassables && b.isPassable())
@@ -70,7 +59,6 @@ public class DDABlockIterator implements Iterator<Block> {
 				continue;
 
 			nextBlock = b;
-			break;
 		}
 	}
 }
