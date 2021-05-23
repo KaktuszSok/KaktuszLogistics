@@ -1,6 +1,6 @@
-package kaktusz.kaktuszlogistics.items.events;
+package kaktusz.kaktuszlogistics.events;
 
-import kaktusz.kaktuszlogistics.items.events.input.PlayerTriggerHeldEvent;
+import kaktusz.kaktuszlogistics.events.input.PlayerTriggerHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 public interface ITriggerHeldListener {

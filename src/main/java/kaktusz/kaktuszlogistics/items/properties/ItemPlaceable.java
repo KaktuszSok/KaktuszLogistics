@@ -1,7 +1,7 @@
 package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
+import kaktusz.kaktuszlogistics.events.IPlacedListener;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.block.Block;

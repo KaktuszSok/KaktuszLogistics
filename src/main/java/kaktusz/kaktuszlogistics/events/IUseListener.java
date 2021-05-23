@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.items.events;
+package kaktusz.kaktuszlogistics.events;
 
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;

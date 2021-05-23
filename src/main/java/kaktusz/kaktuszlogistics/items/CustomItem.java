@@ -1,8 +1,8 @@
 package kaktusz.kaktuszlogistics.items;
 
-import kaktusz.kaktuszlogistics.items.events.IHeldListener;
-import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
-import kaktusz.kaktuszlogistics.items.events.IUseListener;
+import kaktusz.kaktuszlogistics.events.IHeldListener;
+import kaktusz.kaktuszlogistics.events.IPlacedListener;
+import kaktusz.kaktuszlogistics.events.IUseListener;
 import kaktusz.kaktuszlogistics.items.properties.ItemEnchants;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
@@ -176,6 +176,7 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 		return type != null && type.equals(this.type);
 	}
 
+	//for items:
 	public static <T,Z> void setNBT(ItemStack stack, NamespacedKey key, PersistentDataType<T, Z> dataType, Z data) {
 		if(stack == null) return;
 
@@ -193,7 +194,10 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 	//for blocks:
 	public static <T,Z> void setNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType, Z data) {
 		if(meta == null) return;
-		meta.getPersistentDataContainer().set(key, dataType, data);
+		if(data == null)
+			meta.getPersistentDataContainer().remove(key);
+		else
+			meta.getPersistentDataContainer().set(key, dataType, data);
 	}
 	public static <T,Z> Z readNBT(ItemMeta meta, NamespacedKey key, PersistentDataType<T,Z> dataType) {
 		if(meta == null) return null;

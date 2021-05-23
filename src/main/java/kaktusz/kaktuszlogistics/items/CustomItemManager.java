@@ -2,6 +2,8 @@ package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.properties.*;
+import kaktusz.kaktuszlogistics.items.properties.ammo.AmmoContainer;
+import kaktusz.kaktuszlogistics.items.properties.ammo.BulletContainer;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
@@ -26,9 +28,17 @@ public class CustomItemManager {
         ItemQuality.QUALITY_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Quality");
         BlockDurability.DURA_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Durability");
         GunItem.LAST_SHOOT_TIME_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "LastShootTime");
+        GunItem.LOADED_MAG_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "LoadedMagazine");
+        AmmoContainer.AMMO_CONTAINER_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "AmmoContainer");
 
         //register items
-        registerItem(new GunItem("toolTestGun", "Gun", Material.PRISMARINE_SHARD));
+        registerItem(new GunItem("toolTestGun", "AK-47", Material.PRISMARINE_SHARD)
+                .addValidAmmoType(BulletContainer.BulletType.RIFLE_7_62x39mm));
+        registerItem(new CustomItem("ammoTestMag", "AK-47 Standard Magazine", Material.FLINT))
+                .getOrAddProperty(BulletContainer.class)
+                .setType(BulletContainer.BulletType.RIFLE_7_62x39mm)
+                .setDamage(4f)
+                .setMaxAmmo(30);
 
         CustomItem ingotSteel = registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT))
                 .getOrAddProperty(TieredMetallic.class).item;

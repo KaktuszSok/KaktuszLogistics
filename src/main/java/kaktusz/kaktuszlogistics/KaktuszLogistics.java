@@ -2,11 +2,9 @@ package kaktusz.kaktuszlogistics;
 
 import kaktusz.kaktuszlogistics.commands.CommandManager;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.GunItem;
-import kaktusz.kaktuszlogistics.items.events.ItemEventsListener;
-import kaktusz.kaktuszlogistics.items.events.input.PlayerContinuousShootingManager;
+import kaktusz.kaktuszlogistics.events.ItemEventsListener;
+import kaktusz.kaktuszlogistics.events.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.projectiles.ProjectileManager;
-import kaktusz.kaktuszlogistics.projectiles.rendering.ProjectileRenderer;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.WorldEventsListener;
 import org.bukkit.plugin.java.JavaPlugin;

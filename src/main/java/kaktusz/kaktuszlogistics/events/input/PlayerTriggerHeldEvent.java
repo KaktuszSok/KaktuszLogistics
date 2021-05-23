@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.items.events.input;
+package kaktusz.kaktuszlogistics.events.input;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

@@ -1,13 +1,12 @@
-package kaktusz.kaktuszlogistics.items.events;
+package kaktusz.kaktuszlogistics.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.events.input.PlayerTriggerHeldEvent;
+import kaktusz.kaktuszlogistics.events.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Cancellable;
