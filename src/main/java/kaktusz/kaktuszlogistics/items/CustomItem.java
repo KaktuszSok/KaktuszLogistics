@@ -27,7 +27,7 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 	public static NamespacedKey TYPE_KEY;
 
 	public final String type; //internal name of item
-	private final String displayName; //name of item seen by players
+	public final String displayName; //base name of item seen by players
 	public final Material material; //vanilla item that represents this
 
 	private String nameFormatting = ChatColor.RESET.toString();
@@ -161,8 +161,8 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 		if(stack.getType() != material) {
 			stack.setType(material);
 		}
-		setDisplayName(stack);
-		setItemLore(stack);
+		updateDisplayName(stack);
+		updateItemLore(stack);
 	}
 
 	/**
@@ -210,9 +210,9 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 	}
 
 	/**
-	 * Sets the display name of an ItemStack so that it matches this custom item
+	 * Updates the display name of an ItemStack so that it matches this custom item
 	 */
-	private void setDisplayName(ItemStack stack) {
+	protected final void updateDisplayName(ItemStack stack) {
 		ItemMeta meta = stack.getItemMeta();
 		if (meta == null) return;
 		meta.setDisplayName(getFullDisplayName(stack));
@@ -222,7 +222,7 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 	/**
 	 * Sets the lore of an ItemStack so that it matches this custom item
 	 */
-	private void setItemLore(ItemStack stack) {
+	protected final void updateItemLore(ItemStack stack) {
 		ItemMeta meta = stack.getItemMeta();
 		if (meta == null) return;
 		meta.setLore(getItemLore(stack));
@@ -231,38 +231,44 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 
 	//DISPLAY
 	/**
-	 * Returns the formatted name of an ItemStack
+	 * Returns the formatted and modified name of an ItemStack
 	 */
-	public String getFullDisplayName(ItemStack stack) {
-		if(!isStackThisType(stack)) {
-			return  stack.getType().name();
-		}
-
-		String formatting = nameFormatting;
-		for(ItemProperty prop : getAllProperties()) {
-			formatting = prop.modifyDisplayNameFormatting(formatting, stack);
-		}
-
-		return formatting + getUnformattedDisplayName(stack);
-	}
-	public String getUnformattedDisplayName(ItemStack stack) {
+	public final String getFullDisplayName(ItemStack stack) {
 		if(!isStackThisType(stack)) {
 			return stack.getType().name();
 		}
 
-		String dispName = displayName;
+		//apply property modifications
+		String dispName = getDisplayName(stack);
 		for(ItemProperty prop : getAllProperties()) {
-			dispName = prop.modifyUnformattedDisplayName(dispName, stack);
+			dispName = prop.modifyDisplayName(dispName, stack);
 		}
 
-		return dispName;
+		return nameFormatting + dispName;
 	}
 
 	/**
-	 * Returns the lore that should be given to a particular ItemStack.
+	 * @return The (optionally formatted) display name of the ItemStack, before any properties modify it
+	 */
+	protected String getDisplayName(ItemStack stack) {
+		return displayName;
+	}
+
+	/**
+	 * Changes the lore that should be given to a particular ItemStack.
+	 * This is applied before any of the item's properties modify the lore.
+	 * @param baseLore The current state of the lore of the item. Modify this to change the resulting lore.
+	 */
+	protected void modifyLore(List<String> baseLore, ItemStack stack) {
+
+	}
+
+	/**
+	 * Returns the lore that should be given to a particular ItemStack
 	 */
 	public List<String> getItemLore(ItemStack stack) {
 		List<String> modifiedLore = new ArrayList<>(lore);
+		modifyLore(modifiedLore, stack);
 		for(ItemProperty prop : getAllProperties()) {
 			prop.modifyLore(modifiedLore, stack);
 		}

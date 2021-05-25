@@ -117,6 +117,12 @@ public class KLWorld {
     public void loadChunk(KLChunk chunk) {
         loadedChunks.put(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk);
     }
+
+    /**
+     * Removes a chunk from loaded chunks.
+     * This function is not responsible for saving the chunk. For that, see KLChunk.save()
+     * @return True if the chunk was loaded in the first place.
+     */
     public boolean unloadChunk(KLChunk chunk) {
         return loadedChunks.remove(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk);
     }
@@ -162,6 +168,21 @@ public class KLWorld {
         int regX = Math.floorDiv(chunkX, REGION_SIZE);
         int regZ = Math.floorDiv(chunkZ, REGION_SIZE);
         return new File(world.getWorldFolder() + File.separator + "kldata" + File.separator + "region_" + regX + "_" + regZ);
+    }
+
+    public void saveAllLoadedChunks() {
+        for(KLChunk c : loadedChunks.values()) {
+            c.save();
+        }
+    }
+
+    /**
+     * Saves all loaded chunks in all loaded worlds
+     */
+    public static void saveAllLoadedWorlds() {
+        for(KLWorld w : loadedWorlds.values()) {
+            w.saveAllLoadedChunks();
+        }
     }
 
 }

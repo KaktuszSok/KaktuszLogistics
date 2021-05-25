@@ -23,7 +23,7 @@ public class BulletContainer extends AmmoContainer {
 		}
 
 		public String getName() {
-			return ChatColor.GRAY + name;
+			return ChatColor.BLUE + name;
 		}
 	}
 

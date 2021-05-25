@@ -64,11 +64,25 @@ public class VanillaUtils {
         if(entity.getHealth() > 0)
             return;
 
-        //TODO: config for non-player kill messages
+        killEntity(entity, source, killMessage);
+    }
 
+    /**
+     * Kills an entity and potentially prints the message in chat
+     * @param entity The killed entity
+     * @param source The killer
+     * @param killMessage String that is formatted into the kill message. %k = killed entity, %s = damage source
+     */
+    private static void killEntity(LivingEntity entity, Entity source, String killMessage) {
+        //TODO: config for any kill messages
+        //TODO: config for non-player kill messages
         String killedName = entity.getCustomName();
-        if(killedName == null)
-            killedName = entity.getName();
+        if(killedName == null) {
+            if(entity instanceof Player)
+                killedName = entity.getName();
+            else
+                return; //we don't want to print the name of unnamed non-player entities
+        }
 
         String sourceName = source.getCustomName();
         if(sourceName == null)
@@ -76,7 +90,6 @@ public class VanillaUtils {
 
         killMessage = killMessage.replace("%k", killedName).replace("%s", sourceName);
 
-        //TODO: config for global kill messages
         Bukkit.broadcastMessage(killMessage);
     }
 

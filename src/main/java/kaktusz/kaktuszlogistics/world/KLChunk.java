@@ -84,6 +84,11 @@ public class KLChunk {
         return blocks.get(pos);
     }
 
+    /**
+     * Unloads the chunk in its world.
+     * This function is not responsible for saving the chunk. For that, see save()
+     * @return True if the chunk was loaded in the first place
+     */
     public boolean unload() {
         return world.unloadChunk(this);
     }

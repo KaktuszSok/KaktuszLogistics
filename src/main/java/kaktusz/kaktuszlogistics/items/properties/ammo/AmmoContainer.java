@@ -72,9 +72,21 @@ public abstract class AmmoContainer extends ItemProperty {
 		}
 	}
 
+	//DISPLAY
+	@Override
+	public String modifyDisplayName(String currName, ItemStack item) {
+		if(getAmmoContainerData(item.getItemMeta()).ammoCount <= 0)
+			return currName + ChatColor.GRAY + " (Empty)";
+		return currName;
+	}
+
 	@Override
 	public void modifyLore(List<String> lore, ItemStack item) {
-		lore.add(type.getName() + ChatColor.GRAY + " (" + getAmmoContainerData(item.getItemMeta()).ammoCount + "/" + maxAmmo + ")");
+		modifyLore(lore, getAmmoContainerData(item.getItemMeta()));
+	}
+
+	public void modifyLore(List<String> lore, AmmoContainerNBT data) {
+		lore.add(type.getName() + ChatColor.GRAY + " (" + data.ammoCount + "/" + maxAmmo + ")");
 	}
 
 	//NBT

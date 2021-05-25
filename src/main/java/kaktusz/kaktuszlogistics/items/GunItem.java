@@ -29,7 +29,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -37,12 +39,15 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	public static NamespacedKey LAST_SHOOT_TIME_KEY;
 	public static NamespacedKey LOADED_MAG_KEY;
 
+	public static final ChatColor LORE_COLOUR = ChatColor.GRAY;
+
 	private int shootDelay = 2; //ticks between each shot
 	private float muzzleVelocity = 5; //base muzzle velocity
 	private float dispersion = 2f; //base dispersion after 50 blocks
 
 	private int reloadTime = 30; //ticks to reload gun
 	private final Set<AmmoType> validAmmo = new HashSet<>();
+	private final List<String> validAmmoLore = new ArrayList<>();
 
 	private SFXCollection shootSounds = new SFXCollection(
 			new SoundEffect(Sound.ENTITY_FIREWORK_ROCKET_BLAST_FAR, 4, 4, 0.875f, 0.925f),
@@ -88,10 +93,12 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 
 	public GunItem addValidAmmoType(AmmoType ammoType) {
 		validAmmo.add(ammoType);
+		addValidAmmoLore(ammoType);
 		return this;
 	}
 	public GunItem removeValidAmmoType(AmmoType ammoType) {
 		validAmmo.remove(ammoType);
+		regenerateValidAmmoLore();
 		return this;
 	}
 
@@ -278,6 +285,45 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		setNBT(stack, LAST_SHOOT_TIME_KEY, PersistentDataType.LONG, time);
 	}
 
+	//DISPLAY
+	@Override
+	public String getDisplayName(ItemStack stack) {
+		AmmoContainerNBT mag = getLoadedMag(stack);
+		if(mag == null || mag.ammoCount <= 0) {
+			return super.getDisplayName(stack) + ChatColor.GRAY + " (Empty)";
+		}
+		return super.getDisplayName(stack);
+	}
+
+	@Override
+	protected void modifyLore(List<String> baseLore, ItemStack stack) {
+		AmmoContainerNBT mag = getLoadedMag(stack);
+		if(mag == null) {
+			baseLore.add(LORE_COLOUR + "No ammunition loaded. Valid types:");
+			baseLore.addAll(validAmmoLore);
+		}
+		else {
+			baseLore.add(LORE_COLOUR + "[" + mag.containerItem.displayName + "]");
+			mag.getAmmoContainerProperty().modifyLore(baseLore, mag);
+		}
+	}
+
+	/**
+	 * Adds an ammunition type to the cached valid ammo lore
+	 */
+	private void addValidAmmoLore(AmmoType newValidAmmoType) {
+		validAmmoLore.add(LORE_COLOUR + " - " + newValidAmmoType.getName());
+	}
+	/**
+	 * Re-generates lore listing all the valid ammunition and caches it.
+	 */
+	private void regenerateValidAmmoLore() {
+		validAmmoLore.clear();
+		for(AmmoType validAmmoType : validAmmo) {
+			addValidAmmoLore(validAmmoType);
+		}
+	}
+
 	//LOADED MAGAZINE
 	private AmmoContainerNBT getLoadedMag(ItemStack stack) {
 		return readNBT(stack, LOADED_MAG_KEY, AmmoContainerPDT.AMMO_CONTAINER_DATA);
@@ -285,6 +331,8 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 
 	private void setLoadedMag(ItemStack stack, AmmoContainerNBT ammoContainerData) {
 		setNBT(stack, LOADED_MAG_KEY, AmmoContainerPDT.AMMO_CONTAINER_DATA, ammoContainerData);
+		updateItemLore(stack);
+		updateDisplayName(stack);
 	}
 
 	private void removeLoadedMag(ItemStack stack, Inventory returnInventory) {

@@ -35,11 +35,7 @@ public abstract class ItemProperty {
 
     }
 
-    public String modifyDisplayNameFormatting(String  currFormatting, ItemStack item) {
-        return currFormatting;
-    }
-
-    public String modifyUnformattedDisplayName(String currName, ItemStack item) {
+    public String modifyDisplayName(String currName, ItemStack item) {
         return currName;
     }
 
