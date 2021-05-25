@@ -146,16 +146,14 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 				relaodFailedSFX.playAll(e.getPlayer().getEyeLocation().add(e.getPlayer().getEyeLocation().getDirection()));
 			else
 				triggerDown(e.getPlayer(), stack);
+			e.setCancelled(true);
 		}
 		else if(e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if(e.getPlayer().isSneaking()) {
-				toggleADS(e, stack);
-			}
-			else {
 				reload(e, stack);
+				e.setCancelled(true);
 			}
 		}
-		e.setCancelled(true);
 	}
 
 	@Override
@@ -215,13 +213,8 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	}
 
 	/**
-	 * toggles aiming down sights
+	 * Loads/unloads the gun appropriately
 	 */
-	private void toggleADS(PlayerInteractEvent e, ItemStack stack) {
-		if(PlayerReloadManager.isPlayerReloading(e.getPlayer()))
-			return;
-	}
-
 	private void reload(PlayerInteractEvent e, ItemStack stack) {
 		if(PlayerReloadManager.isPlayerReloading(e.getPlayer()))
 			return;
