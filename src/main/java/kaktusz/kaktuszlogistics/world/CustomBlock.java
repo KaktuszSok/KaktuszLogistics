@@ -49,11 +49,11 @@ public class CustomBlock {
         return verify(world.world.getBlockAt(x, y, z));
     }
     public boolean verify(Block block) {
-        return block.getType() == type.item.material;
+        return type.verify(block);
     }
 
     //GETTERS
-    public ItemStack getDrop() {
+    public ItemStack getDrop(Block block) {
         ItemStack drop = type.item.createStack(1);
         drop.setItemMeta(data);
         return drop;
@@ -80,12 +80,17 @@ public class CustomBlock {
     }
 
     public void breakBlock(Block b, boolean dropItem) {
+        //get item
+        ItemStack drop = null;
+        if(dropItem)
+            drop = getDrop(b);
+
+        //remove block
         b.setType(Material.AIR); //clear physical block
         KLWorld.get(b.getWorld()).setBlock(null, b.getX(), b.getY(), b.getZ()); //clear KLWorld block
+
         //drop item
-        if(!dropItem)
-            return;
-        ItemStack drop = getDrop();
-        b.getWorld().dropItemNaturally(b.getLocation(), drop);
+        if(dropItem)
+            b.getWorld().dropItemNaturally(b.getLocation(), drop);
     }
 }

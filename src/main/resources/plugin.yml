@@ -5,9 +5,6 @@ main: kaktusz.kaktuszlogistics.KaktuszLogistics
 api-version: 1.16
 
 commands:
-  hello:
-    description: Says hello
-    usage: /<command>
   kl:
     description: KaktuszLogistics root command
     usage: /<command> <subcommand>

@@ -24,6 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Forwards events from vanilla & modules to KLWorlds, KLChunks and CustomBlocks
+ */
 @SuppressWarnings("unused")
 public class WorldEventsListener implements Listener {
 

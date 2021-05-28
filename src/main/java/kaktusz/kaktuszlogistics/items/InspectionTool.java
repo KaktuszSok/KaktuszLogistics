@@ -29,12 +29,12 @@ public class InspectionTool extends CustomItem {
             if(cb == null) {
                 e.getPlayer().sendMessage("This is " + b.getType().name());
             } else {
-                e.getPlayer().sendMessage("This is " + cb.type.item.getFullDisplayName(cb.getDrop()));
+                e.getPlayer().sendMessage("This is " + cb.type.item.getFullDisplayName(cb.getDrop(b)));
                 //extra info:
                 List<String> lore = new ArrayList<>();
                 ItemQuality quality = cb.type.item.findProperty(ItemQuality.class);
                 if(quality != null) {
-                    quality.modifyLore(lore, cb.getDrop());
+                    quality.modifyLore(lore, cb.getDrop(b));
                 }
                 if(cb instanceof DurableBlock) {
                     DurableBlock db = (DurableBlock)cb;

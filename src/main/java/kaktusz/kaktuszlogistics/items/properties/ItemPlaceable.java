@@ -1,7 +1,7 @@
 package kaktusz.kaktuszlogistics.items.properties;
 
-import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.events.IPlacedListener;
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.block.Block;
@@ -28,5 +28,9 @@ public class ItemPlaceable extends ItemProperty implements IPlacedListener {
 
 	public CustomBlock createCustomBlock(ItemMeta stackMeta) {
 		return new CustomBlock(this, stackMeta);
+	}
+
+	public boolean verify(Block block) {
+		return block.getType() == item.material;
 	}
 }

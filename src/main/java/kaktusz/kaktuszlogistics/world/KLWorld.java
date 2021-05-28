@@ -97,7 +97,7 @@ public class KLWorld {
             chunk = KLChunk.deserialise(chunkFile, this, chunkX, chunkZ);
         }
 
-        return chunk;
+        return chunk; //null if file doesn't exist
     }
     /**
      * Finds, loads or creates a KLChunk at some chunk position

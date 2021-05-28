@@ -1,14 +1,13 @@
-package kaktusz.kaktuszlogistics.projectiles;
+package kaktusz.kaktuszlogistics.modules.weaponry.projectiles;
 
-import kaktusz.kaktuszlogistics.projectiles.rendering.ProjectileRenderer_Particles;
-import kaktusz.kaktuszlogistics.util.MathsUtils;
+import kaktusz.kaktuszlogistics.modules.weaponry.KaktuszWeaponry;
+import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
+import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer_Particles;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -19,7 +18,7 @@ public class BulletProjectile extends CustomProjectile {
 	//SETTINGS
 	private float damage = 3f;
 	private float maxPenetration = 1.5f;
-	private String killMessage = "%k was shot by %s";
+	private String killMessage = KaktuszWeaponry.INSTANCE.getShotMessage();
 
 	//RUNTIME
 	private final double startSpeed;
@@ -94,9 +93,9 @@ public class BulletProjectile extends CustomProjectile {
 		effectiveDamage *= getVel().length() / startSpeed; //reduce damage as velocity drops
 
 		if(getOwner() == null)
-			entity.damage(damage);
+			entity.damage(effectiveDamage);
 		else
-			VanillaUtils.damageEntity(entity, getOwner(), Math.round(damage), killMessage);
+			VanillaUtils.damageEntity(entity, getOwner(), Math.round(effectiveDamage), killMessage);
 		entity.setNoDamageTicks(0);
 	}
 

@@ -158,6 +158,10 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 		}
 
 		//display
+		updateDisplay(stack);
+	}
+
+	protected void updateDisplay(ItemStack stack) {
 		if(stack.getType() != material) {
 			stack.setType(material);
 		}

@@ -1,6 +1,4 @@
-package kaktusz.kaktuszlogistics.projectiles;
-
-import org.bukkit.Bukkit;
+package kaktusz.kaktuszlogistics.projectile;
 
 import java.util.ArrayList;
 import java.util.List;

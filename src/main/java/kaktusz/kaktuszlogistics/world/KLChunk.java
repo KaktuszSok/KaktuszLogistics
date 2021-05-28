@@ -14,24 +14,25 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 @SuppressWarnings("UnusedReturnValue")
-public class KLChunk {
+public final class KLChunk {
     /**
      * A local coordinate in the chunk
      */
-    public static class LocCoordinate {
+    public static class LocalCoordinate {
         public byte x;
         public short y;
         public byte z;
 
-        public LocCoordinate() {
+        public LocalCoordinate() {
 
         }
-        public LocCoordinate(int worldX, int worldY, int worldZ) {
+        public LocalCoordinate(int worldX, int worldY, int worldZ) {
             x = (byte)(worldX % CHUNK_SIZE);
             y = (short)worldY;
             z = (byte)(worldZ % CHUNK_SIZE);
@@ -41,8 +42,8 @@ public class KLChunk {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            LocCoordinate that = (LocCoordinate) o;
-            return x == that.x && y == that.y && z == that.z;
+            LocalCoordinate that = (LocalCoordinate) o;
+            return this.x == that.x && this.y == that.y && this.z == that.z;
         }
 
         @Override
@@ -56,7 +57,9 @@ public class KLChunk {
     public transient final KLWorld world;
     public transient final int chunkPosX;
     public transient final int chunkPosZ;
-    protected Map<LocCoordinate, CustomBlock> blocks = new HashMap<>();
+    private final Map<LocalCoordinate, CustomBlock> blocks = new HashMap<>();
+
+    private Map<String, Serializable> extraData = new HashMap<>();
 
     public KLChunk(KLWorld world, int chunkX, int chunkZ) {
         this.world = world;
@@ -66,8 +69,9 @@ public class KLChunk {
         world.loadChunk(this);
     }
 
+    //WORLD INTERACTION
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
-        blocks.put(new LocCoordinate(x, y, z), block);
+        blocks.put(new LocalCoordinate(x, y, z), block);
         return block;
     }
 
@@ -76,12 +80,23 @@ public class KLChunk {
      * @return Whether there was a block at this position
      */
     public boolean removeBlock(int x, int y, int z) {
-        return blocks.remove(new LocCoordinate(x, y, z)) != null;
+        return blocks.remove(new LocalCoordinate(x, y, z)) != null;
     }
 
     public CustomBlock getBlockAt(int x, int y, int z) {
-        LocCoordinate pos = new LocCoordinate(x, y, z);
+        LocalCoordinate pos = new LocalCoordinate(x, y, z);
         return blocks.get(pos);
+    }
+
+    public void setExtraData(String key, Serializable value) {
+        if(value == null)
+            extraData.remove(key);
+        else
+            extraData.put(key, value);
+    }
+
+    public Serializable getExtraData(String key) {
+        return extraData.get(key);
     }
 
     /**
@@ -94,7 +109,10 @@ public class KLChunk {
     }
 
     //EVENTS
-
+    /**
+     * Called if the KLChunk is loaded because its respective vanilla chunk was preloaded (relative to the plugin instance)
+     * e.g. spawn chunks
+     */
     @SuppressWarnings("unused")
     public void onChunkPreloaded(Chunk c) {
         onLoaded();
@@ -126,7 +144,6 @@ public class KLChunk {
     }
 
     //HELPER
-
     public static File getFile(KLWorld world, int chunkX, int chunkZ) {
         File regionFolder = world.getRegionFolderAtChunkPos(chunkX, chunkZ);
         return new File(regionFolder + File.separator + getFileName(chunkX, chunkZ));
@@ -146,11 +163,12 @@ public class KLChunk {
             FileOutputStream fileOut = new FileOutputStream(chunkSaveFile);
             BukkitObjectOutputStream out = new BukkitObjectOutputStream(fileOut);
 
-            //write hashmap size
+            //write block hashmap size
             out.writeInt(blocks.size()); //int
-            for (Map.Entry<LocCoordinate, CustomBlock> entry : blocks.entrySet()) {
+            //write block hashmap contents
+            for (Map.Entry<LocalCoordinate, CustomBlock> entry : blocks.entrySet()) {
                 //write location
-                LocCoordinate coord = entry.getKey();
+                LocalCoordinate coord = entry.getKey();
                 out.writeByte(coord.x); //byte
                 out.writeShort(coord.y); //short
                 out.writeByte(coord.z); //byte
@@ -158,11 +176,14 @@ public class KLChunk {
                 out.writeObject(entry.getValue().data); //ItemMeta
             }
 
+            //write extra data
+            out.writeObject(extraData);
+
             out.close();
             return true;
         }
         catch (Exception e) {
-            KaktuszLogistics.LOGGER.warning("FAILED TO SAVE CHUNK (" + chunkPosX + "," + chunkPosZ +"):" + e);
+            KaktuszLogistics.LOGGER.warning("FAILED TO SAVE CHUNK (" + chunkPosX + "," + chunkPosZ +"): " + e);
             return false;
         }
     }
@@ -179,7 +200,7 @@ public class KLChunk {
             int blocksSize = in.readInt(); //int
             for(int i = 0; i < blocksSize; i++) {
                 //read location
-                LocCoordinate coord = new LocCoordinate();
+                LocalCoordinate coord = new LocalCoordinate();
                 coord.x = in.readByte(); //byte
                 coord.y = in.readShort(); //short
                 coord.z = in.readByte(); //byte
@@ -192,6 +213,15 @@ public class KLChunk {
                 }
                 else {
                     result.blocks.put(coord, block);
+                }
+
+                //read extra data
+                try {
+                    Object obj = in.readObject();
+                    //noinspection unchecked
+                    result.extraData = (Map<String, Serializable>) obj; //if the cast fails then the data is corrupted
+                } catch (Exception e) {
+                    KaktuszLogistics.LOGGER.warning("Couldn't read extra data for chunk " + chunkX + "," + chunkZ + ": " + e);
                 }
             }
 

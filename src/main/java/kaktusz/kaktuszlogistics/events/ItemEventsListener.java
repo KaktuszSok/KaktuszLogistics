@@ -1,12 +1,14 @@
 package kaktusz.kaktuszlogistics.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.events.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
+import kaktusz.kaktuszlogistics.modules.weaponry.input.ITriggerHeldListener;
+import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Cancellable;
@@ -21,10 +23,14 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Forwards events from vanilla & modules to CustomItems
+ */
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
 
-    @EventHandler(ignoreCancelled = false)
+    @SuppressWarnings("DefaultAnnotationParam") //clarity
+    @EventHandler(ignoreCancelled = false) //air clicks are always cancelled for whatever reason, and we dont want to miss them
     public void onItemUsed(PlayerInteractEvent e) {
         if(e.useItemInHand() == Event.Result.DENY)
             return;
@@ -121,10 +127,11 @@ public class ItemEventsListener implements Listener {
     }
 
     //SPECIAL INVENTORIES
+    //TODO: support more inventories e.g. stonecutter and shit
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent e) {
         if(e.getClickedInventory() instanceof FurnaceInventory) {
-            onTryInsertFurnace(e.getCursor(), e);
+            onTryInsertFurnace(e.getCursor(), ((FurnaceInventory)e.getClickedInventory()).getResult(), e);
         }
     }
 
@@ -133,7 +140,7 @@ public class ItemEventsListener implements Listener {
         if(e.getInventory() instanceof FurnaceInventory) {
             for(int s : e.getInventorySlots()) {
                 if(s == 0) {
-                    onTryInsertFurnace(e.getOldCursor(), e);
+                    onTryInsertFurnace(e.getOldCursor(),((FurnaceInventory)e.getInventory()).getResult(), e);
                     return;
                 }
             }
@@ -143,7 +150,7 @@ public class ItemEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onInventoryMove(InventoryMoveItemEvent e) {
         if(e.getDestination() instanceof FurnaceInventory) {
-            onTryInsertFurnace(e.getItem(), e);
+            onTryInsertFurnace(e.getItem(), ((FurnaceInventory)e.getDestination()).getResult(), e);
         }
     }
 
@@ -165,9 +172,14 @@ public class ItemEventsListener implements Listener {
     }
 
     //SMELTING
-    public void onTryInsertFurnace(ItemStack stack, Cancellable e) { //TODO: disallow if output is not stackable
+    public void onTryInsertFurnace(ItemStack stack, ItemStack outputSlotStack, Cancellable e) {
         if(CustomItem.getFromStack(stack) != null) {
-            if(RecipeManager.matchSmeltingRecipe(new ItemInput(stack)) == null) {
+            ItemInput input = new ItemInput(stack);
+            SmeltingRecipe smeltingRecipe = RecipeManager.matchSmeltingRecipe(input);
+            if(smeltingRecipe == null) {
+                e.setCancelled(true);
+            }
+            else if(!VanillaUtils.canCombineStacks(smeltingRecipe.getOutputs(input).get(0).getStack(), outputSlotStack)) {
                 e.setCancelled(true);
             }
         }

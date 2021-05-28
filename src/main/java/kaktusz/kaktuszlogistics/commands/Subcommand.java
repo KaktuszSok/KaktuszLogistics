@@ -71,7 +71,7 @@ public abstract class Subcommand {
     }
 
     public final String name;
-    protected CommandArg[] arguments;
+    protected CommandArg[] arguments = new CommandArg[0];
 
     public Subcommand(String name) {
         this.name = name;

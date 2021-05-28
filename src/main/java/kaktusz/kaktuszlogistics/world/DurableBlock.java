@@ -17,8 +17,8 @@ public class DurableBlock extends CustomBlock {
     }
 
     @Override
-    public ItemStack getDrop() {
-        ItemStack drop = super.getDrop();
+    public ItemStack getDrop(Block block) {
+        ItemStack drop = super.getDrop(block);
         type.item.findProperty(BlockDurability.class).setPercent(drop, 1.0f);
         return drop;
     }

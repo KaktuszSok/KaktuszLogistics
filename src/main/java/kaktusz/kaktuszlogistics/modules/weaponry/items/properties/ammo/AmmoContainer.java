@@ -1,10 +1,10 @@
-package kaktusz.kaktuszlogistics.items.properties.ammo;
+package kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.nbt.AmmoContainerNBT;
-import kaktusz.kaktuszlogistics.items.nbt.AmmoContainerPDT;
+import kaktusz.kaktuszlogistics.modules.weaponry.items.nbt.AmmoContainerNBT;
+import kaktusz.kaktuszlogistics.modules.weaponry.items.nbt.AmmoContainerPDT;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
-import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
+import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;

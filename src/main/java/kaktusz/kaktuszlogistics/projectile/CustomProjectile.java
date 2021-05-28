@@ -1,6 +1,6 @@
-package kaktusz.kaktuszlogistics.projectiles;
+package kaktusz.kaktuszlogistics.projectile;
 
-import kaktusz.kaktuszlogistics.projectiles.rendering.ProjectileRenderer;
+import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer;
 import kaktusz.kaktuszlogistics.util.DDABlockIterator;
 import kaktusz.kaktuszlogistics.util.VanillaUtils;
 import org.bukkit.World;

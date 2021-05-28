@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.recipe;
 
 import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
-import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
 import kaktusz.kaktuszlogistics.util.ListUtils;
 

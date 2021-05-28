@@ -1,7 +1,6 @@
-package kaktusz.kaktuszlogistics.projectiles.rendering;
+package kaktusz.kaktuszlogistics.projectile.rendering;
 
-import kaktusz.kaktuszlogistics.projectiles.CustomProjectile;
-import org.bukkit.Bukkit;
+import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
 import org.bukkit.Particle;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;

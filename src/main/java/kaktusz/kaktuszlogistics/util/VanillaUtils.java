@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.util;
 
+import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -27,6 +28,7 @@ public class VanillaUtils {
         return tickTime;
     }
 
+    //ITEMSTACKS
     public static void damageTool(ItemStack item, Player player) {
         if(player.getGameMode() == GameMode.CREATIVE) //creative?
             return;
@@ -55,6 +57,11 @@ public class VanillaUtils {
         }
     }
 
+    public static boolean canCombineStacks(ItemStack a, ItemStack b) {
+        return a == null || b == null || a.isSimilar(b) && a.getMaxStackSize() >= a.getAmount() + b.getAmount();
+    }
+
+    //ENTITIES
     /**
      * Damages an entity and prints a custom message if they are killed
      * @param killMessage String that is formatted into the kill message. %k = killed entity, %s = damage source
@@ -74,14 +81,17 @@ public class VanillaUtils {
      * @param killMessage String that is formatted into the kill message. %k = killed entity, %s = damage source
      */
     private static void killEntity(LivingEntity entity, Entity source, String killMessage) {
-        //TODO: config for any kill messages
-        //TODO: config for non-player kill messages
+        if(entity instanceof Player && !KaktuszLogistics.INSTANCE.config.broadcastPlayerKills())
+            return;
+        else if(!KaktuszLogistics.INSTANCE.config.broadcastNamedMobKills())
+            return;
+
         String killedName = entity.getCustomName();
         if(killedName == null) {
             if(entity instanceof Player)
                 killedName = entity.getName();
             else
-                return; //we don't want to print the name of unnamed non-player entities
+                return; //we don't want to print the name of unnamed non-player entities (or player entities if the config is disabled)
         }
 
         String sourceName = source.getCustomName();
@@ -93,6 +103,7 @@ public class VanillaUtils {
         Bukkit.broadcastMessage(killMessage);
     }
 
+    //SOUNDS
     public enum BlockSounds {
         HIT,
         BREAK,

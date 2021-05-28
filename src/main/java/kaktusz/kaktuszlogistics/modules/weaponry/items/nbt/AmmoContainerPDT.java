@@ -1,6 +1,5 @@
-package kaktusz.kaktuszlogistics.items.nbt;
+package kaktusz.kaktuszlogistics.modules.weaponry.items.nbt;
 
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 

@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.events.input;
+package kaktusz.kaktuszlogistics.modules.weaponry.input;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

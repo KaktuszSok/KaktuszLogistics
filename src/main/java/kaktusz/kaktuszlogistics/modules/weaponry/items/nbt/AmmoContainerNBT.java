@@ -1,9 +1,9 @@
-package kaktusz.kaktuszlogistics.items.nbt;
+package kaktusz.kaktuszlogistics.modules.weaponry.items.nbt;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.properties.ammo.AmmoContainer;
+import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo.AmmoContainer;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
