@@ -1,5 +1,6 @@
-package kaktusz.kaktuszlogistics.util;
+package kaktusz.kaktuszlogistics.util.minecraft;
 
+import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;

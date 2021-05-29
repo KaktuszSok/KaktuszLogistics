@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.world;
 
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.World;
 
 import java.io.File;
@@ -67,6 +68,7 @@ public class KLWorld {
     /**
      * @return Whether this world was actually loaded in the first place
      */
+    @SuppressWarnings("UnusedReturnValue")
     public boolean unload() {
         return loadedWorlds.remove(this.world) != null;
     }
@@ -133,7 +135,7 @@ public class KLWorld {
      * @return null if there is no CustomBlock registered here
      */
     public CustomBlock getLoadedBlockAt(int x, int y, int z) {
-        KLChunk chunk = getLoadedChunkAt(x/KLChunk.CHUNK_SIZE, z/KLChunk.CHUNK_SIZE);
+        KLChunk chunk = getLoadedChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
         if(chunk == null) {
             return null;
         }
@@ -145,7 +147,7 @@ public class KLWorld {
      * @return null if there is no CustomBlock registered here
      */
     public CustomBlock getBlockAt(int x, int y, int z) {
-        KLChunk chunk = getChunkAt(x/KLChunk.CHUNK_SIZE, z/KLChunk.CHUNK_SIZE);
+        KLChunk chunk = getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
         if(chunk == null) {
             return null;
         }
@@ -154,7 +156,7 @@ public class KLWorld {
     }
 
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
-        KLChunk chunk = getOrCreateChunkAt(x/KLChunk.CHUNK_SIZE, z/KLChunk.CHUNK_SIZE);
+        KLChunk chunk = getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
         if(block == null) {
             chunk.removeBlock(x, y, z);
             return null;

@@ -3,7 +3,7 @@ package kaktusz.kaktuszlogistics.modules.weaponry.projectiles;
 import kaktusz.kaktuszlogistics.modules.weaponry.KaktuszWeaponry;
 import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer_Particles;
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;

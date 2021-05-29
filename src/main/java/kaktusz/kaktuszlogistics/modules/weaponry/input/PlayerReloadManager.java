@@ -1,6 +1,6 @@
 package kaktusz.kaktuszlogistics.modules.weaponry.input;
 
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

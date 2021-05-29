@@ -3,6 +3,7 @@ package kaktusz.kaktuszlogistics.util;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.util.Vector;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 @SuppressWarnings("unused")

@@ -1,15 +1,12 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -80,18 +77,18 @@ public class WorldEventsListener implements Listener {
     }
 
     //BLOCK
-    public static CustomBlock getCustomBlockFromEvent(BlockEvent e) {
+    private static CustomBlock getCustomBlockFromEvent(BlockEvent e) {
         Block b = e.getBlock();
         return KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ());
     }
-    public static CustomBlock getCustomBlockFromLocation(Location loc) {
+    private static CustomBlock getCustomBlockFromLocation(Location loc) {
         return KLWorld.get(loc.getWorld()).getLoadedBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
-    public static void cancelCustomBlockEvent(CustomBlock block, Cancellable e) {
+    private static void cancelCustomBlockEvent(CustomBlock block, Cancellable e) {
         if(block == null) return;
         e.setCancelled(true);
     }
-    public static void cancelEventIfCBlockInList(List<Block> blocks, Cancellable e) {
+    private static void cancelEventIfCBlockInList(List<Block> blocks, Cancellable e) {
         for(Block b : blocks) {
             if(KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ()) != null) {
                 e.setCancelled(true);
@@ -175,6 +172,12 @@ public class WorldEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockGrow(BlockGrowEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
+    }
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockPhysics(BlockPhysicsEvent e) { //apparently this is quite messy so best to avoid custom blocks w/ physics where possible
+//        Bukkit.broadcastMessage(e.getBlock().getType().name() + " // source: " + e.getSourceBlock().getType().name());
+//        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
+//        Bukkit.broadcastMessage("cancelled: " + e.isCancelled());
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {

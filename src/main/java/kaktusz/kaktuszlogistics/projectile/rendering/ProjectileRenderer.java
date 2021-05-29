@@ -1,7 +1,7 @@
 package kaktusz.kaktuszlogistics.projectile.rendering;
 
 import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.util.RayTraceResult;

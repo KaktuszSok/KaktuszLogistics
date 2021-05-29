@@ -2,14 +2,18 @@ package kaktusz.kaktuszlogistics.modules.nations.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
+import kaktusz.kaktuszlogistics.modules.nations.items.FlagItem;
+import kaktusz.kaktuszlogistics.modules.nations.world.ChunkClaimManager;
 import kaktusz.kaktuszlogistics.modules.nations.world.FlagBlock;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
 import java.util.Set;
 
 public class FlagPlaceable extends ItemPlaceable {
@@ -52,9 +56,29 @@ public class FlagPlaceable extends ItemPlaceable {
 		super(item);
 	}
 
+	//PLACEMENT
+	@Override
+	public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
+		//TODO: disallow if the flag does not have a nation set (right-clicking the flag at air will give nation creation GUI)
+		Block b = e.getBlockPlaced();
+		if(ChunkClaimManager.isChunkClaimed(KLWorld.get(b.getWorld()), b.getX(), b.getZ())) { //disallow placing flags on already claimed land
+			e.setCancelled(true);
+			return;
+		}
+		super.onTryPlace(e, stack);
+	}
+
+	//UTILITY
 	@Override
 	public boolean verify(Block block) {
-		return BANNER_TYPES.contains(block.getType());
+		return isBanner(block.getType());
+	}
+
+	/**
+	 * @return True if the material is a banner
+	 */
+	public static boolean isBanner(Material material) {
+		return BANNER_TYPES.contains(material);
 	}
 
 	@Override

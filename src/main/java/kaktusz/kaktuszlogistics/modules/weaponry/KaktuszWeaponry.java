@@ -18,7 +18,6 @@ public class KaktuszWeaponry implements KaktuszModule {
 	public void initialise() {
 		INSTANCE = this;
 
-		initConfig();
 		initKeys();
 		initItems();
 	}
@@ -40,7 +39,8 @@ public class KaktuszWeaponry implements KaktuszModule {
 	}
 
 	//CONFIG
-	private void initConfig() {
+	@Override
+	public void addDefaultConfigs(FileConfiguration config) {
 		KaktuszLogistics.INSTANCE.config.accessConfigDirectly().addDefault("weaponry.shotMessage", "%k was shot by %s");
 	}
 

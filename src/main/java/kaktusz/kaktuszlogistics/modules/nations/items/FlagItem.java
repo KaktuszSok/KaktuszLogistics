@@ -29,6 +29,7 @@ public class FlagItem extends CustomItem {
 		ItemStack flag = createStack(1);
 		flag.setType(banner.getType());
 		BannerMeta flagMeta = (BannerMeta)flag.getItemMeta();
+		//noinspection ConstantConditions //can't be null because it will have CustomItem type NBT
 		flagMeta.setPatterns(bannerMeta.getPatterns());
 		flag.setItemMeta(flagMeta);
 

@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.util;
 
+import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.bukkit.util.Vector;
 
 //code by KaktuszSok

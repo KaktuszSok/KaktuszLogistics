@@ -6,6 +6,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class PlaceableOpenBarrel extends ItemPlaceable {
+	/**
+	 * Note: Item's material must be a barrel
+	 */
 	public PlaceableOpenBarrel(CustomItem item) {
 		super(item);
 	}

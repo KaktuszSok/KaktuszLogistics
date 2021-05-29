@@ -1,8 +1,8 @@
 package kaktusz.kaktuszlogistics.projectile;
 
 import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer;
-import kaktusz.kaktuszlogistics.util.DDABlockIterator;
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.DDABlockIterator;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -124,7 +124,7 @@ public abstract class CustomProjectile {
 			return;
 		}
 		Vector nextPos = pos.clone().add(vel);
-		if(pos.getBlockY() < Y_MAXIMUM && world.isChunkLoaded(pos.getBlockX()/ VanillaUtils.CHUNK_SIZE, pos.getBlockZ() / VanillaUtils.CHUNK_SIZE)) {
+		if(pos.getBlockY() < Y_MAXIMUM && world.isChunkLoaded(VanillaUtils.blockToChunkCoord(pos.getBlockX()), VanillaUtils.blockToChunkCoord(pos.getBlockZ()))) {
 			//COLLISION CHECK
 			PriorityQueue<PrioritisedRayHit> rayHits = new PriorityQueue<>(); //blocks and entities which we hit, ordered by distance
 			double velMagnitude = vel.length();

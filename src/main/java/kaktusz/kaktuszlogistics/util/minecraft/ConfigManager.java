@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.util;
+package kaktusz.kaktuszlogistics.util.minecraft;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.modules.KModule;
@@ -16,6 +16,10 @@ public class ConfigManager {
 
 		addModulesSection();
 		addMessagesSection();
+		//add module defaults
+		for (KModule module : KModule.values()) {
+			module.instance.addDefaultConfigs(fileConfig);
+		}
 
 		fileConfig.options().copyDefaults(true);
 		KaktuszLogistics.INSTANCE.saveConfig();

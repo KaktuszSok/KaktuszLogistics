@@ -1,5 +1,6 @@
-package kaktusz.kaktuszlogistics.util;
+package kaktusz.kaktuszlogistics.util.minecraft;
 
+import kaktusz.kaktuszlogistics.util.DDARaycast;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;

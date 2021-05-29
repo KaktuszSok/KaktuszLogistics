@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.util;
+package kaktusz.kaktuszlogistics.util.minecraft;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import org.apache.commons.lang.math.RandomUtils;
@@ -12,9 +12,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class VanillaUtils {
+import java.io.Serializable;
+import java.util.Objects;
 
-    public static final int CHUNK_SIZE = 16;
+public class VanillaUtils {
 
     private static final int MS_PER_TICK = 50;
     private static long tickTime = 0;
@@ -133,4 +134,35 @@ public class VanillaUtils {
         return block.getBlockData().getSoundGroup().getPitch();
     }
 
+    //POSITIONS
+    public static class BlockPosition implements Serializable {
+        private static final long serialVersionUID = 100L;
+
+        public final int x;
+        public final short y;
+        public final int z;
+
+        public BlockPosition(int x, short y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BlockPosition that = (BlockPosition) o;
+            return x == that.x && y == that.y && z == that.z;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y, z);
+        }
+    }
+
+    public static int blockToChunkCoord(int blockCoord) {
+        return blockCoord >> 4;
+    }
 }

@@ -2,7 +2,7 @@ package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.util.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.CastingUtils;
 import org.bukkit.Chunk;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -33,9 +33,9 @@ public final class KLChunk {
 
         }
         public LocalCoordinate(int worldX, int worldY, int worldZ) {
-            x = (byte)(worldX % CHUNK_SIZE);
+            x = (byte)(worldX & 0b1111);
             y = (short)worldY;
-            z = (byte)(worldZ % CHUNK_SIZE);
+            z = (byte)(worldZ & 0b1111);
         }
 
         @Override
@@ -51,8 +51,6 @@ public final class KLChunk {
             return Objects.hash(x, y, z);
         }
     }
-
-    public static transient final short CHUNK_SIZE = VanillaUtils.CHUNK_SIZE;
 
     public transient final KLWorld world;
     public transient final int chunkPosX;
@@ -72,6 +70,7 @@ public final class KLChunk {
     //WORLD INTERACTION
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         blocks.put(new LocalCoordinate(x, y, z), block);
+        block.onSet(world, x,y,z);
         return block;
     }
 
@@ -80,7 +79,10 @@ public final class KLChunk {
      * @return Whether there was a block at this position
      */
     public boolean removeBlock(int x, int y, int z) {
-        return blocks.remove(new LocalCoordinate(x, y, z)) != null;
+        CustomBlock removed = blocks.remove(new LocalCoordinate(x, y, z));
+        if(removed != null)
+            removed.onRemoved(world, x, y, z);
+        return removed != null;
     }
 
     public CustomBlock getBlockAt(int x, int y, int z) {
@@ -88,6 +90,9 @@ public final class KLChunk {
         return blocks.get(pos);
     }
 
+    /**
+     * Allows saving arbitrary data with this chunk
+     */
     public void setExtraData(String key, Serializable value) {
         if(value == null)
             extraData.remove(key);
@@ -95,6 +100,9 @@ public final class KLChunk {
             extraData.put(key, value);
     }
 
+    /**
+     * Allows loading arbitrary data which was previously saved to this chunk using setExtraData
+     */
     public Serializable getExtraData(String key) {
         return extraData.get(key);
     }
@@ -214,21 +222,22 @@ public final class KLChunk {
                 else {
                     result.blocks.put(coord, block);
                 }
+            }
 
-                //read extra data
-                try {
-                    Object obj = in.readObject();
-                    //noinspection unchecked
-                    result.extraData = (Map<String, Serializable>) obj; //if the cast fails then the data is corrupted
-                } catch (Exception e) {
-                    KaktuszLogistics.LOGGER.warning("Couldn't read extra data for chunk " + chunkX + "," + chunkZ + ": " + e);
-                }
+            //read extra data
+            try {
+                Object obj = in.readObject();
+                result.extraData = CastingUtils.confidentCast(obj); //if the cast fails then the data is corrupted
+            } catch (Exception e) {
+                KaktuszLogistics.LOGGER.warning("Couldn't read extra data for chunk " + chunkX + "," + chunkZ + ":");
+                e.printStackTrace();
             }
 
             in.close();
         }
         catch (Exception e) {
-            KaktuszLogistics.LOGGER.warning("FAILED TO LOAD CHUNK (" + chunkX + "," + chunkZ + "):" + e);
+            KaktuszLogistics.LOGGER.warning("FAILED TO LOAD CHUNK (" + chunkX + "," + chunkZ + "):");
+            e.printStackTrace();
         }
 
         return result;

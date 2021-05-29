@@ -65,6 +65,20 @@ public class CustomBlock {
         update(KLWorld.get(b.getWorld()), b.getX(), b.getY(), b.getZ());
     }
 
+    /**
+     * Called when the block is set for whatever reason
+     */
+    public void onSet(KLWorld world, int x, int y, int z) {
+
+    }
+
+    /**
+     * Called when the block is removed for whatever reason
+     */
+    public void onRemoved(KLWorld world, int x, int y, int z) {
+
+    }
+
     @SuppressWarnings("unused")
     public void onMined(BlockBreakEvent e) {
 
