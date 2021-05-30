@@ -32,8 +32,8 @@ public class HouseInfo {
 				return null; //house too big
 
 			VanillaUtils.BlockPosition roomStartPoint = roomCandidates.poll();
-			accessibleBlocksCache.add(roomStartPoint);
 			RoomInfo foundRoom = RoomInfo.calculateRoom(world, roomStartPoint, chunksCache, accessibleBlocksCache);
+			accessibleBlocksCache.add(roomStartPoint);
 			if(foundRoom == null)
 				continue;
 

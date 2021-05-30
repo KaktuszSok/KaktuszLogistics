@@ -13,7 +13,7 @@ public class PlayerContinuousShootingManager {
 	/**
 	 * How long should the trigger be held for when an input event is received
 	 */
-	public static final int INPUT_EVENTS_DELAY = 4;
+	public static final int INPUT_EVENTS_DELAY = 5;
 	public static Map<Player, Integer> playerTriggerTicks = new HashMap<>();
 
 	public static void pullTrigger(Player player) {
