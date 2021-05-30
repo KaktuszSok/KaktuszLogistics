@@ -140,6 +140,12 @@ public class WorldEventsListener implements Listener {
     public void onBlockBurned(BlockBurnEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
     }
+    @EventHandler
+    public void onBlockDropItem(BlockDropItemEvent e) {
+//        Bukkit.broadcastMessage("start cancelled: " + e.isCancelled());
+//        cancelCustomBlockEvent(getCustomBlockFromLocation(e.getBlockState().getLocation()), e);
+//        Bukkit.broadcastMessage("location: " + e.getBlockState().getLocation() + " // block: " + e.getBlockState().getType() + " // cancelled: " + e.isCancelled());
+    }
     @EventHandler(ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
@@ -175,9 +181,7 @@ public class WorldEventsListener implements Listener {
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent e) { //apparently this is quite messy so best to avoid custom blocks w/ physics where possible
-//        Bukkit.broadcastMessage(e.getBlock().getType().name() + " // source: " + e.getSourceBlock().getType().name());
-//        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
-//        Bukkit.broadcastMessage("cancelled: " + e.isCancelled());
+        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {

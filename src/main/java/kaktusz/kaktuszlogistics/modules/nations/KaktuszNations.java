@@ -5,6 +5,7 @@ import kaktusz.kaktuszlogistics.commands.KLCommand;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.nations.commands.FlagSubcommand;
+import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.nations.items.FlagItem;
 import kaktusz.kaktuszlogistics.modules.nations.items.properties.FlagPlaceable;
 import org.bukkit.Material;
@@ -14,6 +15,7 @@ public class KaktuszNations implements KaktuszModule {
 
 	public static KaktuszNations INSTANCE;
 
+	//config quick access
 	public static FlagItem FLAG_ITEM;
 	public static int CLAIM_DISTANCE;
 	public static int OUTSKIRTS_DISTANCE;

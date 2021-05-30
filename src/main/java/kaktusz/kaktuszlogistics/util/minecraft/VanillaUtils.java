@@ -142,10 +142,32 @@ public class VanillaUtils {
         public final short y;
         public final int z;
 
+        public BlockPosition(Location location) {
+            this(location.getBlockX(), (short)location.getBlockY(), location.getBlockZ());
+        }
         public BlockPosition(int x, short y, int z) {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public BlockPosition above() {
+            return new BlockPosition(x,(short)(y+1),z);
+        }
+        public BlockPosition below() {
+            return new BlockPosition(x,(short)(y-1),z);
+        }
+        public BlockPosition east() {
+            return new BlockPosition(x+1,y,z);
+        }
+        public BlockPosition west() {
+            return new BlockPosition(x-1,y,z);
+        }
+        public BlockPosition south() {
+            return new BlockPosition(x,y,z+1);
+        }
+        public BlockPosition north() {
+            return new BlockPosition(x,y,z-1);
         }
 
         @Override
@@ -160,9 +182,49 @@ public class VanillaUtils {
         public int hashCode() {
             return Objects.hash(x, y, z);
         }
+
+        @Override
+        public String toString() {
+            return "(" + x + "," + y + "," + z + ")";
+        }
     }
 
+    public static class MutableBlockPosition {
+        public int x;
+        public short y;
+        public int z;
+
+        public MutableBlockPosition(BlockPosition base) {
+            this(base.x, base.y, base.z);
+        }
+        public MutableBlockPosition(int x, short y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MutableBlockPosition that = (MutableBlockPosition) o;
+            return x == that.x && y == that.y && z == that.z;
+        }
+    }
+
+    /**
+     * @return The coordinate of the chunk this block coordinate is in
+     */
     public static int blockToChunkCoord(int blockCoord) {
         return blockCoord >> 4;
+    }
+
+    /**
+     * Transforms block coordinate to chunk-local coordinate. DO NOT USE FOR Y!
+     * @return The coordinate of the block within its chunk
+     */
+    public static int blockToLocalCoord(int blockCoord) {
+        return blockCoord & 0b1111;
     }
 }
