@@ -82,6 +82,7 @@ public class RoomInfo {
 		MutableBlockPosition maximumCorner = new MutableBlockPosition(startPos);
 		int volume = 0;
 		while (!blocksToCheck.isEmpty()) {
+			KaktuszLogistics.LOGGER.info("DFS contained area loop");
 			BlockPosition currBlock = blocksToCheck.pop();
 
 			//update bounds and volume and check if we didn't violate the maximum values
@@ -111,10 +112,14 @@ public class RoomInfo {
 		}
 
 		//2. follow floor to calculate room's info (we only consider accessible regions)
-		RoomInfo info = new RoomInfo();
+		BlockPosition floorSearchStartBlock = startPos.below();
+		if(!isBlockFloor(floorSearchStartBlock, getChunkSnapshotAtBlockPosition(world, floorSearchStartBlock, chunksCache)))
+			return null; //failed to find floor
 
+		RoomInfo info = new RoomInfo();
 		blocksToCheck.add(startPos.below());
 		while (!blocksToCheck.isEmpty()) {
+			KaktuszLogistics.LOGGER.info("DFS floor loop");
 			BlockPosition currBlock = blocksToCheck.pop();
 			if(!accessibleBlocksCache.add(currBlock))
 				continue; //this block was already checked
@@ -240,6 +245,7 @@ public class RoomInfo {
 	}
 
 	private static ChunkSnapshot getChunkSnapshot(World world, KLWorld.ChunkCoordinate where) {
+		Bukkit.broadcastMessage("Getting snapshot of chunk at " + where.chunkX + "," + where.chunkZ);
 		if(Bukkit.isPrimaryThread()) {
 			return world.getChunkAt(where.chunkX, where.chunkZ).getChunkSnapshot();
 		}
