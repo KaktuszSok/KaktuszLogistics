@@ -34,16 +34,35 @@ public class RoomInfo {
 	 */
 	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL*MAX_SIZE_VERTICAL*MAX_SIZE_HORIZONTAL/3;
 
+	private static final Set<Material> SOLID_FALSE_POSITIVES = SetUtils.setFromElements(
+			Material.OAK_SIGN,
+			Material.SPRUCE_SIGN,
+			Material.BIRCH_SIGN,
+			Material.JUNGLE_SIGN,
+			Material.ACACIA_SIGN,
+			Material.DARK_OAK_SIGN,
+			Material.CRIMSON_SIGN,
+			Material.WARPED_SIGN,
+
+			Material.OAK_WALL_SIGN,
+			Material.SPRUCE_WALL_SIGN,
+			Material.BIRCH_WALL_SIGN,
+			Material.JUNGLE_WALL_SIGN,
+			Material.ACACIA_WALL_SIGN,
+			Material.DARK_OAK_WALL_SIGN,
+			Material.CRIMSON_WALL_SIGN,
+			Material.WARPED_WALL_SIGN
+	);
 	private static final Set<Material> DOORS = SetUtils.setFromElements(
-			Material.DARK_OAK_DOOR,
-			Material.ACACIA_DOOR,
-			Material.BIRCH_DOOR,
-			Material.IRON_DOOR,
-			Material.CRIMSON_DOOR,
-			Material.JUNGLE_DOOR,
 			Material.OAK_DOOR,
 			Material.SPRUCE_DOOR,
-			Material.WARPED_DOOR
+			Material.BIRCH_DOOR,
+			Material.JUNGLE_DOOR,
+			Material.ACACIA_DOOR,
+			Material.DARK_OAK_DOOR,
+			Material.CRIMSON_DOOR,
+			Material.WARPED_DOOR,
+			Material.IRON_DOOR
 	);
 
 	/**
@@ -82,7 +101,6 @@ public class RoomInfo {
 		MutableBlockPosition maximumCorner = new MutableBlockPosition(startPos);
 		int volume = 0;
 		while (!blocksToCheck.isEmpty()) {
-			KaktuszLogistics.LOGGER.info("DFS contained area loop");
 			BlockPosition currBlock = blocksToCheck.pop();
 
 			//update bounds and volume and check if we didn't violate the maximum values
@@ -119,7 +137,6 @@ public class RoomInfo {
 		RoomInfo info = new RoomInfo();
 		blocksToCheck.add(startPos.below());
 		while (!blocksToCheck.isEmpty()) {
-			KaktuszLogistics.LOGGER.info("DFS floor loop");
 			BlockPosition currBlock = blocksToCheck.pop();
 			if(!accessibleBlocksCache.add(currBlock))
 				continue; //this block was already checked
@@ -195,7 +212,8 @@ public class RoomInfo {
 		return isBlockSolid(position, chunkSnapshot);
 	}
 	private static boolean isBlockSolid(BlockPosition position, ChunkSnapshot chunkSnapshot) {
-		return getMaterialFromChunk(position, chunkSnapshot).isSolid();
+		Material mat = getMaterialFromChunk(position, chunkSnapshot);
+		return mat.isSolid() && !SOLID_FALSE_POSITIVES.contains(mat);
 	}
 
 	private static boolean isBlockFloor(BlockPosition position, ChunkSnapshot chunkSnapshot) {
@@ -245,7 +263,6 @@ public class RoomInfo {
 	}
 
 	private static ChunkSnapshot getChunkSnapshot(World world, KLWorld.ChunkCoordinate where) {
-		Bukkit.broadcastMessage("Getting snapshot of chunk at " + where.chunkX + "," + where.chunkZ);
 		if(Bukkit.isPrimaryThread()) {
 			return world.getChunkAt(where.chunkX, where.chunkZ).getChunkSnapshot();
 		}
