@@ -1,10 +1,7 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
@@ -122,8 +119,16 @@ public class WorldEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockInteracted(PlayerInteractEvent e) {
         //noinspection ConstantConditions
-        if(e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.getClickedBlock().getType().isInteractable() || e.getPlayer().isSneaking()) //ignore event if we're not interacting with the block
+        if(e.getAction() != Action.RIGHT_CLICK_BLOCK || !e.getClickedBlock().getType().isInteractable()) //ignore event if we're not interacting with the block
             return;
+
+        //also not interacting if we are sneaking and don't have an empty handy
+        if(e.getPlayer().isSneaking()) {
+            ItemStack usedItem = e.getItem();
+            if(usedItem != null && usedItem.getAmount() != 0 && usedItem.getType() != Material.AIR) {
+                return;
+            }
+        }
 
         Block b = e.getClickedBlock();
         if(b == null)

@@ -8,7 +8,9 @@ import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import kaktusz.kaktuszlogistics.util.SetUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Cancellable;
@@ -20,14 +22,71 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.inventory.FurnaceInventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Forwards events from vanilla & modules to CustomItems
  */
 @SuppressWarnings("ConstantConditions")
 public class ItemEventsListener implements Listener {
+
+    /**
+     * Insertions into this inventory with target slot index within the specified range will pass the check() function
+     */
+    private static class InventorySlotRange {
+        public final Class<? extends Inventory> inventoryType;
+        public final int inventoryMinSlot;
+        public final int inventoryMaxSlot;
+
+        public InventorySlotRange(Class<? extends Inventory> inventoryType, int inventoryMaxSlot) {
+            this.inventoryType = inventoryType;
+            this.inventoryMinSlot = 0;
+            this.inventoryMaxSlot = inventoryMaxSlot;
+        }
+        public InventorySlotRange(Class<? extends Inventory> inventoryType, int inventoryMinSlot, int inventoryMaxSlot) {
+            this.inventoryType = inventoryType;
+            this.inventoryMinSlot = inventoryMinSlot;
+            this.inventoryMaxSlot = inventoryMaxSlot;
+        }
+
+        /**
+         * @return True if the inventory's class matches and the target slot is less than or equal the tuple's max slot
+         */
+        public boolean check(Inventory targetInventory, int targetSlot) {
+            return (targetSlot == -1 || targetSlot >= inventoryMinSlot && targetSlot <= inventoryMaxSlot) && inventoryType.isAssignableFrom(targetInventory.getClass());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            InventorySlotRange that = (InventorySlotRange) o;
+            return inventoryMaxSlot == that.inventoryMaxSlot && inventoryType.equals(that.inventoryType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(inventoryType);
+        }
+    }
+
+    /**
+     * Any insertions that match one or more of these checks will be cancelled
+     */
+    private static final Set<InventorySlotRange> bannedInventories = SetUtils.setFromElements(
+            new InventorySlotRange(AnvilInventory.class, 2),
+            new InventorySlotRange(BrewerInventory.class, 4),
+            new InventorySlotRange(CartographyInventory.class, 2),
+            new InventorySlotRange(EnchantingInventory.class, 1, 1),
+            new InventorySlotRange(GrindstoneInventory.class, 2),
+            new InventorySlotRange(LoomInventory.class, 3),
+            new InventorySlotRange(SmithingInventory.class, 2),
+            new InventorySlotRange(StonecutterInventory.class, 1)
+    );
 
     @SuppressWarnings("DefaultAnnotationParam") //clarity
     @EventHandler(ignoreCancelled = false) //air clicks are always cancelled for whatever reason, and we dont want to miss them
@@ -127,31 +186,56 @@ public class ItemEventsListener implements Listener {
     }
 
     //SPECIAL INVENTORIES
-    //TODO: support more inventories e.g. stonecutter and shit
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent e) {
-        if(e.getClickedInventory() instanceof FurnaceInventory) {
-            onTryInsertFurnace(e.getCursor(), ((FurnaceInventory)e.getClickedInventory()).getResult(), e);
+    /**
+     * Handles an item being put into a certain slot of an inventory
+     * @param stack The item stack being put into the inventory
+     * @param slot The slot of the inventory it is being put in. -1 if unknown.
+     * @param inv The target inventory
+     * @param e The event of this happening
+     */
+    private void onItemPutInInventory(ItemStack stack, int slot, Inventory inv, Cancellable e) {
+        if(slot == -999 || inv == null) //-999 = clicked outside of inventory
+            return;
+        //special behaviour: furnace
+        if(inv instanceof FurnaceInventory) {
+            if(slot <= 0)
+                onTryInsertFurnace(stack, ((FurnaceInventory) inv).getResult(), e);
+            return;
         }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryDrag(InventoryDragEvent e) {
-        if(e.getInventory() instanceof FurnaceInventory) {
-            for(int s : e.getInventorySlots()) {
-                if(s == 0) {
-                    onTryInsertFurnace(e.getOldCursor(),((FurnaceInventory)e.getInventory()).getResult(), e);
-                    return;
-                }
+        //banned inventories:
+        if(CustomItem.getFromStack(stack) == null)
+            return;
+        for (InventorySlotRange bannedInv : bannedInventories) {
+            if(bannedInv.check(inv, slot)) {
+                e.setCancelled(true);
+                return;
             }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onInventoryMove(InventoryMoveItemEvent e) {
-        if(e.getDestination() instanceof FurnaceInventory) {
-            onTryInsertFurnace(e.getItem(), ((FurnaceInventory)e.getDestination()).getResult(), e);
+    public void onInventoryClick(InventoryClickEvent e) {
+        if(e.isShiftClick() || e.getClick().isKeyboardClick()) { //transfer between inventories sorta deal
+            onItemPutInInventory(e.getCurrentItem(), -1, e.getInventory(), e);
+            return;
         }
+        onItemPutInInventory(e.getCursor(), e.getSlot(), e.getClickedInventory(), e);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent e) {
+        Map<Integer, ItemStack> newItems = e.getNewItems();
+        Inventory inv = e.getInventory();
+        for(int s : e.getInventorySlots()) {
+            onItemPutInInventory(newItems.get(s), s, inv, e);
+            if(e.isCancelled()) //if it cancelled the event, dont bother with the rest of the items
+                break;
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryMove(InventoryMoveItemEvent e) {
+        onItemPutInInventory(e.getItem(), -1, e.getDestination(), e);
     }
 
     //CRAFTING
@@ -183,6 +267,12 @@ public class ItemEventsListener implements Listener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBurn(FurnaceBurnEvent e) {
+        if(CustomItem.getFromStack(e.getFuel()) != null)
+            e.setCancelled(true); //make custom items unburnable
     }
 
     @EventHandler(ignoreCancelled = true)

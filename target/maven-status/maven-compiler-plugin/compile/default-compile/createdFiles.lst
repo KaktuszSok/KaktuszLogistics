@@ -34,6 +34,7 @@ kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class
 kaktusz\kaktuszlogistics\world\WorldEventsListener.class
 kaktusz\kaktuszlogistics\events\IHeldListener.class
 kaktusz\kaktuszlogistics\world\KLChunk.class
+kaktusz\kaktuszlogistics\events\ItemEventsListener$InventorySlotRange.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\modules\weaponry\KaktuszWeaponry.class
 kaktusz\kaktuszlogistics\world\DurableBlock.class
