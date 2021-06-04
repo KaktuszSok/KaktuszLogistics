@@ -131,9 +131,9 @@ public abstract class Subcommand {
                 //edge case: if the specified type is ItemProperty, we want to check if the passed arg is a CustomItem with the appropriate property
                 if(parsedObjects[i] != null && (ItemProperty.class.isAssignableFrom(t.type)) && parsedObjects[i] instanceof CustomItem &&
                         ((CustomItem)parsedObjects[i]).findProperty(t.type.asSubclass(ItemProperty.class)) != null) {
-                    //we are looking for an ItemProperty, the object is a CustomItem and the CustomItem contains the specified property.
-                    //accept this input!
-                    return true;
+                    //we *are* looking for an ItemProperty, the object *is* a CustomItem and the CustomItem *does* contain the specified property.
+                    //accept this argument!
+                    continue;
                 }
                 //otherwise, we messed up
                 sendErrorMessage(errorTarget, "Invalid input for argument " + arguments[i].argName + "! (" + inputArgs[i+1] + " must be " + t.toString() + ")");
