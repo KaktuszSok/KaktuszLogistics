@@ -1,8 +1,8 @@
 package kaktusz.kaktuszlogistics.items;
 
-import kaktusz.kaktuszlogistics.events.IHeldListener;
-import kaktusz.kaktuszlogistics.events.IPlacedListener;
-import kaktusz.kaktuszlogistics.events.IUseListener;
+import kaktusz.kaktuszlogistics.items.events.IHeldListener;
+import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
+import kaktusz.kaktuszlogistics.items.events.IUseListener;
 import kaktusz.kaktuszlogistics.items.properties.ItemEnchants;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;

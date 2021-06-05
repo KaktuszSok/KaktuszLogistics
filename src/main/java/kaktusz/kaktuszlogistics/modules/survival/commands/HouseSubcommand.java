@@ -32,7 +32,7 @@ public class HouseSubcommand extends Subcommand {
 			return true;
 		}
 
-		if(KaktuszSurvival.CALC_ROOMS_ASYNC) {
+		if(KaktuszSurvival.CALC_ROOMS_ASYNC.value) {
 			Bukkit.getScheduler().runTaskAsynchronously(KaktuszLogistics.INSTANCE, () -> {
 				String playerMessage = doHouseCheck(p);
 				if (p.isOnline())

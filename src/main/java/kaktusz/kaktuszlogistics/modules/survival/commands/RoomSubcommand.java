@@ -35,7 +35,7 @@ public class RoomSubcommand extends Subcommand {
 			return true;
 		}
 
-		if(KaktuszSurvival.CALC_ROOMS_ASYNC) {
+		if(KaktuszSurvival.CALC_ROOMS_ASYNC.value) {
 			Bukkit.getScheduler().runTaskAsynchronously(KaktuszLogistics.INSTANCE, () -> {
 				String playerMessage = doRoomCheck(p);
 				if (p.isOnline())

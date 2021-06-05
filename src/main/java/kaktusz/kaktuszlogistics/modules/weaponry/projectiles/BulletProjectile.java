@@ -11,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+@SuppressWarnings("unused")
 public class BulletProjectile extends CustomProjectile {
 
 	private final static double MAX_DIST_THROUGH_BLOCK = Math.sqrt(3);
@@ -18,7 +19,7 @@ public class BulletProjectile extends CustomProjectile {
 	//SETTINGS
 	private float damage = 3f;
 	private float maxPenetration = 1.5f;
-	private String killMessage = KaktuszWeaponry.INSTANCE.getShotMessage();
+	private String killMessage = KaktuszWeaponry.SHOT_MESSAGE.value;
 
 	//RUNTIME
 	private final double startSpeed;

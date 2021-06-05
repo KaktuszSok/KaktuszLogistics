@@ -9,11 +9,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class DurableBlock extends CustomBlock {
 
-    /**
-     * The item that this block is based on MUST have the ItemDurability property
-     */
-    public DurableBlock(ItemPlaceable placeProperty, ItemMeta meta) {
-        super(placeProperty, meta);
+    private transient final BlockDurability dura;
+
+    public DurableBlock(BlockDurability property, ItemMeta meta) {
+        super(property, meta);
+        this.dura = property;
     }
 
     @Override
@@ -25,8 +25,6 @@ public class DurableBlock extends CustomBlock {
 
     @Override
     public void onDamaged(int damage, Block b, boolean doSound) {
-        BlockDurability dura = type.item.findProperty(BlockDurability.class);
-
         if(doSound) {
             float duraBeforeHit = dura.getDurability(data);
             if (dura.damageSound != null) {

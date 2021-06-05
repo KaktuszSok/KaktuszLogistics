@@ -1,10 +1,9 @@
 package kaktusz.kaktuszlogistics.modules;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 
 public interface KaktuszModule {
 	void initialise();
-	default void addDefaultConfigs(FileConfiguration config) {
-		//no configs by default
-	}
+	ConfigOption<?>[] getAllOptions();
 }

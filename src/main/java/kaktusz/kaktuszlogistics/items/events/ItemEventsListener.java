@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.events;
+package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
@@ -10,7 +10,6 @@ import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Cancellable;
@@ -38,16 +37,16 @@ public class ItemEventsListener implements Listener {
      * Insertions into this inventory with target slot index within the specified range will pass the check() function
      */
     private static class InventorySlotRange {
-        public final Class<? extends Inventory> inventoryType;
+        public final InventoryType inventoryType;
         public final int inventoryMinSlot;
         public final int inventoryMaxSlot;
 
-        public InventorySlotRange(Class<? extends Inventory> inventoryType, int inventoryMaxSlot) {
+        public InventorySlotRange(InventoryType inventoryType, int inventoryMaxSlot) {
             this.inventoryType = inventoryType;
             this.inventoryMinSlot = 0;
             this.inventoryMaxSlot = inventoryMaxSlot;
         }
-        public InventorySlotRange(Class<? extends Inventory> inventoryType, int inventoryMinSlot, int inventoryMaxSlot) {
+        public InventorySlotRange(InventoryType inventoryType, int inventoryMinSlot, int inventoryMaxSlot) {
             this.inventoryType = inventoryType;
             this.inventoryMinSlot = inventoryMinSlot;
             this.inventoryMaxSlot = inventoryMaxSlot;
@@ -57,7 +56,7 @@ public class ItemEventsListener implements Listener {
          * @return True if the inventory's class matches and the target slot is less than or equal the tuple's max slot
          */
         public boolean check(Inventory targetInventory, int targetSlot) {
-            return (targetSlot == -1 || targetSlot >= inventoryMinSlot && targetSlot <= inventoryMaxSlot) && inventoryType.isAssignableFrom(targetInventory.getClass());
+            return (targetSlot == -1 || targetSlot >= inventoryMinSlot && targetSlot <= inventoryMaxSlot) && targetInventory.getType() == inventoryType;
         }
 
         @Override
@@ -78,14 +77,14 @@ public class ItemEventsListener implements Listener {
      * Any insertions that match one or more of these checks will be cancelled
      */
     private static final Set<InventorySlotRange> bannedInventories = SetUtils.setFromElements(
-            new InventorySlotRange(AnvilInventory.class, 2),
-            new InventorySlotRange(BrewerInventory.class, 4),
-            new InventorySlotRange(CartographyInventory.class, 2),
-            new InventorySlotRange(EnchantingInventory.class, 1, 1),
-            new InventorySlotRange(GrindstoneInventory.class, 2),
-            new InventorySlotRange(LoomInventory.class, 3),
-            new InventorySlotRange(SmithingInventory.class, 2),
-            new InventorySlotRange(StonecutterInventory.class, 1)
+            new InventorySlotRange(InventoryType.ANVIL, 2),
+            new InventorySlotRange(InventoryType.BREWING, 4),
+            new InventorySlotRange(InventoryType.CARTOGRAPHY, 2),
+            new InventorySlotRange(InventoryType.ENCHANTING, 1, 1),
+            new InventorySlotRange(InventoryType.GRINDSTONE, 2),
+            new InventorySlotRange(InventoryType.LOOM, 3),
+            new InventorySlotRange(InventoryType.SMITHING, 2),
+            new InventorySlotRange(InventoryType.STONECUTTER, 1)
     );
 
     @SuppressWarnings("DefaultAnnotationParam") //clarity
@@ -163,6 +162,7 @@ public class ItemEventsListener implements Listener {
         }
     }
 
+    //MODULE EVENTS
     @EventHandler(ignoreCancelled = true)
     public void onTriggerHeld(PlayerTriggerHeldEvent e) {
         ItemStack main = e.getPlayer().getInventory().getItemInMainHand();
@@ -197,7 +197,7 @@ public class ItemEventsListener implements Listener {
         if(slot == -999 || inv == null) //-999 = clicked outside of inventory
             return;
         //special behaviour: furnace
-        if(inv instanceof FurnaceInventory) {
+        if(inv.getType() == InventoryType.FURNACE) {
             if(slot <= 0)
                 onTryInsertFurnace(stack, ((FurnaceInventory) inv).getResult(), e);
             return;

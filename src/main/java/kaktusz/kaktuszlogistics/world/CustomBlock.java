@@ -8,10 +8,14 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+/**
+ * A custom block is an instance of a custom item which is physically placed in the world.
+ */
 public class CustomBlock {
 
     public transient final ItemPlaceable type;
@@ -29,8 +33,14 @@ public class CustomBlock {
         //read type from data
         String typeStr = customItemData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
         CustomItem type = CustomItemManager.tryGetItem(typeStr);
-        //noinspection ConstantConditions
-        return type.findProperty(ItemPlaceable.class).createCustomBlock(customItemData);
+        //check if type was valid
+        if(type == null)
+            return null;
+        //try get placeable property
+        ItemPlaceable placeableProperty = type.findProperty(ItemPlaceable.class);
+        if(placeableProperty == null)
+            return null;
+        return placeableProperty.createCustomBlock(customItemData);
     }
 
     /**
@@ -59,8 +69,8 @@ public class CustomBlock {
         return drop;
     }
 
-    //EVENTS (note that these are cancelled where possible and replaced with custom logic)
-    public void onPlaced(BlockPlaceEvent e) { //the appropriate block is placed by the BlockItem.
+    //EVENTS (note that the events are cancelled where possible and their original effects should be replaced with custom logic)
+    public void onPlaced(BlockPlaceEvent e) { //the appropriate block is placed by the ItemPlaceable.
         Block b = e.getBlockPlaced();
         update(KLWorld.get(b.getWorld()), b.getX(), b.getY(), b.getZ());
     }
@@ -79,6 +89,9 @@ public class CustomBlock {
 
     }
 
+    /**
+     * Called when a player mines this block
+     */
     @SuppressWarnings("unused")
     public void onMined(BlockBreakEvent e) {
 
@@ -86,11 +99,18 @@ public class CustomBlock {
 
     /**
      * Called when intentionally damaged, i.e. mined or exploded.
-     * @param damage damage value. 1 for vanilla means.
+     * @param damage damage value. 1 for vanilla mining. For explosions, damage scales with blast power.
      * @param b physical block, to provide world and coordinates
      */
     public void onDamaged(int damage, Block b, boolean doSound) {
         breakBlock(b, true);
+    }
+
+    /**
+     * Called when the player right-clicks this block
+     */
+    public void onInteracted(PlayerInteractEvent e) {
+
     }
 
     public void breakBlock(Block b, boolean dropItem) {

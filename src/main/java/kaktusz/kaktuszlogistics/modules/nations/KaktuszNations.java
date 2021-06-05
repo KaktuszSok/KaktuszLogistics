@@ -5,11 +5,14 @@ import kaktusz.kaktuszlogistics.commands.KLCommand;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.nations.commands.FlagSubcommand;
-import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.nations.items.FlagItem;
 import kaktusz.kaktuszlogistics.modules.nations.items.properties.FlagPlaceable;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
+import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.Arrays;
 
 public class KaktuszNations implements KaktuszModule {
 
@@ -17,15 +20,12 @@ public class KaktuszNations implements KaktuszModule {
 
 	//config quick access
 	public static FlagItem FLAG_ITEM;
-	public static int CLAIM_DISTANCE;
-	public static int OUTSKIRTS_DISTANCE;
+
+	public static final IntegerOption CLAIM_DISTANCE = new IntegerOption("nations.claim.radius", 3);
+	public static final IntegerOption OUTSKIRTS_DISTANCE = new IntegerOption("nations.claims.outskirtsDepth", 4);
 
 	public void initialise() {
 		INSTANCE = this;
-
-		//config
-		CLAIM_DISTANCE = KaktuszLogistics.INSTANCE.config.accessConfigDirectly().getInt("nations.claims.radius");
-		OUTSKIRTS_DISTANCE = KaktuszLogistics.INSTANCE.config.accessConfigDirectly().getInt("nations.claims.outskirtsDepth");
 
 		//register items
 		FLAG_ITEM = new FlagItem("nationFlag", "Flag", Material.WHITE_BANNER);
@@ -37,8 +37,10 @@ public class KaktuszNations implements KaktuszModule {
 	}
 
 	@Override
-	public void addDefaultConfigs(FileConfiguration config) {
-		config.addDefault("nations.claims.radius", 3);
-		config.addDefault("nations.claims.outskirtsDepth", 4);
+	public ConfigOption<?>[] getAllOptions() {
+		return new ConfigOption[] {
+				CLAIM_DISTANCE,
+				OUTSKIRTS_DISTANCE
+		};
 	}
 }

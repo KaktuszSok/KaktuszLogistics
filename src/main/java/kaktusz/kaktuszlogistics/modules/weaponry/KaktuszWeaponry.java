@@ -7,13 +7,16 @@ import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo.AmmoContainer;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo.BulletContainer;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.GunItem;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
+import kaktusz.kaktuszlogistics.util.minecraft.config.StringOption;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.file.FileConfiguration;
 
 public class KaktuszWeaponry implements KaktuszModule {
 
 	public static KaktuszWeaponry INSTANCE;
+
+	public static final StringOption SHOT_MESSAGE = new StringOption("weaponry.shotMessage", "%k was shot by %s");
 
 	public void initialise() {
 		INSTANCE = this;
@@ -38,17 +41,11 @@ public class KaktuszWeaponry implements KaktuszModule {
 				.setMaxAmmo(30);
 	}
 
-	//CONFIG
 	@Override
-	public void addDefaultConfigs(FileConfiguration config) {
-		KaktuszLogistics.INSTANCE.config.accessConfigDirectly().addDefault("weaponry.shotMessage", "%k was shot by %s");
-	}
-
-	/**
-	 * Retrieves (from the config) the formatting-ready message of an entity being shot by another
-	 */
-	public String getShotMessage() {
-		return KaktuszLogistics.INSTANCE.config.accessConfigDirectly().getString("weaponry.shotMessage");
+	public ConfigOption<?>[] getAllOptions() {
+		return new ConfigOption[] {
+			SHOT_MESSAGE
+		};
 	}
 
 }

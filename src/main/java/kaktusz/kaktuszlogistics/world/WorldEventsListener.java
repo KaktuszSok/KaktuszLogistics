@@ -3,11 +3,15 @@ package kaktusz.kaktuszlogistics.world;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.event.*;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -81,9 +85,16 @@ public class WorldEventsListener implements Listener {
     private static CustomBlock getCustomBlockFromLocation(Location loc) {
         return KLWorld.get(loc.getWorld()).getLoadedBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
-    private static void cancelCustomBlockEvent(CustomBlock block, Cancellable e) {
-        if(block == null) return;
+
+    /**
+     * Cancels an event if the provided custom block is not null
+     * @return True if the event was cancelled, false otherwise
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    private static boolean cancelCustomBlockEvent(CustomBlock block, Cancellable e) {
+        if(block == null) return false;
         e.setCancelled(true);
+        return true;
     }
     private static void cancelEventIfCBlockInList(List<Block> blocks, Cancellable e) {
         for(Block b : blocks) {
@@ -138,6 +149,20 @@ public class WorldEventsListener implements Listener {
             return;
 
         e.setUseInteractedBlock(Event.Result.DENY);
+        cb.onInteracted(e);
+    }
+
+    /**
+     * Called when a hopper etc. puts an item into an inventory
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockReceivedItem(InventoryMoveItemEvent e) {
+        //block custom blocks from receiving items
+        if(e.getDestination().getLocation() != null)
+            cancelCustomBlockEvent(getCustomBlockFromLocation(e.getDestination().getLocation()), e);
+        //block extracting items from custom blocks
+        if(!e.isCancelled() && e.getSource().getLocation() != null)
+            cancelCustomBlockEvent(getCustomBlockFromLocation(e.getSource().getLocation()), e);
     }
 
     //General events that destroy (or otherwise mess up) our block

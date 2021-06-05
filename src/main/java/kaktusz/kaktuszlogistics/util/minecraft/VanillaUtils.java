@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.util.minecraft;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -82,9 +83,9 @@ public class VanillaUtils {
      * @param killMessage String that is formatted into the kill message. %k = killed entity, %s = damage source
      */
     private static void killEntity(LivingEntity entity, Entity source, String killMessage) {
-        if(entity instanceof Player && !KaktuszLogistics.INSTANCE.config.broadcastPlayerKills())
+        if(entity instanceof Player && !ConfigManager.BROADCAST_PLAYER_KILLS.value)
             return;
-        else if(!KaktuszLogistics.INSTANCE.config.broadcastNamedMobKills())
+        else if(!ConfigManager.BROADCAST_NAMED_MOB_KILLS.value)
             return;
 
         String killedName = entity.getCustomName();

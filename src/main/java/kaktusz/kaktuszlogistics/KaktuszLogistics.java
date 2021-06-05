@@ -2,11 +2,11 @@ package kaktusz.kaktuszlogistics;
 
 import kaktusz.kaktuszlogistics.commands.CommandManager;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.events.ItemEventsListener;
+import kaktusz.kaktuszlogistics.items.events.ItemEventsListener;
 import kaktusz.kaktuszlogistics.modules.KModule;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.projectile.ProjectileManager;
-import kaktusz.kaktuszlogistics.util.minecraft.ConfigManager;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.WorldEventsListener;
@@ -38,7 +38,7 @@ public class KaktuszLogistics extends JavaPlugin {
         registerCommands();
         registerListeners();
 
-        boolean enableKWeaponry = config.isModuleEnabled(KModule.WEAPONRY);
+        boolean enableKWeaponry = KModule.WEAPONRY.isEnabled.value;
 
         new BukkitRunnable() {
             @Override
@@ -60,7 +60,7 @@ public class KaktuszLogistics extends JavaPlugin {
 
     private void initModules() {
         for (KModule module : KModule.values()) {
-            if(config.isModuleEnabled(module))
+            if(module.isEnabled.value)
                 module.instance.initialise();
         }
     }

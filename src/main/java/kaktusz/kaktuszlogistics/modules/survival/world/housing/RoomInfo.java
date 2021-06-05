@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.SetUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
@@ -10,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -21,20 +23,22 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
  * Information about some enclosed area. Used to calculate labour supply etc.
  */
 public class RoomInfo {
+	private static final boolean DEBUG_MODE = false;
+
 	/**
 	 * Maximum extents of room, including walls. An enclosed area bigger than this is considered outside.
 	 */
-	public static int MAX_SIZE_HORIZONTAL = 33;
+	public static final IntegerOption MAX_SIZE_HORIZONTAL = new IntegerOption("survival.housing.room.maxSizeHorizontal", 33);
 	/**
 	 * Maximum extents of room, including floor and ceiling. An enclosed area bigger than this is considered outside.
 	 */
-	public static int MAX_SIZE_VERTICAL = 12;
+	public static final IntegerOption MAX_SIZE_VERTICAL = new IntegerOption("survival.housing.room.maxSizeVertical", 12);
 	/**
 	 * Maximum volume of room, including walls, floors and ceilings. An enclosed area bigger than this is considered outside.
 	 */
-	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL*MAX_SIZE_VERTICAL*MAX_SIZE_HORIZONTAL/3;
+	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL.value*MAX_SIZE_VERTICAL.value*MAX_SIZE_HORIZONTAL.value/3;
 
-	private static final Set<Material> SOLID_FALSE_POSITIVES = SetUtils.setFromElements(
+	public static final Set<Material> SOLID_FALSE_POSITIVES = SetUtils.setFromElements(
 			Material.OAK_SIGN,
 			Material.SPRUCE_SIGN,
 			Material.BIRCH_SIGN,
@@ -51,9 +55,22 @@ public class RoomInfo {
 			Material.ACACIA_WALL_SIGN,
 			Material.DARK_OAK_WALL_SIGN,
 			Material.CRIMSON_WALL_SIGN,
-			Material.WARPED_WALL_SIGN
-	);
-	private static final Set<Material> DOORS = SetUtils.setFromElements(
+			Material.WARPED_WALL_SIGN,
+
+			Material.OAK_PRESSURE_PLATE,
+			Material.SPRUCE_PRESSURE_PLATE,
+			Material.BIRCH_PRESSURE_PLATE,
+			Material.JUNGLE_PRESSURE_PLATE,
+			Material.ACACIA_PRESSURE_PLATE,
+			Material.DARK_OAK_PRESSURE_PLATE,
+			Material.CRIMSON_PRESSURE_PLATE,
+			Material.WARPED_PRESSURE_PLATE,
+			Material.STONE_PRESSURE_PLATE,
+			Material.POLISHED_BLACKSTONE_PRESSURE_PLATE,
+			Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
+			Material.HEAVY_WEIGHTED_PRESSURE_PLATE
+			);
+	public static final Set<Material> DOORS = SetUtils.setFromElements(
 			Material.OAK_DOOR,
 			Material.SPRUCE_DOOR,
 			Material.BIRCH_DOOR,
@@ -64,6 +81,7 @@ public class RoomInfo {
 			Material.WARPED_DOOR,
 			Material.IRON_DOOR
 	);
+	public static final Set<Material> SLABS = new HashSet<>(); //pre-calculated in KaktuszSurvival
 
 	/**
 	 * Accessible floor area in blocks (square metres).
@@ -91,6 +109,7 @@ public class RoomInfo {
 	 * @param accessibleBlocksCache A cache of blocks accessible in this room from the starting position. It will be populated by the algorithm.
 	 * @return null if the room was too big or was not a room, otherwise the information about the room.
 	 */
+	@SuppressWarnings("UnnecessaryContinue")
 	public static RoomInfo calculateRoom(World world, BlockPosition startPos, Map<KLWorld.ChunkCoordinate, ChunkSnapshot> chunksCache, Set<BlockPosition> accessibleBlocksCache) {
 		//1. check if we are in an enclosed area
 		Set<BlockPosition> checkedBlocks = new HashSet<>();
@@ -105,20 +124,32 @@ public class RoomInfo {
 
 			//update bounds and volume and check if we didn't violate the maximum values
 			volume++;
-			if(volume > MAX_VOLUME) //room too big
+			if(volume > MAX_VOLUME) { //room too big
+				if(DEBUG_MODE)
+					Bukkit.broadcastMessage("Volume exceeded " + MAX_VOLUME + " at " + currBlock);
 				return null;
+			}
 			minimumCorner.x = Math.min(minimumCorner.x, currBlock.x);
 			maximumCorner.x = Math.max(maximumCorner.x, currBlock.x);
-			if(maximumCorner.x - minimumCorner.x > MAX_SIZE_HORIZONTAL) //room too big
+			if(maximumCorner.x - minimumCorner.x > MAX_SIZE_HORIZONTAL.value) {//room too big
+				if(DEBUG_MODE)
+					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;
+			}
 			minimumCorner.y = (short)Math.min(minimumCorner.y, currBlock.y);
 			maximumCorner.y = (short)Math.max(maximumCorner.y, currBlock.y);
-			if(maximumCorner.y - minimumCorner.y > MAX_SIZE_VERTICAL) //room too big
+			if(maximumCorner.y - minimumCorner.y > MAX_SIZE_VERTICAL.value) { //room too big
+				if(DEBUG_MODE)
+					Bukkit.broadcastMessage("Height exceeded " + MAX_SIZE_VERTICAL + " at " + currBlock);
 				return null;
+			}
 			minimumCorner.z = Math.min(minimumCorner.z, currBlock.z);
 			maximumCorner.z = Math.max(maximumCorner.z, currBlock.z);
-			if(maximumCorner.z - minimumCorner.z > MAX_SIZE_HORIZONTAL) //room too big
+			if(maximumCorner.z - minimumCorner.z > MAX_SIZE_HORIZONTAL.value) { //room too big
+				if(DEBUG_MODE)
+					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;
+			}
 
 			if(isBlockSolid(world, currBlock, chunksCache))
 				continue; //reached a wall - don't add its neighbours
@@ -146,50 +177,22 @@ public class RoomInfo {
 			BlockPosition aboveBlock = currBlock.above();
 			boolean checkedAboveBlock = accessibleBlocksCache.contains(aboveBlock);
 
-			//special case: bed
-			Bed.Part bedPart = null;
-			if(!checkedAboveBlock) //if the above block hasn't been checked yet, see if we are under a bed
-				bedPart = isBlockBedFloor(currBlock, currChunk);
-			if(bedPart != null)
-				accessibleBlocksCache.add(currBlock.above()); //add the bed, which is above the current block
-			else
-				bedPart = isBlockBed(currBlock, currChunk); //check if current block is the bed
-
-			if(bedPart != null) {
-				info.beds += bedPart.ordinal(); //0 if head, 1 if foot (this way we don't double-count beds)
+			//special cases: bed/door and case 1: floor
+			if (processBlock(accessibleBlocksCache, blocksToCheck, info, currBlock, currChunk))
 				continue;
-			}
-
-			//special case: door
-			if(DOORS.contains(getMaterialFromChunk(aboveBlock, currChunk))) {
-				Door door = (Door)getBlockDataFromChunk(aboveBlock, currChunk);
-				Vector doorDir = door.getFacing().getDirection();
-				BlockPosition floorBehindDoor = new BlockPosition(currBlock.x + doorDir.getBlockX(), currBlock.y, currBlock.z + doorDir.getBlockZ());
-				if(accessibleBlocksCache.contains(floorBehindDoor)) { //door was facing towards where we came from
-					floorBehindDoor = new BlockPosition(currBlock.x - doorDir.getBlockX(), currBlock.y, currBlock.z - doorDir.getBlockZ());
-				}
-				//we might later discover the door leads to the same room, but we will adress that further down the line
-				info.possibleConnectedRooms.add(floorBehindDoor.above());
-				continue;
-			}
-
-			if(isBlockFloor(currBlock, currChunk)) { //case 1: floor
-				info.floorArea++;
-				pushManyToStack(blocksToCheck, accessibleBlocksCache, currBlock.east(), currBlock.west(), currBlock.north(), currBlock.south());
-				continue;
-			}
 			//case 2,3,4: incline, decline or inaccessible
-			if(!checkedAboveBlock && isBlockFloor(aboveBlock, currChunk)) { //case 2: incline
-				info.floorArea++;
-				pushManyToStack(blocksToCheck, accessibleBlocksCache, aboveBlock.east(), aboveBlock.west(), aboveBlock.north(), aboveBlock.south());
-				accessibleBlocksCache.add(aboveBlock);
-				continue;
+			if(!checkedAboveBlock) { //case 2: incline
+				if (processBlock(accessibleBlocksCache, blocksToCheck, info, aboveBlock, currChunk)) {
+					accessibleBlocksCache.add(aboveBlock);
+					continue;
+				}
 			}
 			BlockPosition belowBlock = currBlock.below();
-			if(!accessibleBlocksCache.contains(belowBlock) && isBlockFloor(belowBlock, currChunk)) { //case 3: decline
-				info.floorArea++;
-				pushManyToStack(blocksToCheck, accessibleBlocksCache, belowBlock.east(), belowBlock.west(), belowBlock.north(), belowBlock.south());
-				accessibleBlocksCache.add(belowBlock);
+			if(!accessibleBlocksCache.contains(belowBlock)) { //case 3: decline
+				if (processBlock(accessibleBlocksCache, blocksToCheck, info, belowBlock, currChunk)) {
+					accessibleBlocksCache.add(belowBlock);
+					continue;
+				}
 			}
 			//case 4: inaccessible (do nothing - don't add neighbours)
 		}
@@ -202,6 +205,40 @@ public class RoomInfo {
 
 		return info;
 	}
+
+	private static boolean processBlock(Set<BlockPosition> accessibleBlocksCache, Stack<BlockPosition> blocksToCheck, RoomInfo info, BlockPosition currBlock, ChunkSnapshot currChunk) {
+		//special case: bed
+		Bed.Part bedPart = isBlockBed(currBlock, currChunk);
+		if(bedPart != null) {
+			info.beds += bedPart.ordinal(); //0 if head, 1 if foot (this way we don't double-count beds)
+			return true;
+		}
+
+		//special case: door
+		if(DOORS.contains(getMaterialFromChunk(currBlock, currChunk))) {
+			Door door = (Door)getBlockDataFromChunk(currBlock, currChunk);
+			Vector doorDir = door.getFacing().getDirection();
+			BlockPosition floorBehindDoor = new BlockPosition(currBlock.x + doorDir.getBlockX(), (short)(currBlock.y-1), currBlock.z + doorDir.getBlockZ());
+			if(accessibleBlocksCache.contains(floorBehindDoor)) { //door was facing towards where we came from
+				floorBehindDoor = new BlockPosition(currBlock.x - doorDir.getBlockX(), (short)(currBlock.y-1), currBlock.z - doorDir.getBlockZ());
+			}
+			//we might later discover the door leads to the same room, but we will adress that further down the line
+			info.possibleConnectedRooms.add(floorBehindDoor.above());
+			return true;
+		}
+
+		if(isBlockFloor(currBlock, currChunk)) { //case 1: floor
+			info.floorArea++;
+			pushManyToStack(blocksToCheck, accessibleBlocksCache, currBlock.east(), currBlock.west(), currBlock.north(), currBlock.south());
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Processes this block and makes appropriate changes to the provided caches, room info, etc.
+	 * @return True if the block was a valid floor, door or bed
+	 */
 
 	private static boolean isBlockSolid(World world, BlockPosition position, Map<KLWorld.ChunkCoordinate, ChunkSnapshot> chunksCache) {
 		ChunkSnapshot chunkSnapshot = getChunkSnapshotAtBlockPosition(world, position, chunksCache);
@@ -217,19 +254,27 @@ public class RoomInfo {
 	}
 
 	private static boolean isBlockFloor(BlockPosition position, ChunkSnapshot chunkSnapshot) {
-		return isBlockSolid(position, chunkSnapshot)
+		boolean isFloor = isBlockSolid(position, chunkSnapshot)
 				&& !isBlockSolid(position.above(), chunkSnapshot)
 				&& !isBlockSolid(new BlockPosition(position.x, (short)(position.y+2), position.z), chunkSnapshot);
-	}
 
-	/**
-	 * @return The appropriate bed part if the block is solid, the block above it a bed and the block above the bed is not solid. If the check fails, returns null.
-	 */
-	private static Bed.Part isBlockBedFloor(BlockPosition position, ChunkSnapshot chunkSnapshot) {
-		if(!isBlockSolid(position, chunkSnapshot)) //not solid floor
-			return null;
+		//special case: bottom slab
+		if(!isFloor) {
+			BlockData data = getBlockDataFromChunk(position, chunkSnapshot);
+			if(SLABS.contains(data.getMaterial())) {
+				if(((Slab) data).getType() == Slab.Type.BOTTOM) {
+					//check top block is top slab
+					data = getBlockDataFromChunk(new BlockPosition(position.x, (short)(position.y+2), position.z), chunkSnapshot);
+					if(SLABS.contains(data.getMaterial())) {
+						if(((Slab) data).getType() == Slab.Type.TOP) {
+							return !isBlockSolid(position.above(), chunkSnapshot); //if middle block is not solid, there is enough space to be a floor
+						}
+					}
+				}
+			}
+		}
 
-		return isBlockBed(position.above(), chunkSnapshot);
+		return isFloor;
 	}
 
 	/**

@@ -5,7 +5,6 @@ import kaktusz.kaktuszlogistics.modules.nations.KaktuszNations;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,8 +20,8 @@ public class FlagBlock extends CustomBlock {
 	public void onSet(KLWorld world, int x, int y, int z) {
 		VanillaUtils.BlockPosition pos = new VanillaUtils.BlockPosition(x,(short)y,z);
 
-		for(int dx = -KaktuszNations.CLAIM_DISTANCE; dx <= KaktuszNations.CLAIM_DISTANCE; dx++) {
-			for(int dz = -KaktuszNations.CLAIM_DISTANCE; dz <= KaktuszNations.CLAIM_DISTANCE; dz++) {
+		for(int dx = -KaktuszNations.CLAIM_DISTANCE.value; dx <= KaktuszNations.CLAIM_DISTANCE.value; dx++) {
+			for(int dz = -KaktuszNations.CLAIM_DISTANCE.value; dz <= KaktuszNations.CLAIM_DISTANCE.value; dz++) {
 				ChunkClaimManager.claimChunkAt(world, dx + VanillaUtils.blockToChunkCoord(x), dz + VanillaUtils.blockToChunkCoord(z), pos);
 			}
 		}
@@ -32,8 +31,8 @@ public class FlagBlock extends CustomBlock {
 	public void onRemoved(KLWorld world, int x, int y, int z) {
 		VanillaUtils.BlockPosition pos = new VanillaUtils.BlockPosition(x,(short)y,z);
 
-		for(int dx = -KaktuszNations.CLAIM_DISTANCE; dx <= KaktuszNations.CLAIM_DISTANCE; dx++) {
-			for(int dz = -KaktuszNations.CLAIM_DISTANCE; dz <= KaktuszNations.CLAIM_DISTANCE; dz++) {
+		for(int dx = -KaktuszNations.CLAIM_DISTANCE.value; dx <= KaktuszNations.CLAIM_DISTANCE.value; dx++) {
+			for(int dz = -KaktuszNations.CLAIM_DISTANCE.value; dz <= KaktuszNations.CLAIM_DISTANCE.value; dz++) {
 				ChunkClaimManager.unclaimChunkAt(world, dx + VanillaUtils.blockToChunkCoord(x), dz + VanillaUtils.blockToChunkCoord(z), pos);
 			}
 		}
