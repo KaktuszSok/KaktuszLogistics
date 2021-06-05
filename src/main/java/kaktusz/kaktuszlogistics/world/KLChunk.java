@@ -102,6 +102,7 @@ public final class KLChunk {
 
     /**
      * Allows loading arbitrary data which was previously saved to this chunk using setExtraData
+     * @return The saved data for this key, or null if data for this key does not exist
      */
     public Serializable getExtraData(String key) {
         return extraData.get(key);

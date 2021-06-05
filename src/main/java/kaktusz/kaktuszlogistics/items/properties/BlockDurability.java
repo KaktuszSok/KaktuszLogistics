@@ -2,10 +2,13 @@ package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.MathsUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
+import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -32,10 +35,9 @@ public class BlockDurability extends ItemPlaceable {
 	private static final TreeMap<Float, DurabilityState> STATE_MAP = new TreeMap<>();
 
 	private int maxDurability = 3;
-	public Sound damageSound = Sound.BLOCK_ANVIL_LAND;
-	public float damageVolume = 0.225f;
-	public float damagePitchMin = 0.5f;
-	public float damagePitchMax = 0.8f;
+	public SFXCollection damageSound = new SFXCollection(
+			new SoundEffect(Sound.BLOCK_ANVIL_LAND, 0.225f, 0.225f, 0.5f, 0.8f)
+	);
 
 	//SETUP
 	public BlockDurability(CustomItem item) {
@@ -44,6 +46,8 @@ public class BlockDurability extends ItemPlaceable {
 		STATE_MAP.put(DurabilityState.LOW.minPercent, DurabilityState.LOW);
 		STATE_MAP.put(DurabilityState.MID.minPercent, DurabilityState.MID);
 		STATE_MAP.put(DurabilityState.HIGH.minPercent, DurabilityState.HIGH);
+
+		damageSound.setCategory(SoundCategory.BLOCKS);
 	}
 
 	public BlockDurability setMaxDurability(int maxDurability) {
@@ -55,15 +59,9 @@ public class BlockDurability extends ItemPlaceable {
 		return maxDurability;
 	}
 
-	public BlockDurability setDamageSound(Sound sound) {
-		return setDamageSound(sound, damageVolume, damagePitchMin, damagePitchMax);
-	}
-	public BlockDurability setDamageSound(Sound sound, float volume, float pitchMin, float pitchMax) {
+	public BlockDurability setDamageSound(SFXCollection sound) {
 		damageSound = sound;
-		damageVolume = volume;
-		damagePitchMin = pitchMin;
-		damagePitchMax = pitchMax;
-
+		damageSound.setCategory(SoundCategory.BLOCKS);
 		return this;
 	}
 

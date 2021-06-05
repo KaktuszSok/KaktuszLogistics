@@ -25,4 +25,13 @@ public class SFXCollection {
 			s.play(where);
 		}
 	}
+
+	/**
+	 * @param pitchLerp Interpolates pitch between pitchMin and pitchMax
+	 */
+	public void playAll(Location where, float pitchLerp) {
+		for(SoundEffect s : sfx) {
+			s.play(where, pitchLerp);
+		}
+	}
 }

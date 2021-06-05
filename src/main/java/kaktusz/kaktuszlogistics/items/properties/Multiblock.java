@@ -3,8 +3,12 @@ package kaktusz.kaktuszlogistics.items.properties;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataNBT;
 import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataPDT;
+import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
+import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +40,9 @@ public abstract class Multiblock extends BlockDurability {
 	public Multiblock(CustomItem item) {
 		super(item);
 		setMaxDurability(1);
-		setDamageSound(null);
+		setDamageSound(new SFXCollection(
+				new SoundEffect(Sound.ENTITY_ITEM_BREAK, 0.7f, 0.5f),
+				new SoundEffect(Sound.ENTITY_ITEM_BREAK, 0.7f, 1.4f)));
 	}
 
 	/**
@@ -49,7 +55,6 @@ public abstract class Multiblock extends BlockDurability {
 	}
 
 	//ITEMSTACK
-
 	@Override
 	public void onCreateStack(ItemStack stack) {
 		super.onCreateStack(stack);
@@ -67,9 +72,22 @@ public abstract class Multiblock extends BlockDurability {
 	 */
 	public abstract boolean verifyStructure(Block multiblockCore, MultiblockBlock multiblock);
 
+	/**
+	 * Gets the axis-aligned bounding box which contains the entire multiblock structure
+	 */
+	public abstract VanillaUtils.BlockAABB getAABB(Block multiblockCore, MultiblockBlock multiblock);
+
+	/**
+	 * @param position A position within the AABB
+	 * @return True if this block counts as part of the multiblock
+	 */
+	public boolean isPosPartOfMultiblock(BlockPosition position, Block multiblockCore, MultiblockBlock multiblock) {
+		return true;
+	}
+
 	//HELPER
 	/**
-	 * Transforms a relative offset to a world offset
+	 * Transforms a relative offset to a world offset (or vice-versa)
 	 * @param multiblockFacing The direction that the multiblock's front is facing
 	 * @param offset The relative offset, when looking at the front face of the multiblock, to the right (x), up (y) and behind (z).
 	 */
@@ -88,6 +106,7 @@ public abstract class Multiblock extends BlockDurability {
 				return null;
 		}
 	}
+
 	public static RELATIVE_DIRECTION relativeDirectionFromGlobal(BlockFace multiblockFacing, BlockFace globalDirection) {
 		if(globalDirection.getModY() != 0)
 			return globalDirection == BlockFace.UP ? RELATIVE_DIRECTION.UP : RELATIVE_DIRECTION.DOWN;

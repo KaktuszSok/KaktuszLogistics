@@ -50,6 +50,7 @@ kaktusz\kaktuszlogistics\recipe\ingredients\IRecipeIngredient.class
 kaktusz\kaktuszlogistics\util\DDARaycast.class
 kaktusz\kaktuszlogistics\util\minecraft\SoundEffect.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils.class
+kaktusz\kaktuszlogistics\world\WorldEventsListener$1.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\RoomInfo.class
 kaktusz\kaktuszlogistics\recipe\outputs\IRecipeOutput.class
 kaktusz\kaktuszlogistics\world\multiblock\ComponentTag.class
@@ -94,6 +95,7 @@ kaktusz\kaktuszlogistics\items\events\ItemEventsListener$InventorySlotRange.clas
 kaktusz\kaktuszlogistics\world\KLWorld$ChunkCoordinate.class
 kaktusz\kaktuszlogistics\recipe\ingredients\VanillaIngredient.class
 kaktusz\kaktuszlogistics\commands\Subcommand.class
+kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockAABB.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockPosition.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$1.class
 kaktusz\kaktuszlogistics\items\events\IPlacedListener.class
@@ -108,8 +110,10 @@ kaktusz\kaktuszlogistics\items\PolymorphicItem.class
 kaktusz\kaktuszlogistics\recipe\inputs\IRecipeInput.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.class
 kaktusz\kaktuszlogistics\items\properties\PlaceableOpenBarrel.class
+kaktusz\kaktuszlogistics\world\multiblock\ComponentChoice.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerContinuousShootingManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem$2.class
+kaktusz\kaktuszlogistics\world\WorldEventsListener$CustomBlockPair.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerTriggerHeldEvent.class
 kaktusz\kaktuszlogistics\items\properties\Multiblock.class
 kaktusz\kaktuszlogistics\modules\nations\commands\FlagSubcommand.class

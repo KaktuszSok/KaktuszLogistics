@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.CastingUtils;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.event.Cancellable;
@@ -21,6 +22,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 
 /**
  * Forwards events from vanilla & modules to KLWorlds, KLChunks and CustomBlocks
@@ -78,20 +82,97 @@ public class WorldEventsListener implements Listener {
     }
 
     //BLOCK
-    private static CustomBlock getCustomBlockFromEvent(BlockEvent e) {
+    private static class CustomBlockPair {
+        public final CustomBlock customBlock;
+        public final Block physicalBlock;
+
+        private CustomBlockPair(CustomBlock customBlock, Block physicalBlock) {
+            this.customBlock = customBlock;
+            this.physicalBlock = physicalBlock;
+        }
+    }
+    private static CustomBlockPair getCustomBlockFromEvent(BlockEvent e) {
+        Block b = e.getBlock();
+        KLWorld world = KLWorld.get(b.getWorld());
+        //check if inside a multiblock
+        CustomBlockPair multi = getMultiblockFromBlock(b, world);
+        if(multi != null)
+            return multi;
+
+        CustomBlock customBlock = world.getLoadedBlockAt(b.getX(), b.getY(), b.getZ());
+        if(customBlock == null)
+            return null;
+        return new CustomBlockPair(customBlock, e.getBlock());
+    }
+    private static CustomBlockPair getCustomBlockFromLocation(Location loc) {
+        KLWorld world = KLWorld.get(loc.getWorld());
+        //check if inside a multiblock
+        CustomBlockPair multi = getMultiblockFromLocation(loc, world);
+        if(multi != null)
+            return multi;
+
+        CustomBlock customBlock = world.getLoadedBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        if(customBlock == null)
+            return null;
+        return new CustomBlockPair(customBlock, loc.getBlock());
+    }
+
+    private static CustomBlock getCustomBlockFromEvent_NoMultiblocks(BlockEvent e) {
         Block b = e.getBlock();
         return KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ());
     }
-    private static CustomBlock getCustomBlockFromLocation(Location loc) {
+    private static CustomBlock getCustomBlockFromLocation_NoMultiblocks(Location loc) {
         return KLWorld.get(loc.getWorld()).getLoadedBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
+    private static CustomBlockPair getMultiblockFromBlock(Block b, KLWorld world) {
+        KLChunk chunk = world.getLoadedChunkAt(blockToChunkCoord(b.getX()), blockToChunkCoord(b.getZ()));
+        if(chunk != null) {
+            Set<BlockPosition> multiblocks = CastingUtils.confidentCast(chunk.getExtraData("multiblocks"));
+            if(multiblocks != null) {
+                for (BlockPosition pos : multiblocks) {
+                    CustomBlock multiblock = world.getBlockAt(pos.x, pos.y, pos.z);
+                    Block multiblockCore = world.world.getBlockAt(pos.x, pos.y, pos.z);
+                    if(multiblock instanceof MultiblockBlock
+                            && ((MultiblockBlock)multiblock).isBlockPartOfMultiblock(b, multiblockCore)) {
+                        return new CustomBlockPair(multiblock, multiblockCore);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+    private static CustomBlockPair getMultiblockFromLocation(Location loc, KLWorld world) {
+        KLChunk chunk = world.getChunkAt(blockToChunkCoord(loc.getBlockX()), blockToChunkCoord(loc.getBlockZ()));
+        if(chunk != null) {
+            Set<BlockPosition> multiblocks = CastingUtils.confidentCast(chunk.getExtraData("multiblocks"));
+            if(multiblocks != null) {
+                for (BlockPosition pos : multiblocks) {
+                    CustomBlock multiblock = chunk.world.getBlockAt(pos.x, pos.y, pos.z);
+                    Block multiblockCore = chunk.world.world.getBlockAt(pos.x, pos.y, pos.z);
+                    if(multiblock instanceof MultiblockBlock
+                            && ((MultiblockBlock)multiblock).isPosPartOfMultiblock(new BlockPosition(loc), multiblockCore)) {
+                        return new CustomBlockPair(multiblock, multiblockCore);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
      * Cancels an event if the provided custom block is not null
      * @return True if the event was cancelled, false otherwise
      */
-    @SuppressWarnings("UnusedReturnValue")
     private static boolean cancelCustomBlockEvent(CustomBlock block, Cancellable e) {
+        if(block == null) return false;
+        e.setCancelled(true);
+        return true;
+    }
+    @SuppressWarnings("UnusedReturnValue")
+    private static boolean cancelCustomBlockEvent(CustomBlockPair block, Cancellable e) {
         if(block == null) return false;
         e.setCancelled(true);
         return true;
@@ -104,13 +185,19 @@ public class WorldEventsListener implements Listener {
             }
         }
     }
+    private static void updateMultiblockValidity(CustomBlockPair multiblock, Block newBlock) {
+        if(multiblock != null) {
+            ((MultiblockBlock)multiblock.customBlock).reverifyStructure(multiblock.physicalBlock);
+        }
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockMined(BlockBreakEvent e) {
-        CustomBlock block = getCustomBlockFromEvent(e);
-        if(block == null) return;
+        CustomBlockPair blockPair = getCustomBlockFromEvent(e);
+        if(blockPair == null) return;
 
-        Block b = e.getBlock();
+        CustomBlock block = blockPair.customBlock;
+        Block b = blockPair.physicalBlock;
         KLWorld world = KLWorld.get(b.getWorld());
         if(!block.update(world, b.getX(), b.getY(), b.getZ())) { //something went wrong!
             return;
@@ -124,7 +211,7 @@ public class WorldEventsListener implements Listener {
 
         //damage tool
         ItemStack held = e.getPlayer().getInventory().getItemInMainHand();
-        VanillaUtils.damageTool(held, e.getPlayer());
+        damageTool(held, e.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -144,12 +231,17 @@ public class WorldEventsListener implements Listener {
         Block b = e.getClickedBlock();
         if(b == null)
             return;
-        CustomBlock cb = getCustomBlockFromLocation(b.getLocation());
+        CustomBlock cb = getCustomBlockFromLocation_NoMultiblocks(b.getLocation());
         if(cb == null)
             return;
 
         e.setUseInteractedBlock(Event.Result.DENY);
         cb.onInteracted(e);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockPlaced(BlockPlaceEvent e) {
+        updateMultiblockValidity(getMultiblockFromBlock(e.getBlockPlaced(), KLWorld.get(e.getBlockAgainst().getWorld())), e.getBlockPlaced());
     }
 
     /**
@@ -170,12 +262,6 @@ public class WorldEventsListener implements Listener {
     public void onBlockBurned(BlockBurnEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
     }
-    @EventHandler
-    public void onBlockDropItem(BlockDropItemEvent e) {
-//        Bukkit.broadcastMessage("start cancelled: " + e.isCancelled());
-//        cancelCustomBlockEvent(getCustomBlockFromLocation(e.getBlockState().getLocation()), e);
-//        Bukkit.broadcastMessage("location: " + e.getBlockState().getLocation() + " // block: " + e.getBlockState().getType() + " // cancelled: " + e.isCancelled());
-    }
     @EventHandler(ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
@@ -185,10 +271,10 @@ public class WorldEventsListener implements Listener {
         List<Block> blocks = new ArrayList<>(e.blockList());
         boolean didSound = false;
         for(Block b : blocks) {
-            CustomBlock cb = KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ());
-            if(cb != null) {
+            CustomBlockPair cbp = getCustomBlockFromLocation(b.getLocation());
+            if(cbp != null) {
                 e.blockList().remove(b);
-                cb.onDamaged((int)(1 + (2.5f/e.getYield())), b, !didSound); //yield is inverted?
+                cbp.customBlock.onDamaged((int)(1 + (2.5f/e.getYield())), b, !didSound); //yield is inverted?
                 didSound = true;
             }
         }
@@ -210,10 +296,6 @@ public class WorldEventsListener implements Listener {
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
     }
     @EventHandler(ignoreCancelled = true)
-    public void onBlockPhysics(BlockPhysicsEvent e) { //apparently this is quite messy so best to avoid custom blocks w/ physics where possible
-        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
-    }
-    @EventHandler(ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
         cancelEventIfCBlockInList(e.getBlocks(), e);
     }
@@ -222,7 +304,7 @@ public class WorldEventsListener implements Listener {
         cancelEventIfCBlockInList(e.getBlocks(), e);
     }
     @EventHandler(ignoreCancelled = true)
-    public void onFurnaceBurn(FurnaceBurnEvent e) {
+    public void onFurnaceBurn(FurnaceBurnEvent e) { //don't allow custom block furnaces to function as normal furnaces
         cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
     }
     @EventHandler(ignoreCancelled = true)

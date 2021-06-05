@@ -1,6 +1,5 @@
 package kaktusz.kaktuszlogistics.util.minecraft;
 
-import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.*;
@@ -146,6 +145,9 @@ public class VanillaUtils {
         public BlockPosition(Location location) {
             this(location.getBlockX(), (short)location.getBlockY(), location.getBlockZ());
         }
+        public BlockPosition(int x, int y, int z) {
+            this(x,(short)y,z);
+        }
         public BlockPosition(int x, short y, int z) {
             this.x = x;
             this.y = y;
@@ -211,6 +213,53 @@ public class VanillaUtils {
             if (o == null || getClass() != o.getClass()) return false;
             MutableBlockPosition that = (MutableBlockPosition) o;
             return x == that.x && y == that.y && z == that.z;
+        }
+    }
+
+    public static class BlockAABB {
+        public final BlockPosition minCorner;
+        public final BlockPosition maxCorner;
+
+        public BlockAABB(BlockPosition minCorner, BlockPosition maxCorner) {
+            this.minCorner = minCorner;
+            this.maxCorner = maxCorner;
+        }
+
+        public static BlockAABB fromAnyCorners(BlockPosition cornerA, BlockPosition cornerB) {
+            int minX, maxX, minZ, maxZ;
+            short minY, maxY;
+            //could use min() and max(), but if statements yield half as many comparisons
+            if(cornerA.x < cornerB.x) {
+                minX = cornerA.x;
+                maxX = cornerB.x;
+            }
+            else {
+                minX = cornerB.x;
+                maxX = cornerA.x;
+            }
+            if(cornerA.y < cornerB.y) {
+                minY = cornerA.y;
+                maxY = cornerB.y;
+            }
+            else {
+                minY = cornerB.y;
+                maxY = cornerA.y;
+            }
+            if(cornerA.z < cornerB.z) {
+                minZ = cornerA.z;
+                maxZ = cornerB.z;
+            }
+            else {
+                minZ = cornerB.z;
+                maxZ = cornerA.z;
+            }
+            return new BlockAABB(new BlockPosition(minX, minY, minZ), new BlockPosition(maxX, maxY, maxZ));
+        }
+
+        public boolean containsPosition(BlockPosition pos) {
+            return pos.x >= minCorner.x && pos.x <= maxCorner.x
+                    && pos.y >= minCorner.y && pos.y <= maxCorner.y
+                    && pos.z >= minCorner.z && pos.z <= maxCorner.z;
         }
     }
 

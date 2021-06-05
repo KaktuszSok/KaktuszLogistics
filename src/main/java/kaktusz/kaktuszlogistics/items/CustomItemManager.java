@@ -9,6 +9,8 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.ingredients.VanillaIngredient;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
+import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -59,7 +61,8 @@ public class CustomItemManager {
                 .setLore(ChatColor.GRAY + "A debugging tool. " + ChatColor.BOLD + "Right click" + ChatColor.GRAY + " to use.");
 
         registerItem(new CustomItem("blockPralka", ChatColor.GOLD + "Pralka Wibrująco-Bisująca", Material.FURNACE))
-                .getOrAddProperty(BlockDurability.class).setMaxDurability(4).setDamageSound(Sound.ENTITY_IRON_GOLEM_HURT, 0.6f, 0.8f, 1.8f).item
+                .getOrAddProperty(BlockDurability.class).setMaxDurability(4).setDamageSound(new SFXCollection(
+                                new SoundEffect(Sound.ENTITY_IRON_GOLEM_HURT, 0.6f, 0.6f, 0.8f, 1.8f))).item
                 .addEnchantment(Enchantment.DIG_SPEED, 4)
                 .addEnchantment(Enchantment.ARROW_DAMAGE, 3)
                 .setLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Nowoczesna pralka marki " + ChatColor.DARK_RED + ChatColor.BOLD + ChatColor.ITALIC + "Mejstar");
