@@ -3,6 +3,8 @@ package kaktusz.kaktuszlogistics.recipe.inputs;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class ItemInput implements IRecipeInput {
 
 	public final ItemStack stack;
@@ -29,5 +31,10 @@ public class ItemInput implements IRecipeInput {
 		if(stack == null)
 			return "null";
 		return stack.getType().name();
+	}
+
+	@Override
+	public Map<String, Object> serialize() {
+		return stack.serialize();
 	}
 }

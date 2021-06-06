@@ -13,6 +13,7 @@ public class CustomItemIngredient extends ItemIngredient {
 	private final CustomItem type;
 
 	public CustomItemIngredient(CustomItem type) {
+		super(1);
 		this.type = type;
 	}
 
@@ -24,5 +25,10 @@ public class CustomItemIngredient extends ItemIngredient {
 	@Override
 	public List<Material> getValidInputMaterials() {
 		return ListUtils.listFromSingle(type.material);
+	}
+
+	@Override
+	public String getName() {
+		return type.displayName + " x" + amount;
 	}
 }

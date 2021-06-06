@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public final class KLChunk {
@@ -56,6 +54,7 @@ public final class KLChunk {
     public transient final int chunkPosX;
     public transient final int chunkPosZ;
     private final Map<LocalCoordinate, CustomBlock> blocks = new HashMap<>();
+    private transient final Set<TickingBlock> tickingBlocks = new HashSet<>();
 
     private Map<String, Serializable> extraData = new HashMap<>();
 
@@ -70,6 +69,8 @@ public final class KLChunk {
     //WORLD INTERACTION
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         blocks.put(new LocalCoordinate(x, y, z), block);
+        if(block instanceof TickingBlock)
+            tickingBlocks.add((TickingBlock)block);
         block.onSet(world, x,y,z);
         return block;
     }
@@ -82,6 +83,8 @@ public final class KLChunk {
         CustomBlock removed = blocks.remove(new LocalCoordinate(x, y, z));
         if(removed != null)
             removed.onRemoved(world, x, y, z);
+        if(removed instanceof TickingBlock)
+            tickingBlocks.remove(removed);
         return removed != null;
     }
 
@@ -222,6 +225,8 @@ public final class KLChunk {
                 }
                 else {
                     result.blocks.put(coord, block);
+                    if(block instanceof TickingBlock)
+                        result.tickingBlocks.add((TickingBlock)block);
                 }
             }
 

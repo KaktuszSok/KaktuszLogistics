@@ -7,6 +7,7 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class RecipeManager {
 	private static final List<CraftingRecipe> craftingTableRecipes = new ArrayList<>();
 	private static final List<SmeltingRecipe> furnaceRecipes = new ArrayList<>();
+	private static final Map<String, MachineRecipe<?>> machineRecipes = new HashMap<>();
 	private static final Map<List<? extends CustomRecipe<?>>, CustomRecipe<?>> recipesCache = new HashMap<>(); //cache last used recipe from each list
 
 	//CRAFTING
@@ -56,6 +58,13 @@ public class RecipeManager {
 	}
 	public static SmeltingRecipe matchSmeltingRecipe(ItemInput... inputs) {
 		return matchInputsToRecipeList(furnaceRecipes, inputs);
+	}
+
+	public static void addMachineRecipe(MachineRecipe<?> r) {
+		machineRecipes.put(r.id, r);
+	}
+	public static MachineRecipe<?> getMachineRecipeById(String id) {
+		return machineRecipes.get(id);
 	}
 
 	//HELPER

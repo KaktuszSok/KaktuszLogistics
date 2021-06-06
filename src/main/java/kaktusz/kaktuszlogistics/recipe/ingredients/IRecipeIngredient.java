@@ -16,4 +16,6 @@ public interface IRecipeIngredient {
 	}
 
 	boolean match(IRecipeInput input);
+
+	String getName();
 }

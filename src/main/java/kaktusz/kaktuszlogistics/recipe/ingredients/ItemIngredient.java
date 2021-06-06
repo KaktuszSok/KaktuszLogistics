@@ -10,6 +10,12 @@ import java.util.List;
 
 public abstract class ItemIngredient implements IRecipeIngredient {
 
+	public final int amount;
+
+	public ItemIngredient(int amount) {
+		this.amount = amount;
+	}
+
 	@Override
 	public final boolean match(IRecipeInput input) {
 		if(input instanceof ItemInput)
