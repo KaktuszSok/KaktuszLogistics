@@ -16,10 +16,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ItemInput implements IRecipeInput {
-	static {
-		ConfigurationSerialization.registerClass(ItemInput.class);
-	}
-
 	public final ItemStack stack;
 
 	public ItemInput(ItemStack stack) {

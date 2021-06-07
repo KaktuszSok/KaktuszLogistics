@@ -159,6 +159,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 		//get the consumed inputs from when the recipe was started
 		byte[] processingInputsSerialised = CustomItem.readNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
+		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
 		if(processingInputsSerialised == null)
 			return;
 
