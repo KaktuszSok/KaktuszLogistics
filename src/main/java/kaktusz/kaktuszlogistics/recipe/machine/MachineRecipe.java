@@ -8,9 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends CustomRecipe<OutputType> {
 
@@ -44,7 +42,76 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 
 	//RECIPE
 	public boolean checkIfInputsMatch(IRecipeInput[] inputs) {
+		ConsumptionAftermath aftermath = new ConsumptionAftermath(inputs);
 
+		for (IRecipeIngredient ingredient : ingredients) {
+			if(!aftermath.consume(ingredient)) {
+				return false; //recipe failed
+			}
+		}
+
+		return true;
+	}
+
+	//CONSUMPTION
+	public static class ConsumptionAftermath {
+		private final Map<IRecipeInput, Integer> consumed = new HashMap<>();
+		private final IRecipeInput[] original;
+		private final IRecipeInput[] runningState;
+
+		public ConsumptionAftermath(IRecipeInput[] input) {
+			this.original = input;
+			this.runningState = IRecipeInput.cloneArray(input);
+		}
+
+		/**
+		 * Tries to match the given ingredient against the cloned internal state of the input. If it matches, modifies said state accordingly.
+		 * @return True if the given ingredient matched any of the non-depleted inputs
+		 */
+		public boolean consume(IRecipeIngredient consumer) {
+			for(int i = 0; i < runningState.length; i++) {
+				int amountConsumed = IRecipeIngredient.tryConsume(runningState[i], consumer);
+				if(amountConsumed == 0)
+					continue; //didn't match
+
+				//otherwise, matched!
+				IRecipeInput consumedClone = original[i].clone(amountConsumed);
+
+			}
+
+			return false;
+		}
+
+		/**
+		 * Applies the changes to the original inputs, modifying them in the real world
+		 * @return Cloned inputs, reflecting what inputs were consumed and how much of them was
+		 */
+		public List<IRecipeInput> applyToOriginal() {
+			List<IRecipeInput> result = new ArrayList<>();
+
+			for(Map.Entry<IRecipeInput, Integer> entry : consumed.entrySet()) {
+				result.add(entry.getKey().clone(entry.getValue())); //add consumed input to result
+				entry.getKey().reduce(entry.getValue()); //reduce original input by amount consumed
+			}
+
+			return result;
+		}
+	}
+
+	/**
+	 * @param inputs The inputs to the recipe. These will not be modified.
+	 * @return The aftermath of the consumption, which can be applied to the world using applyToOriginal(). Null if recipe failed.
+	 */
+	public ConsumptionAftermath consumeInputs(IRecipeInput[] inputs) {
+		ConsumptionAftermath aftermath = new ConsumptionAftermath(inputs);
+
+		for (IRecipeIngredient ingredient : ingredients) {
+			if(!aftermath.consume(ingredient)) {
+				return null; //recipe failed
+			}
+		}
+
+		return aftermath;
 	}
 
 	//DISPLAY

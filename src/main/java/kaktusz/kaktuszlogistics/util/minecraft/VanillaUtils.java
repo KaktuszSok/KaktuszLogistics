@@ -310,6 +310,13 @@ public class VanillaUtils {
     }
 
     /**
+     * @return The coordinate of this chunk's first block along whichever axis
+     */
+    public static int chunkToBlockCoord(int chunkCoord) {
+        return chunkCoord << 4;
+    }
+
+    /**
      * Transforms block coordinate to chunk-local coordinate. DO NOT USE FOR Y!
      * @return The coordinate of the block within its chunk
      */

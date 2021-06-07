@@ -5,6 +5,7 @@ import kaktusz.kaktuszlogistics.modules.nations.KaktuszNations;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,8 +13,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Collection;
 
 public class FlagBlock extends CustomBlock {
-	public FlagBlock(ItemPlaceable prop, ItemMeta meta) {
-		super(prop, meta);
+	public FlagBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
+		super(prop, location, meta);
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
+import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.ComponentAgnostic;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
@@ -8,6 +10,7 @@ import kaktusz.kaktuszlogistics.world.multiblock.MultiblockComponent;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
@@ -54,12 +57,12 @@ public class MatrixMultiblock extends Multiblock {
 
 	//STRUCTURE
 	@Override
-	public boolean verifyStructure(Block multiblockCore, MultiblockBlock multiblock) {
+	public boolean verifyStructure(MultiblockBlock multiblock) {
 		for (int layerIdx = 0; layerIdx < layers.size(); layerIdx++) {
 			MultiblockComponent[][] layer = layers.get(layerIdx);
 			for(int row = 0; row < layer.length; row++) {
 				for(int col = 0; col < layer[row].length; col++) {
-					Block currBlock = getBlock(layerIdx, row, col, multiblockCore, multiblock);
+					Block currBlock = getBlock(layerIdx, row, col, multiblock);
 					MultiblockComponent component = layer[row][col];
 
 					//null components must be air
@@ -79,8 +82,8 @@ public class MatrixMultiblock extends Multiblock {
 	}
 
 	@Override
-	public VanillaUtils.BlockAABB getAABB(Block multiblockCore, MultiblockBlock multiblock) {
-		BlockPosition cornerA = getBlockPosition(0, 0, 0, multiblockCore, multiblock);
+	public VanillaUtils.BlockAABB getAABB(MultiblockBlock multiblock) {
+		BlockPosition cornerA = getBlockPosition(0, 0, 0, multiblock);
 		int maxLayer = layers.size()-1;
 		int maxRow = 0;
 		int maxColumn = 0;
@@ -93,28 +96,37 @@ public class MatrixMultiblock extends Multiblock {
 				}
 			}
 		}
-		BlockPosition cornerB = getBlockPosition(maxLayer, maxRow-1, maxColumn-1, multiblockCore, multiblock);
+		BlockPosition cornerB = getBlockPosition(maxLayer, maxRow-1, maxColumn-1, multiblock);
 
 		return VanillaUtils.BlockAABB.fromAnyCorners(cornerA, cornerB);
 	}
 
 	@Override
-	public boolean isPosPartOfMultiblock(BlockPosition position, Block multiblockCore, MultiblockBlock multiblock) {
-		return !(getComponentAtWorldPosition(position, multiblockCore, multiblock) instanceof ComponentAgnostic);
+	public boolean isPosPartOfMultiblock(BlockPosition position, MultiblockBlock multiblock) {
+		return !(getComponentAtWorldPosition(position, multiblock) instanceof ComponentAgnostic);
+	}
+
+	@Override
+	public Set<BlockPosition> getInputs(MultiblockBlock multiblock, Class<? extends IRecipeInput> type) {
+		return null;
+	}
+	@Override
+	public Set<BlockPosition> getOutputs(MultiblockBlock multiblock, Class<? extends IRecipeOutput> type) {
+		return null;
 	}
 
 	//HELPER
-	protected final Block getBlock(int layerIndex, int row, int column, Block multiblockCore, MultiblockBlock multiblock) {
+	protected final Block getBlock(int layerIndex, int row, int column, MultiblockBlock multiblock) {
 		BlockPosition offset;
 		if(horizontalLayers)
 			offset = new BlockPosition(column - controllerBlockColumn, (short)(layerIndex - controllerBlockLayer), controllerBlockRow - row);
 		else {
 			offset = new BlockPosition(column - controllerBlockColumn, (short) (row - controllerBlockRow), layerIndex - controllerBlockLayer);
 		}
-		return Multiblock.getBlockAtRelativeOffset(multiblockCore, multiblock.getProperty().getFacing(multiblock.data), offset.x, offset.y, offset.z);
+		return Multiblock.getBlockAtRelativeOffset(multiblock.location, multiblock.getProperty().getFacing(multiblock.data), offset.x, offset.y, offset.z);
 	}
 
-	protected final BlockPosition getBlockPosition(int layerIndex, int row, int column, Block multiblockCore, MultiblockBlock multiblock) {
+	protected final BlockPosition getBlockPosition(int layerIndex, int row, int column, MultiblockBlock multiblock) {
 		BlockPosition relativeOffset;
 		if(horizontalLayers)
 			relativeOffset = new BlockPosition(column - controllerBlockColumn, (short)(layerIndex - controllerBlockLayer), controllerBlockRow - row);
@@ -123,18 +135,19 @@ public class MatrixMultiblock extends Multiblock {
 		}
 		BlockPosition worldOffset = transformOffset(multiblock.getProperty().getFacing(multiblock.data), relativeOffset);
 		if(worldOffset == null) //invalid multiblock orientation
-			return new BlockPosition(multiblockCore.getLocation());
+			return new BlockPosition(multiblock.location);
 
-		return new BlockPosition(multiblockCore.getX() + worldOffset.x, multiblockCore.getY() + worldOffset.y, multiblockCore.getZ() + worldOffset.z);
+		return new BlockPosition(multiblock.location.getBlockX() + worldOffset.x, multiblock.location.getBlockY() + worldOffset.y, multiblock.location.getBlockZ() + worldOffset.z);
 	}
 
-	protected final MultiblockComponent getComponentAtWorldPosition(BlockPosition worldPos, Block multiblockCore, MultiblockBlock multiblock) {
-		BlockPosition worldOffset = new BlockPosition(worldPos.x - multiblockCore.getX(), worldPos.y - multiblockCore.getY(), worldPos.z - multiblockCore.getZ());
+	protected final MultiblockComponent getComponentAtWorldPosition(BlockPosition worldPos, MultiblockBlock multiblock) {
+		BlockPosition worldOffset = new BlockPosition(worldPos.x - multiblock.location.getBlockX(), worldPos.y - multiblock.location.getBlockY(), worldPos.z - multiblock.location.getBlockZ());
 		BlockPosition relativeOffset = transformOffset(multiblock.getProperty().getFacing(multiblock.data), worldOffset);
 		if(relativeOffset == null) //invalid controller orientation
 			return null;
 
 		int layerIdx, row, column;
+		//noinspection IfStatementWithIdenticalBranches
 		if(horizontalLayers) {
 			layerIdx = relativeOffset.y + controllerBlockLayer;
 			row = controllerBlockRow - relativeOffset.z;

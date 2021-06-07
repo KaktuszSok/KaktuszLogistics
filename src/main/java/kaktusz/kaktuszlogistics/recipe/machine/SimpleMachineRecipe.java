@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.recipe.machine;
 
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
-import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +12,7 @@ public class SimpleMachineRecipe<OutputType extends IRecipeOutput> extends Machi
 
 	private final List<OutputType> outputs = new ArrayList<>();
 
+	//SETUP
 	/**
 	 * @param id   Used to uniquely identify this recipe.
 	 * @param name Display name of this recipe
@@ -21,16 +21,20 @@ public class SimpleMachineRecipe<OutputType extends IRecipeOutput> extends Machi
 		super(id, name);
 	}
 
-	@Override
-	protected List<? extends OutputType> getOutputs(IRecipeInput... inputs) {
-		return outputs;
-	}
-
 	@SafeVarargs
 	public final SimpleMachineRecipe<OutputType> addOutputs(OutputType... outputs) {
 		this.outputs.addAll(Arrays.asList(outputs));
 
 		return this;
+	}
+
+	//OVERRIDES
+	@Override
+	protected List<? extends OutputType> getOutputs(IRecipeInput... inputs) {
+		if(!checkIfInputsMatch(inputs))
+			return null;
+
+		return outputs;
 	}
 
 	@Override

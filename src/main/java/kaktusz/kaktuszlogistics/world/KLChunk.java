@@ -3,7 +3,9 @@ package kaktusz.kaktuszlogistics.world;
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.CastingUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,6 +18,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.*;
+
+import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public final class KLChunk {
@@ -218,7 +222,7 @@ public final class KLChunk {
                 coord.z = in.readByte(); //byte
                 //read block data
                 ItemMeta blockData = (ItemMeta)in.readObject(); //ItemMeta
-                CustomBlock block = CustomBlock.createFromMeta(blockData);
+                CustomBlock block = CustomBlock.createFromMeta(blockData, new Location(world.world, coord.x + chunkToBlockCoord(chunkX), coord.y, coord.z + chunkToBlockCoord(chunkZ)));
                 if(block == null) {
                     String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
                     KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);

@@ -42,24 +42,7 @@ public class KaktuszSurvival implements KaktuszModule {
 	}
 
 	private void initItems() {
-		PolymorphicItem sawmill = new PolymorphicItem("multiblockSawmill", "Sawmill", Material.OAK_FENCE_GATE);
-		ComponentCompound barrelStripesAlongAxis = new ComponentCompound(
-				new ComponentMaterial(Material.BARREL),
-				new ComponentDirectional(Multiblock.RELATIVE_DIRECTION.RIGHT).setAllowOpposite(true)
-		);
-		sawmill.getOrAddProperty(MatrixMultiblock.class)
-				.setLayerModeHorizontal(true)
-				.addLayer(new MultiblockComponent[][] {
-						{new ComponentMaterial(Material.CRAFTING_TABLE), barrelStripesAlongAxis},
-						{new ComponentAgnostic(), barrelStripesAlongAxis}
-				})
-				.addLayer(new MultiblockComponent[][] {
-						{new ComponentTag(Tag.WOODEN_FENCES), ComponentCustomBlock.fromCustomItem(sawmill)},
-						{null, null}
-				})
-				.setControllerBlockOffset(1, 0, 1)
-				.setType(SawmillWood.class);
-		CustomItemManager.registerItem(sawmill);
+		CustomItemManager.registerItem(SawmillWood.createCustomItem());
 	}
 
 	@Override

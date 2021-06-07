@@ -5,10 +5,7 @@ import kaktusz.kaktuszlogistics.util.MathsUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
-import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -163,7 +160,7 @@ public class BlockDurability extends ItemPlaceable {
 
 	//BLOCK
 	@Override
-	public DurableBlock createCustomBlock(ItemMeta stackMeta) {
-		return new DurableBlock(this, stackMeta);
+	public DurableBlock createCustomBlock(ItemMeta stackMeta, Location location) {
+		return new DurableBlock(this, location, stackMeta);
 	}
 }

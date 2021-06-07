@@ -9,6 +9,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -68,27 +69,26 @@ public abstract class Multiblock extends BlockDurability {
 
 	//STRUCTURE
 	/**
-	 * @param multiblockCore The core block of the multiblock structure
 	 * @param multiblock The custom block which holds data about this specific multiblock structure
 	 * @return True if the entire multiblock structure is valid, false if not
 	 */
-	public abstract boolean verifyStructure(Block multiblockCore, MultiblockBlock multiblock);
+	public abstract boolean verifyStructure(MultiblockBlock multiblock);
 
 	/**
 	 * Gets the axis-aligned bounding box which contains the entire multiblock structure
 	 */
-	public abstract VanillaUtils.BlockAABB getAABB(Block multiblockCore, MultiblockBlock multiblock);
+	public abstract VanillaUtils.BlockAABB getAABB(MultiblockBlock multiblock);
 
 	/**
 	 * @param position A position within the AABB
 	 * @return True if this block counts as part of the multiblock
 	 */
-	public boolean isPosPartOfMultiblock(BlockPosition position, Block multiblockCore, MultiblockBlock multiblock) {
+	public boolean isPosPartOfMultiblock(BlockPosition position, MultiblockBlock multiblock) {
 		return true;
 	}
 
-	public abstract Set<BlockPosition> getInputs(Class<? extends IRecipeInput> type);
-	public abstract Set<BlockPosition> getOutputs(Class<? extends IRecipeOutput> type);
+	public abstract Set<BlockPosition> getInputs(MultiblockBlock multiblock, Class<? extends IRecipeInput> type);
+	public abstract Set<BlockPosition> getOutputs(MultiblockBlock multiblock, Class<? extends IRecipeOutput> type);
 
 	//HELPER
 	/**
@@ -176,11 +176,11 @@ public abstract class Multiblock extends BlockDurability {
 	 * @param relativeOrigin The block at offset = 0,0,0 - i.e. the multiblock's core block
 	 * @param face The direction the multiblock is facing
 	 */
-	protected static Block getBlockAtRelativeOffset(Block relativeOrigin, BlockFace face, int offsetRight, int offsetUp, int offsetBehind) {
+	protected static Block getBlockAtRelativeOffset(Location relativeOrigin, BlockFace face, int offsetRight, int offsetUp, int offsetBehind) {
 		BlockPosition worldSpaceOffset = transformOffset(face, new BlockPosition(offsetRight, (short)offsetUp, offsetBehind));
 		if(worldSpaceOffset == null) //invalid orientation
-			return relativeOrigin;
-		return relativeOrigin.getRelative(worldSpaceOffset.x, worldSpaceOffset.y, worldSpaceOffset.z);
+			return relativeOrigin.getBlock();
+		return relativeOrigin.getBlock().getRelative(worldSpaceOffset.x, worldSpaceOffset.y, worldSpaceOffset.z);
 	}
 
 	//NBT
@@ -213,9 +213,9 @@ public abstract class Multiblock extends BlockDurability {
 
 	//CUSTOMBLOCK
 	@Override
-	public MultiblockBlock createCustomBlock(ItemMeta stackMeta) {
+	public MultiblockBlock createCustomBlock(ItemMeta stackMeta, Location location) {
 		try {
-			return multiblockType.getConstructor(Multiblock.class, ItemMeta.class).newInstance(this, stackMeta);
+			return multiblockType.getConstructor(Multiblock.class, Location.class, ItemMeta.class).newInstance(this, location, stackMeta);
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 			e.printStackTrace();
 		}

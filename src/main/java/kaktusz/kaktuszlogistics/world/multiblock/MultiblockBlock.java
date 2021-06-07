@@ -6,6 +6,7 @@ import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -26,8 +27,8 @@ public class MultiblockBlock extends DurableBlock {
 	private boolean structureValidCache = false;
 	private transient BlockAABB aabbCache = null;
 
-	public MultiblockBlock(Multiblock property, ItemMeta meta) {
-		super(property, meta);
+	public MultiblockBlock(Multiblock property, Location location, ItemMeta meta) {
+		super(property, location, meta);
 		this.property = property;
 	}
 
@@ -44,7 +45,7 @@ public class MultiblockBlock extends DurableBlock {
 	@Override
 	public void onPlaced(BlockPlaceEvent e) {
 		setFacingFromPlaceEvent(e);
-		reverifyStructure(e.getBlockPlaced());
+		reverifyStructure();
 	}
 
 	public void setFacingFromPlaceEvent(BlockPlaceEvent e) {
@@ -68,15 +69,16 @@ public class MultiblockBlock extends DurableBlock {
 
 	@Override
 	public void onRemoved(KLWorld world, int x, int y, int z) {
-		registerWithChunks(world, world.world.getBlockAt(x, y, z), false);
+		registerWithChunks(false);
 	}
 
 	/**
 	 * Updates multiblock data for all chunks which intersect this multiblock's AABB
 	 * @param register registers if true, deregisters if false.
 	 */
-	private void registerWithChunks(KLWorld world, Block thisBlock, boolean register) {
-		BlockAABB boundingBox = getAABB(thisBlock);
+	private void registerWithChunks(boolean register) {
+		KLWorld world = KLWorld.get(location.getWorld());
+		BlockAABB boundingBox = getAABB();
 		int chunkMinX = blockToChunkCoord(boundingBox.minCorner.x);
 		int chunkMinZ = blockToChunkCoord(boundingBox.minCorner.z);
 		int chunkMaxX = blockToChunkCoord(boundingBox.maxCorner.x);
@@ -88,7 +90,7 @@ public class MultiblockBlock extends DurableBlock {
 				if(multiblocks == null)
 					multiblocks = new HashSet<>();
 
-				BlockPosition pos = new BlockPosition(thisBlock.getLocation());
+				BlockPosition pos = new BlockPosition(location);
 				if(register)
 					multiblocks.add(pos);
 				else
@@ -102,23 +104,22 @@ public class MultiblockBlock extends DurableBlock {
 
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
-		e.getPlayer().sendMessage("valid: " + isStructureValid(e.getClickedBlock()) + ", facing: " + getProperty().getFacing(data));
+		e.getPlayer().sendMessage("valid: " + isStructureValid() + ", facing: " + getProperty().getFacing(data));
 	}
 
 	//STRUCTURE
 	/**
 	 * Re-verifies the structure and (de)registers it with the appropriate chunks
 	 */
-	public boolean reverifyStructure(Block thisBlock) {
+	public boolean reverifyStructure() {
 		//1. de-register from currently registered chunks and then clear the cache
-		KLWorld world = KLWorld.get(thisBlock.getWorld());
-		registerWithChunks(world, thisBlock, false);
+		registerWithChunks(false);
 		structureValidCache = false;
 		aabbCache = null;
 		//2. check if structure is valid
-		boolean valid = getProperty().verifyStructure(thisBlock, this);
+		boolean valid = getProperty().verifyStructure(this);
 		if(valid) //3. if so, register with the chunks
-			registerWithChunks(world, thisBlock, true);
+			registerWithChunks(true);
 
 		structureValidCache = valid;
 		return valid;
@@ -127,41 +128,44 @@ public class MultiblockBlock extends DurableBlock {
 	/**
 	 * Checks if the multiblock structure is valid. Uses cache when possible.
 	 */
-	public boolean isStructureValid(Block thisBlock) {
+	public boolean isStructureValid() {
 		if(structureValidCache)
 			return true;
 
-		return structureValidCache = reverifyStructure(thisBlock);
+		return structureValidCache = reverifyStructure();
 	}
 
-	public BlockAABB getAABB(Block thisBlock) {
+	public BlockAABB getAABB() {
 		if(aabbCache != null)
 			return aabbCache;
 
-		return aabbCache = getProperty().getAABB(thisBlock, this);
+		return aabbCache = getProperty().getAABB(this);
 	}
 
+	/**
+	 * For multiblock property.
+	 * Use this if the AABB is computed while verifying the structure, to avoid re-verifying just to get the AABB
+	 */
 	public void setAABBCache(BlockAABB newCacheValue) {
 		aabbCache = newCacheValue;
 	}
 
-	public boolean isBlockPartOfMultiblock(Block block, Block multiblock) {
+	public boolean isBlockPartOfMultiblock(Block block) {
 		BlockPosition pos = new BlockPosition(block.getLocation());
-		return isPosPartOfMultiblock(pos, multiblock);
+		return isPosPartOfMultiblock(pos);
 	}
-	public boolean isPosPartOfMultiblock(BlockPosition position, Block multiblock) {
-		if(!isPosInAABB(position, multiblock))
+	public boolean isPosPartOfMultiblock(BlockPosition position) {
+		if(!isPosInAABB(position))
 			return false;
 
-		return getProperty().isPosPartOfMultiblock(position, multiblock, this);
+		return getProperty().isPosPartOfMultiblock(position, this);
 	}
 
 	/**
 	 * @param position The block position we want to check
-	 * @param multiblock The physical block that corresponds to this multiblock
 	 */
-	public boolean isPosInAABB(BlockPosition position, Block multiblock) {
-		return getAABB(multiblock).containsPosition(position);
+	public boolean isPosInAABB(BlockPosition position) {
+		return getAABB().containsPosition(position);
 	}
 
 	//HELPER

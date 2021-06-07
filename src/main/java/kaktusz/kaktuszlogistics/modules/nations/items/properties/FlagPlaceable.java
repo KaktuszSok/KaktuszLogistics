@@ -2,12 +2,12 @@ package kaktusz.kaktuszlogistics.modules.nations.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
-import kaktusz.kaktuszlogistics.modules.nations.items.FlagItem;
 import kaktusz.kaktuszlogistics.modules.nations.world.ChunkClaimManager;
 import kaktusz.kaktuszlogistics.modules.nations.world.FlagBlock;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -82,7 +82,7 @@ public class FlagPlaceable extends ItemPlaceable {
 	}
 
 	@Override
-	public CustomBlock createCustomBlock(ItemMeta stackMeta) {
-		return new FlagBlock(this, stackMeta);
+	public CustomBlock createCustomBlock(ItemMeta stackMeta, Location location) {
+		return new FlagBlock(this, location, stackMeta);
 	}
 }

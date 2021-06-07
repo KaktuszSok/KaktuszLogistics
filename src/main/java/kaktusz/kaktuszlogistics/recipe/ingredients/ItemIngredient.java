@@ -25,5 +25,11 @@ public abstract class ItemIngredient implements IRecipeIngredient {
 
 	protected abstract boolean matchStack(ItemStack stack);
 
+	@Override
+	public int consume(IRecipeInput input) {
+		input.reduce(amount);
+		return amount;
+	}
+
 	public abstract List<Material> getValidInputMaterials();
 }

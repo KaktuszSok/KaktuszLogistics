@@ -2,12 +2,16 @@ package kaktusz.kaktuszlogistics.modules.survival.multiblocks;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
-import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
+import kaktusz.kaktuszlogistics.recipe.CustomRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
+import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
+import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -17,8 +21,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
 
@@ -30,8 +35,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	private MachineRecipe<?> recipeCache = null;
 
-	public MultiblockMachine(Multiblock property, ItemMeta meta) {
-		super(property, meta);
+	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
+		super(property, location, meta);
 	}
 
 	@Override
@@ -90,7 +95,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		if(recipe == null)
 			return false;
 
-		recipe.getOutputsMatching(gatherAllInputs());
+		MachineRecipe.ConsumptionAftermath consumption = recipe.consumeInputs(gatherAllInputs());
+
 	}
 
 	public void abortProcessing() {
@@ -106,7 +112,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	private IRecipeInput[] gatherAllInputs() {
-		List<IRecipeInput> inputs = new ArrayList<>();
 
 	}
 

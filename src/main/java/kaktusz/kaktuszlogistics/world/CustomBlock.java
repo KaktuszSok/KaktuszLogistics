@@ -4,6 +4,8 @@ import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -13,15 +15,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Objects;
+
 /**
  * A custom block is an instance of a custom item which is physically placed in the world.
  */
 public class CustomBlock {
 
     public transient final ItemPlaceable type;
+    public transient final Location location; //TODO: update old code to use this instead of passing around Block all the time
     public ItemMeta data;
 
-    public CustomBlock(ItemPlaceable prop, ItemMeta meta) {
+    public CustomBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
+        this.location = location;
         this.data = meta.clone();
         this.type = prop;
     }
@@ -29,7 +35,7 @@ public class CustomBlock {
     /**
      * Creates a CustomBlock with the correct class given some item meta
      */
-    public static CustomBlock createFromMeta(ItemMeta customItemData) {
+    public static CustomBlock createFromMeta(ItemMeta customItemData, Location location) {
         //read type from data
         String typeStr = customItemData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
         CustomItem type = CustomItemManager.tryGetItem(typeStr);
@@ -40,23 +46,23 @@ public class CustomBlock {
         ItemPlaceable placeableProperty = type.findProperty(ItemPlaceable.class);
         if(placeableProperty == null)
             return null;
-        return placeableProperty.createCustomBlock(customItemData);
+        return placeableProperty.createCustomBlock(customItemData, location);
     }
 
     /**
      * @return true if verify passes, false if it fails and the block removes itself from existence
      */
-    public boolean update(KLWorld world, int x, int y, int z) {
-        if(!verify(world, x, y, z)) {
-            world.setBlock(null, x, y, z);
-            KaktuszLogistics.LOGGER.info("Removing CustomBlock at " + x + "," + y + "," + z + " as verification failed.");
+    public boolean update() {
+        if(!verify()) {
+            KLWorld.get(location.getWorld()).setBlock(null, location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            KaktuszLogistics.LOGGER.info("Removing CustomBlock at " + new VanillaUtils.BlockPosition(location) + " as verification failed.");
             return false;
         }
         return true;
     }
 
-    public boolean verify(KLWorld world, int x, int y, int z) {
-        return verify(world.world.getBlockAt(x, y, z));
+    public boolean verify() {
+        return verify(Objects.requireNonNull(location.getWorld()).getBlockAt(location));
     }
     public boolean verify(Block block) {
         return type.verify(block);
@@ -71,8 +77,7 @@ public class CustomBlock {
 
     //EVENTS (note that the events are cancelled where possible and their original effects should be replaced with custom logic)
     public void onPlaced(BlockPlaceEvent e) { //the appropriate block is placed by the ItemPlaceable.
-        Block b = e.getBlockPlaced();
-        update(KLWorld.get(b.getWorld()), b.getX(), b.getY(), b.getZ());
+        update();
     }
 
     /**
@@ -100,10 +105,9 @@ public class CustomBlock {
     /**
      * Called when intentionally damaged, i.e. mined or exploded.
      * @param damage damage value. 1 for vanilla mining. For explosions, damage scales with blast power.
-     * @param b physical block, to provide world and coordinates
      */
-    public void onDamaged(int damage, Block b, boolean doSound) {
-        breakBlock(b, true);
+    public void onDamaged(int damage, boolean doSound) {
+        breakBlock(true);
     }
 
     /**
@@ -113,7 +117,8 @@ public class CustomBlock {
 
     }
 
-    public void breakBlock(Block b, boolean dropItem) {
+    public void breakBlock(boolean dropItem) {
+        Block b = location.getBlock();
         //get item
         ItemStack drop = null;
         if(dropItem)

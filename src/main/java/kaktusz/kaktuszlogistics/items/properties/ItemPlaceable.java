@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,12 +23,12 @@ public class ItemPlaceable extends ItemProperty implements IPlacedListener {
 		int z = b.getZ();
 		KLWorld world = KLWorld.get(b.getWorld());
 
-		CustomBlock block = world.setBlock(createCustomBlock(stack.getItemMeta()), x,y,z); //set block in KLWorld
+		CustomBlock block = world.setBlock(createCustomBlock(stack.getItemMeta(), b.getLocation()), x,y,z); //set block in KLWorld
 		block.onPlaced(e);
 	}
 
-	public CustomBlock createCustomBlock(ItemMeta stackMeta) {
-		return new CustomBlock(this, stackMeta);
+	public CustomBlock createCustomBlock(ItemMeta stackMeta, Location location) {
+		return new CustomBlock(this, location, stackMeta);
 	}
 
 	public boolean verify(Block block) {
