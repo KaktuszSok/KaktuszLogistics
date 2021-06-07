@@ -23,11 +23,12 @@ import java.util.Objects;
 public class CustomBlock {
 
     public transient final ItemPlaceable type;
-    public transient final Location location; //TODO: update old code to use this instead of passing around Block all the time
+    public transient final Location location;
     public ItemMeta data;
 
     public CustomBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
         this.location = location;
+        Objects.requireNonNull(location.getWorld());
         this.data = meta.clone();
         this.type = prop;
     }

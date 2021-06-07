@@ -2,19 +2,20 @@ package kaktusz.kaktuszlogistics.modules.survival;
 
 import kaktusz.kaktuszlogistics.commands.KLCommand;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import kaktusz.kaktuszlogistics.items.PolymorphicItem;
-import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.survival.commands.HouseSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking.SawmillWood;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.RoomInfo;
+import kaktusz.kaktuszlogistics.recipe.RecipeManager;
+import kaktusz.kaktuszlogistics.recipe.ingredients.WoodIngredient;
+import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
+import kaktusz.kaktuszlogistics.recipe.machine.WoodMachineRecipe;
+import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
+import kaktusz.kaktuszlogistics.recipe.outputs.WoodOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.config.BooleanOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
-import kaktusz.kaktuszlogistics.world.multiblock.*;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.data.type.Slab;
 
 public class KaktuszSurvival implements KaktuszModule {
@@ -34,15 +35,20 @@ public class KaktuszSurvival implements KaktuszModule {
 		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.value*RoomInfo.MAX_SIZE_VERTICAL.value*RoomInfo.MAX_SIZE_HORIZONTAL.value/3;
 
 		//add content
-		initItems();
+		initItemsAndRecipes();
 
 		//register commands
 		KLCommand.registerSubcommand(new RoomSubcommand("room"));
 		KLCommand.registerSubcommand(new HouseSubcommand("house"));
 	}
 
-	private void initItems() {
+	private void initItemsAndRecipes() {
 		CustomItemManager.registerItem(SawmillWood.createCustomItem());
+
+		MachineRecipe<ItemOutput> sawmill_planks = new WoodMachineRecipe<ItemOutput>("sawmill_planks", "Wooden Planks", 40)
+				.addOutputs(new WoodOutput(WoodIngredient.WOOD_ITEM.XXX_PLANKS, 3))
+				.addIngredients(new WoodIngredient(WoodIngredient.WOOD_ITEM.STRIPPED_XXX_LOG, 1));
+		RecipeManager.addMachineRecipe(sawmill_planks);
 	}
 
 	@Override

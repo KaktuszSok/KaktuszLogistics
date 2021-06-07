@@ -4,16 +4,20 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
 import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.modules.survival.multiblocks.MultiblockMachine;
+import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.world.multiblock.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class SawmillWood extends MultiblockBlock {
+public class SawmillWood extends MultiblockMachine {
 	public SawmillWood(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 	}
@@ -30,6 +34,13 @@ public class SawmillWood extends MultiblockBlock {
 		super.onInteracted(e);
 
 		e.getPlayer().sendMessage("Sawmill Wood");
+	}
+
+	@Override
+	protected void openGUI(HumanEntity player) {
+		//testing:
+		setRecipe(RecipeManager.getMachineRecipeById("sawmill_planks"));
+		Bukkit.broadcastMessage("try start processing: " + tryStartProcessing());
 	}
 
 	/**

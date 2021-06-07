@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class ItemIngredient implements IRecipeIngredient {
 
@@ -31,5 +32,5 @@ public abstract class ItemIngredient implements IRecipeIngredient {
 		return amount;
 	}
 
-	public abstract List<Material> getValidInputMaterials();
+	public abstract Set<Material> getValidInputMaterials();
 }

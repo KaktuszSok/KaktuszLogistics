@@ -2,18 +2,22 @@ package kaktusz.kaktuszlogistics.recipe.ingredients;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.ListUtils;
+import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
 
 import java.util.List;
+import java.util.Set;
 
 public class CustomItemIngredient extends ItemIngredient {
 
 	private final CustomItem type;
 
 	public CustomItemIngredient(CustomItem type) {
-		super(1);
+		this(type, 1);
+	}
+	public CustomItemIngredient(CustomItem type, int amount) {
+		super(amount);
 		this.type = type;
 	}
 
@@ -23,8 +27,8 @@ public class CustomItemIngredient extends ItemIngredient {
 	}
 
 	@Override
-	public List<Material> getValidInputMaterials() {
-		return ListUtils.listFromSingle(type.material);
+	public Set<Material> getValidInputMaterials() {
+		return SetUtils.setFromElements(type.material);
 	}
 
 	@Override

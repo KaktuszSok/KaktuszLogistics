@@ -8,24 +8,30 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends CustomRecipe<OutputType> {
 
 	public final String id;
-	private String name;
+	private final String name;
 	private Material displayIconMaterial = Material.CRAFTING_TABLE;
 	private int displayIconAmount = 1;
+	private static final DecimalFormat secondsFormatting = new DecimalFormat("#0.00");
 
-	private final List<IRecipeIngredient> ingredients = new ArrayList<>();
+	protected final List<IRecipeIngredient> ingredients = new ArrayList<>();
+	public final int time;
 
 	//SETUP
 	/**
-	 * @param id Used to uniquely identify this recipe.
+	 * @param id   Used to uniquely identify this recipe
 	 * @param name Display name of this recipe
+	 * @param time How long, in ticks the recipe takes to complete
 	 */
-	public MachineRecipe(String id, String name) {
+	public MachineRecipe(String id, String name, int time) {
+		this.name = name;
 		this.id = id;
+		this.time = time;
 	}
 
 	public MachineRecipe<OutputType> addIngredients(IRecipeIngredient... ingredients) {
@@ -75,8 +81,13 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 					continue; //didn't match
 
 				//otherwise, matched!
-				IRecipeInput consumedClone = original[i].clone(amountConsumed);
-
+				Integer storedAmount = consumed.get(original[i]);
+				if(storedAmount == null) {
+					storedAmount = 0;
+				}
+				storedAmount += amountConsumed;
+				consumed.put(original[i], storedAmount);
+				return true;
 			}
 
 			return false;
@@ -128,13 +139,52 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 		icon.getItemMeta().setDisplayName(name);
 		//lore:
 		List<String> lore = new ArrayList<>();
+		lore.add(ChatColor.GRAY + "Time: " + getTimeString(time));
 		lore.add(ChatColor.GRAY + "Inputs:");
-		for(IRecipeInput input : inputs) {
-			lore.add(input)
+		for(IRecipeIngredient ingredient : ingredients) {
+			lore.add(ChatColor.BLUE + " - " + ingredient.getName());
+		}
+		lore.add(ChatColor.GRAY + "Outputs:");
+		for(String outputName : getOutputNames()) {
+			lore.add(ChatColor.BLUE + " + " + outputName);
 		}
 		icon.getItemMeta().setLore(lore);
 
 		return icon;
+	}
+
+	/**
+	 * @return The display icon, with inputs highlighted depending on if they're missing or present
+	 */
+	@SuppressWarnings("ConstantConditions")
+	public ItemStack getDisplayIcon(IRecipeInput[] givenInputs) {
+		ItemStack icon = new ItemStack(displayIconMaterial, displayIconAmount);
+		icon.getItemMeta().setDisplayName(name);
+		//lore:
+		ConsumptionAftermath aftermath = new ConsumptionAftermath(givenInputs);
+		List<String> lore = new ArrayList<>();
+		lore.add(ChatColor.GRAY + "Inputs:");
+		for(IRecipeIngredient ingredient : ingredients) {
+			ChatColor ingredientColour = ChatColor.RED;
+			if(aftermath.consume(ingredient))
+				ingredientColour = ChatColor.GREEN;
+			lore.add(ingredientColour + " - " + ingredient.getName());
+		}
+		icon.getItemMeta().setLore(lore);
+
+		return icon;
+	}
+
+	private static String getTimeString(int t) {
+		float sec = t/20f;
+		if(sec > 60) {
+			int min = (int)sec/60;
+			sec = sec % 60;
+			return min + ":" + (int)sec + " min.";
+		}
+		else {
+			return secondsFormatting.format(sec) + "s";
+		}
 	}
 
 	/**

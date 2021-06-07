@@ -74,7 +74,7 @@ public final class KLChunk {
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         blocks.put(new LocalCoordinate(x, y, z), block);
         if(block instanceof TickingBlock)
-            tickingBlocks.add((TickingBlock)block);
+            addTickingBlock((TickingBlock)block);
         block.onSet(world, x,y,z);
         return block;
     }
@@ -88,13 +88,21 @@ public final class KLChunk {
         if(removed != null)
             removed.onRemoved(world, x, y, z);
         if(removed instanceof TickingBlock)
-            tickingBlocks.remove(removed);
+            removeTickingBlock((TickingBlock)removed);
         return removed != null;
     }
 
     public CustomBlock getBlockAt(int x, int y, int z) {
         LocalCoordinate pos = new LocalCoordinate(x, y, z);
         return blocks.get(pos);
+    }
+
+    public void addTickingBlock(TickingBlock tickingBlock) {
+        tickingBlocks.add(tickingBlock);
+        tickingBlock.onLoaded();
+    }
+    private void removeTickingBlock(TickingBlock tickingBlock) {
+        tickingBlocks.remove(tickingBlock);
     }
 
     /**
@@ -159,6 +167,11 @@ public final class KLChunk {
         unload();
     }
 
+    protected void onTick() {
+        for (TickingBlock tickingBlock : tickingBlocks)
+            tickingBlock.onTick();
+    }
+
     //HELPER
     public static File getFile(KLWorld world, int chunkX, int chunkZ) {
         File regionFolder = world.getRegionFolderAtChunkPos(chunkX, chunkZ);
@@ -172,6 +185,7 @@ public final class KLChunk {
     //SAVE/LOAD (if file size turns out to be an issue, should try add compression step)
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean save() {
+        tickingBlocks.forEach(TickingBlock::onSave);
         try {
             File chunkSaveFile = getFile(world, chunkPosX, chunkPosZ);
             chunkSaveFile.getParentFile().mkdirs();
@@ -229,8 +243,9 @@ public final class KLChunk {
                 }
                 else {
                     result.blocks.put(coord, block);
-                    if(block instanceof TickingBlock)
-                        result.tickingBlocks.add((TickingBlock)block);
+                    if(block instanceof TickingBlock) {
+                        result.addTickingBlock((TickingBlock) block);
+                    }
                 }
             }
 

@@ -2,10 +2,13 @@ package kaktusz.kaktuszlogistics.recipe.ingredients;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.ListUtils;
+import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.StringJoiner;
 
 public class VanillaIngredient extends ItemIngredient {
@@ -13,7 +16,10 @@ public class VanillaIngredient extends ItemIngredient {
 	private final Material type;
 
 	public VanillaIngredient(Material type) {
-		super(1);
+		this(type,1);
+	}
+	public VanillaIngredient(Material type, int amount) {
+		super(amount);
 		this.type = type;
 	}
 
@@ -23,8 +29,8 @@ public class VanillaIngredient extends ItemIngredient {
 	}
 
 	@Override
-	public List<Material> getValidInputMaterials() {
-		return ListUtils.listFromSingle(type);
+	public Set<Material> getValidInputMaterials() {
+		return SetUtils.setFromElements(type);
 	}
 
 	@Override
@@ -35,7 +41,7 @@ public class VanillaIngredient extends ItemIngredient {
 		for (String word : words) {
 			String capitalisedWord = word.substring(0, 1);
 			if(word.length() > 1)
-				capitalisedWord += word.substring(1);
+				capitalisedWord += word.substring(1).toLowerCase();
 			name.add(capitalisedWord);
 		}
 

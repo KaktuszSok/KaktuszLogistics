@@ -164,6 +164,18 @@ public class KLWorld {
         return chunk.setBlock(block, x, y, z);
     }
 
+    //EVENT
+    public static void onTick() {
+        for (KLWorld world : loadedWorlds.values()) {
+            world.tick();
+        }
+    }
+
+    protected void tick() {
+        for (KLChunk chunk : loadedChunks.values()) {
+            chunk.onTick();
+        }
+    }
 
     //HELPER
     public File getRegionFolderAtChunkPos(int chunkX, int chunkZ) {

@@ -48,7 +48,7 @@ public class RecipeManager {
 		furnaceRecipes.add(r);
 		//add furnace recipe so stuff starts burning. We will intercept the output.
 		ItemStack output = r.getQuickOutput().getStack();
-		RecipeChoice.MaterialChoice choice = new RecipeChoice.MaterialChoice(r.recipe.getValidInputMaterials());
+		RecipeChoice.MaterialChoice choice = new RecipeChoice.MaterialChoice(new ArrayList<>(r.recipe.getValidInputMaterials()));
 		NamespacedKey key = new NamespacedKey(KaktuszLogistics.INSTANCE, "smelt_" + keySuffix);
 		FurnaceRecipe furnaceRecipe = new FurnaceRecipe(key, output, choice, xp, cookingTime);
 		Bukkit.addRecipe(furnaceRecipe);

@@ -10,15 +10,16 @@ import java.util.stream.Collectors;
 
 public class SimpleMachineRecipe<OutputType extends IRecipeOutput> extends MachineRecipe<OutputType> {
 
-	private final List<OutputType> outputs = new ArrayList<>();
+	protected final List<OutputType> outputs = new ArrayList<>();
 
 	//SETUP
 	/**
-	 * @param id   Used to uniquely identify this recipe.
+	 * @param id   Used to uniquely identify this recipe
 	 * @param name Display name of this recipe
+	 * @param time How long, in ticks the recipe takes to complete
 	 */
-	public SimpleMachineRecipe(String id, String name) {
-		super(id, name);
+	public SimpleMachineRecipe(String id, String name, int time) {
+		super(id, name, time);
 	}
 
 	@SafeVarargs
@@ -39,6 +40,6 @@ public class SimpleMachineRecipe<OutputType extends IRecipeOutput> extends Machi
 
 	@Override
 	protected List<String> getOutputNames() {
-		return outputs.stream().map(OutputType::getName).collect(Collectors.toList());
+		return outputs.stream().map(IRecipeOutput::getName).collect(Collectors.toList());
 	}
 }
