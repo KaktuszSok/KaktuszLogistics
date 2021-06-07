@@ -12,7 +12,6 @@ import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -24,12 +23,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.serialisablesFromBytes;
+import static kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock.SpecialType;
 
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
 
@@ -114,7 +117,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 		recipeCache = recipe;
 		CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, recipe.id);
-		Bukkit.broadcastMessage("Set recipe to " + recipe.id);
 	}
 
 	public MachineRecipe<?> getRecipe() {
@@ -129,6 +131,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	public boolean tryStartProcessing() {
+		if(isProcessing)
+			return false;
 		MachineRecipe<?> recipe = getRecipe();
 		if(recipe == null)
 			return false;
@@ -163,18 +167,18 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		if(outputs == null)
 			return;
 
-		HashMap<Class<? extends IRecipeOutput>, BlockPosition[]> outputBlocksPerType = new HashMap<>();
-		HashMap<Class<? extends IRecipeOutput>, Integer> outputTypesCounter = new HashMap<>();
+		HashMap<SpecialType, Integer> outputTypesCounter = new HashMap<>();
 		for(IRecipeOutput output : outputs) {
 			//get type of output block we're looking for
-			Class<? extends IRecipeOutput> type = output.getOutputBlockType();
+			SpecialType type = output.getOutputBlockType();
 			//see if we cached the appropriate output blocks.
-			BlockPosition[] outputBlocks = outputBlocksPerType.get(type);
-			if(outputBlocks == null) {
-				outputBlocks = getProperty().getOutputs(this, type).toArray(new BlockPosition[0]);
-				outputBlocksPerType.put(type, outputBlocks);
+			Set<BlockPosition> outputBlocksSet = specialBlocksCache.get(type);
+			if(outputBlocksSet == null) {
+				output.placeInWorld(location.getWorld(), new BlockPosition(location));
+				continue;
 			}
-			//see if we have a tally for how many outputs, that share the same output block type, we outputted
+			BlockPosition[] outputBlocks = outputBlocksSet.toArray(new BlockPosition[0]);
+			//see if we have a tally for how many outputs, that share the same output block type, we have outputted already
 			Integer counter = outputTypesCounter.get(type);
 			if(counter == null) {
 				counter = 0;
@@ -185,11 +189,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 			counter++;
 			outputTypesCounter.put(type, counter);
-
-			RECIPE_DONE_SOUND.playAll(location);
 		}
-
-
+		RECIPE_DONE_SOUND.playAll(location);
 	}
 
 	public void abortProcessing() {
@@ -211,7 +212,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	private IRecipeInput[] gatherAllInputs() {
 		List<IRecipeInput> inputs = new ArrayList<>();
 		//items:
-		Set<BlockPosition> itemInputBlocks = getProperty().getInputs(this, ItemInput.class);
+		Set<BlockPosition> itemInputBlocks = specialBlocksCache.get(SpecialType.ITEM_INPUT);
+		if(itemInputBlocks == null)
+			return null;
 		for(BlockPosition inputBlock : itemInputBlocks) {
 			//noinspection ConstantConditions
 			Stream<ItemInput> items = ItemInput.getInputsFromPosition(location.getWorld(), inputBlock);

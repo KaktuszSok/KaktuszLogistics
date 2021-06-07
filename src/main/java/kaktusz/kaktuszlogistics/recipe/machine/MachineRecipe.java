@@ -114,6 +114,7 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 	 * @return The aftermath of the consumption, which can be applied to the world using applyToOriginal(). Null if recipe failed.
 	 */
 	public ConsumptionAftermath consumeInputs(IRecipeInput[] inputs) {
+		if(inputs == null) return null;
 		ConsumptionAftermath aftermath = new ConsumptionAftermath(inputs);
 
 		for (IRecipeIngredient ingredient : ingredients) {

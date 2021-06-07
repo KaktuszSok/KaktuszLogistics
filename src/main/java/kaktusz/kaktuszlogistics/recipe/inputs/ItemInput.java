@@ -6,14 +6,19 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ItemInput implements IRecipeInput {
+	static {
+		ConfigurationSerialization.registerClass(ItemInput.class);
+	}
 
 	public final ItemStack stack;
 
@@ -45,7 +50,11 @@ public class ItemInput implements IRecipeInput {
 	public Map<String, Object> serialize() {
 		return stack.serialize();
 	}
+	public static ItemInput deserialize(Map<String, Object> data) {
+		return new ItemInput(ItemStack.deserialize(data));
+	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public IRecipeInput clone() {
 		return new ItemInput(stack.clone());
@@ -68,6 +77,7 @@ public class ItemInput implements IRecipeInput {
 		BlockState state = block.getState();
 		if(state instanceof Container) {
 			return Arrays.stream(((Container) state).getInventory().getStorageContents())
+					.filter(Objects::nonNull)
 					.map(ItemInput::new);
 		}
 		return null;

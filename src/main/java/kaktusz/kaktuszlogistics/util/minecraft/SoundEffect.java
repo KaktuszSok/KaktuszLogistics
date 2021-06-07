@@ -43,6 +43,5 @@ public class SoundEffect {
 			where.getWorld().playSound(where, sound, MathsUtils.randomRange(volMin, volMax), MathsUtils.lerpc(pitchMin, pitchMax, pitchLerp));
 		else
 			where.getWorld().playSound(where, sound, category, MathsUtils.randomRange(volMin, volMax), MathsUtils.lerpc(pitchMin, pitchMax, pitchLerp));
-		Bukkit.broadcastMessage("playing " + sound.name() + " with pitch " + MathsUtils.lerpc(pitchMin, pitchMax, pitchLerp) + " (lerp=" + pitchLerp + ") and volume in range (" + volMin + "," + volMax + ")");
 	}
 }

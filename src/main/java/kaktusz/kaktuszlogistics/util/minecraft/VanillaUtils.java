@@ -92,7 +92,12 @@ public class VanillaUtils {
         try(BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(byteStream)) {
             int size = bukkitStream.readInt(); //read int
             for(int i = 0; i < size; i++) {
-                result.add(CastingUtils.confidentCast(bukkitStream.readObject())); //read serialisable (size times)
+                result.
+                        add(
+                        CastingUtils.
+                        confidentCast(
+                        bukkitStream.
+                        readObject())); //read serialisable (size times)
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

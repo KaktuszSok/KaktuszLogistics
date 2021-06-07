@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.recipe.outputs;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -49,8 +50,8 @@ public class ItemOutput implements IRecipeOutput {
 	}
 
 	@Override
-	public Class<? extends IRecipeOutput> getOutputBlockType() {
-		return ItemOutput.class;
+	public DecoratorSpecialBlock.SpecialType getOutputBlockType() {
+		return DecoratorSpecialBlock.SpecialType.ITEM_OUTPUT;
 	}
 
 }

@@ -3,8 +3,6 @@ package kaktusz.kaktuszlogistics.items.properties;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataNBT;
 import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataPDT;
-import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
-import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
@@ -18,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
@@ -86,9 +83,6 @@ public abstract class Multiblock extends BlockDurability {
 	public boolean isPosPartOfMultiblock(BlockPosition position, MultiblockBlock multiblock) {
 		return true;
 	}
-
-	public abstract Set<BlockPosition> getInputs(MultiblockBlock multiblock, Class<? extends IRecipeInput> type);
-	public abstract Set<BlockPosition> getOutputs(MultiblockBlock multiblock, Class<? extends IRecipeOutput> type);
 
 	//HELPER
 	/**

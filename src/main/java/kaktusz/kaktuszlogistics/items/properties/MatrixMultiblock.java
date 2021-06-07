@@ -1,8 +1,6 @@
 package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
-import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.ComponentAgnostic;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
@@ -10,7 +8,6 @@ import kaktusz.kaktuszlogistics.world.multiblock.MultiblockComponent;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
@@ -104,15 +101,6 @@ public class MatrixMultiblock extends Multiblock {
 	@Override
 	public boolean isPosPartOfMultiblock(BlockPosition position, MultiblockBlock multiblock) {
 		return !(getComponentAtWorldPosition(position, multiblock) instanceof ComponentAgnostic);
-	}
-
-	@Override
-	public Set<BlockPosition> getInputs(MultiblockBlock multiblock, Class<? extends IRecipeInput> type) {
-		return null;
-	}
-	@Override
-	public Set<BlockPosition> getOutputs(MultiblockBlock multiblock, Class<? extends IRecipeOutput> type) {
-		return null;
 	}
 
 	//HELPER

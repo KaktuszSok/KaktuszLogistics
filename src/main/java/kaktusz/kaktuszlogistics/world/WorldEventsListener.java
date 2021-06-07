@@ -171,8 +171,9 @@ public class WorldEventsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockMined(BlockBreakEvent e) {
-
         CustomBlock block = getCustomBlockFromEvent(e);
+        if(block == null)
+            return;
         KLWorld world = KLWorld.get(block.location.getWorld());
         if(!block.update()) { //something went wrong!
             return;

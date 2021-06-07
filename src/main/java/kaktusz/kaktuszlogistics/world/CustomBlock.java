@@ -28,7 +28,6 @@ public class CustomBlock {
 
     public CustomBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
         this.location = location;
-        Objects.requireNonNull(location.getWorld());
         this.data = meta.clone();
         this.type = prop;
     }

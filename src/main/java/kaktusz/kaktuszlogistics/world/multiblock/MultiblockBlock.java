@@ -5,7 +5,6 @@ import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -17,15 +16,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
+import static kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock.SpecialType;
 
 public class MultiblockBlock extends DurableBlock {
 
 	private transient final Multiblock property;
 	private boolean structureValidCache = false;
 	private transient BlockAABB aabbCache = null;
+	protected transient final HashMap<SpecialType, Set<BlockPosition>> specialBlocksCache = new HashMap<>();
 
 	public MultiblockBlock(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
@@ -97,14 +100,13 @@ public class MultiblockBlock extends DurableBlock {
 					multiblocks.remove(pos);
 
 				chunk.setExtraData("multiblocks", multiblocks);
-				Bukkit.broadcastMessage("registerWithChunks - " + register + " - (" + cx + "," + cz + ")");
 			}
 		}
 	}
 
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
-		e.getPlayer().sendMessage("valid: " + isStructureValid() + ", facing: " + getProperty().getFacing(data));
+
 	}
 
 	//STRUCTURE
@@ -116,6 +118,7 @@ public class MultiblockBlock extends DurableBlock {
 		registerWithChunks(false);
 		structureValidCache = false;
 		aabbCache = null;
+		specialBlocksCache.clear();
 		//2. check if structure is valid
 		boolean valid = getProperty().verifyStructure(this);
 		if(valid) //3. if so, register with the chunks
@@ -150,6 +153,15 @@ public class MultiblockBlock extends DurableBlock {
 		aabbCache = newCacheValue;
 	}
 
+	/**
+	 * Marks a block as being special in a given way. One block may be special in multiple different ways.
+	 */
+	public void markBlockSpecial(BlockPosition block, SpecialType specialType) {
+		Set<BlockPosition> markedBlocks = specialBlocksCache.computeIfAbsent(specialType, k -> new HashSet<>());
+		markedBlocks.add(block);
+	}
+
+	//HELPER
 	public boolean isBlockPartOfMultiblock(Block block) {
 		BlockPosition pos = new BlockPosition(block.getLocation());
 		return isPosPartOfMultiblock(pos);

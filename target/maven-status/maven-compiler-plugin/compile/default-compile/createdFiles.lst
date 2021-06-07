@@ -3,6 +3,7 @@ kaktusz\kaktuszlogistics\items\properties\TieredMetallic.class
 kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe.class
 kaktusz\kaktuszlogistics\world\CustomBlock.class
 kaktusz\kaktuszlogistics\world\multiblock\ComponentDirectional.class
+kaktusz\kaktuszlogistics\world\multiblock\DecoratorSpecialBlock.class
 kaktusz\kaktuszlogistics\util\minecraft\SFXCollection.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$MutableBlockPosition.class
 kaktusz\kaktuszlogistics\commands\KLCommand.class
@@ -26,7 +27,6 @@ kaktusz\kaktuszlogistics\items\properties\BlockDurability$DurabilityState.class
 kaktusz\kaktuszlogistics\modules\nations\KaktuszNations.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseInfo.class
 kaktusz\kaktuszlogistics\items\properties\MatrixMultiblock.class
-kaktusz\kaktuszlogistics\world\multiblock\DecoratorSet.class
 kaktusz\kaktuszlogistics\util\minecraft\config\ConfigOption.class
 kaktusz\kaktuszlogistics\modules\KModule.class
 kaktusz\kaktuszlogistics\modules\weaponry\projectiles\BulletProjectile.class
@@ -64,6 +64,7 @@ kaktusz\kaktuszlogistics\recipe\inputs\ItemInput.class
 kaktusz\kaktuszlogistics\world\multiblock\ComponentCustomBlock.class
 kaktusz\kaktuszlogistics\world\multiblock\ComponentItemContainer.class
 kaktusz\kaktuszlogistics\projectile\CustomProjectile$PrioritisedRayHit.class
+kaktusz\kaktuszlogistics\world\multiblock\DecoratorSpecialBlock$SpecialType.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener.class
 kaktusz\kaktuszlogistics\world\multiblock\ComponentDecorator.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockSounds.class

@@ -7,7 +7,6 @@ import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.modules.survival.multiblocks.MultiblockMachine;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.world.multiblock.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -32,15 +31,15 @@ public class SawmillWood extends MultiblockMachine {
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
 		super.onInteracted(e);
-
-		e.getPlayer().sendMessage("Sawmill Wood");
 	}
 
 	@Override
 	protected void openGUI(HumanEntity player) {
+		if(!isStructureValid())
+			return;
 		//testing:
 		setRecipe(RecipeManager.getMachineRecipeById("sawmill_planks"));
-		Bukkit.broadcastMessage("try start processing: " + tryStartProcessing());
+		tryStartProcessing();
 	}
 
 	/**
@@ -52,11 +51,14 @@ public class SawmillWood extends MultiblockMachine {
 				new ComponentMaterial(Material.BARREL),
 				new ComponentDirectional(Multiblock.RELATIVE_DIRECTION.RIGHT).setAllowOpposite(true)
 		);
+
+		DecoratorSpecialBlock inputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_INPUT);
+		DecoratorSpecialBlock outputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_OUTPUT);
 		sawmill.getOrAddProperty(MatrixMultiblock.class)
 				.setLayerModeHorizontal(true)
 				.addLayer(new MultiblockComponent[][] {
-						{new ComponentMaterial(Material.CRAFTING_TABLE), barrelStripesAlongAxis},
-						{new ComponentAgnostic(), barrelStripesAlongAxis}
+						{new ComponentMaterial(Material.CRAFTING_TABLE), outputBarrel},
+						{new ComponentAgnostic(), inputBarrel}
 				})
 				.addLayer(new MultiblockComponent[][] {
 						{new ComponentTag(Tag.WOODEN_FENCES), ComponentCustomBlock.fromCustomItem(sawmill)},
