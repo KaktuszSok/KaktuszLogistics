@@ -70,7 +70,7 @@ public class MachineGUI extends InteractableGUI {
 		ItemStack recipeIcon;
 		if(recipe == null) {
 			recipeIcon = new ItemStack(Material.PAINTING);
-			setName(recipeIcon, "Click to choose a recipe");
+			setName(recipeIcon, "Click to Choose a Recipe");
 		}
 		else {
 			if(machine.isProcessingRecipe()) {
