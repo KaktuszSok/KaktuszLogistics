@@ -25,7 +25,7 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 
 	//SETUP
 	/**
-	 * @param id   Used to uniquely identify this recipe
+	 * @param id   Used to uniquely identify this recipe. Use the format "prefix.rest_of_id", i.e. "sawmill.basic_planks"
 	 * @param name Display name of this recipe
 	 * @param time How long, in ticks the recipe takes to complete
 	 */

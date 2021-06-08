@@ -45,7 +45,13 @@ public class KaktuszSurvival implements KaktuszModule {
 	private void initItemsAndRecipes() {
 		CustomItemManager.registerItem(SawmillWood.createCustomItem());
 
-		MachineRecipe<ItemOutput> sawmill_planks = new WoodMachineRecipe<ItemOutput>("sawmill_planks", "Wooden Planks", 40)
+		MachineRecipe<ItemOutput> sawmill_strip_log = new WoodMachineRecipe<ItemOutput>("sawmill.strip_log", "Stripping", 18)
+				.addOutputs(new WoodOutput(WoodIngredient.WOOD_ITEM.STRIPPED_XXX_LOG, 1))
+				.addIngredients(new WoodIngredient(WoodIngredient.WOOD_ITEM.XXX_LOG, 1))
+				.setDisplayIcon(Material.STRIPPED_OAK_LOG, 1);
+		RecipeManager.addMachineRecipe(sawmill_strip_log);
+
+		MachineRecipe<ItemOutput> sawmill_planks = new WoodMachineRecipe<ItemOutput>("sawmill.planks", "Wooden Planks", 30)
 				.addOutputs(new WoodOutput(WoodIngredient.WOOD_ITEM.XXX_PLANKS, 3))
 				.addIngredients(new WoodIngredient(WoodIngredient.WOOD_ITEM.STRIPPED_XXX_LOG, 1))
 				.setDisplayIcon(Material.OAK_PLANKS, 3);

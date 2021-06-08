@@ -4,11 +4,14 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
 import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.util.ListUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
+import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
-import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.world.multiblock.components.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -16,7 +19,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 public class SawmillWood extends MultiblockMachine {
+	public static final SFXCollection RECIPE_DONE_SOUND = new SFXCollection(
+			new SoundEffect(Sound.BLOCK_WOOD_BREAK, 0.5f, 0.5f, 1.4f, 1.6f)
+	);
+
 	public SawmillWood(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 	}
@@ -39,10 +48,13 @@ public class SawmillWood extends MultiblockMachine {
 	}
 
 	@Override
-	protected void openGUI(HumanEntity player) {
-		super.openGUI(player);
-		//testing:
-		setRecipe(RecipeManager.getMachineRecipeById("sawmill_planks"));
+	protected List<String> getSupportedRecipePrefixes() {
+		return ListUtils.listFromSingle("sawmill");
+	}
+
+	@Override
+	protected SFXCollection getRecipeDoneSound() {
+		return RECIPE_DONE_SOUND;
 	}
 
 	@Override
@@ -51,6 +63,7 @@ public class SawmillWood extends MultiblockMachine {
 	}
 
 	/**
+	 * Creates the multiblock item and sets up the recipe.
 	 * This should only be called once, and the result should be registered with the CustomItemManager.
 	 */
 	public static CustomItem createCustomItem() {

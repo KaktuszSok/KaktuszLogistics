@@ -5,17 +5,15 @@ import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MachineGUI extends InteractableGUI {
 	private static final DecimalFormat progressFormatting = new DecimalFormat("00.0");
 
-	private final MultiblockMachine machine;
+	public final MultiblockMachine machine;
 
 	public MachineGUI(MultiblockMachine machine) {
 		super(27, machine.getProperty().getName());
@@ -44,13 +42,22 @@ public class MachineGUI extends InteractableGUI {
 
 		//progress bar and recipe
 		GUIButton progressButton = new GUIButton()
-				.setLeftClickAction(machine::toggleProcessing);
+				.setLeftClickAction(x -> {
+					if(machine.getRecipe() != null)
+						machine.toggleProcessing();
+				});
 		for(int c = 1; c < INVENTORY_WIDTH-2; c++) {
 			addButton(1, c, progressButton, new ItemStack(Material.BARRIER));
 		}
+
 		GUIButton recipeButton = new GUIButton()
-				.setLeftClickAction(machine::tryStartProcessing);
-		//TODO: right click = choose recipe
+				.setLeftClickAction(v -> {
+					if(machine.getRecipe() != null)
+						machine.tryStartProcessing();
+					else
+						new RecipeListGUI(this).open(v);
+				})
+				.setRightClickAction(v -> new RecipeListGUI(this).open(v));
 		addButton(1, INVENTORY_WIDTH-2, recipeButton, new ItemStack(Material.BARRIER));
 
 		//update visuals for progress bar and recipe
@@ -60,9 +67,9 @@ public class MachineGUI extends InteractableGUI {
 	public void update() {
 		MachineRecipe<?> recipe = machine.getRecipe();
 
-		ItemStack recipeIcon = getItemInSlot(1,INVENTORY_WIDTH-2);
+		ItemStack recipeIcon;
 		if(recipe == null) {
-			recipeIcon.setType(Material.PAINTING);
+			recipeIcon = new ItemStack(Material.PAINTING);
 			setName(recipeIcon, "Click to choose a recipe");
 		}
 		else {
@@ -86,8 +93,8 @@ public class MachineGUI extends InteractableGUI {
 						startString,
 						ChatColor.DARK_GRAY + "[Right-Click to change recipe]");
 			}
-			setSlot(1, INVENTORY_WIDTH-2, recipeIcon);
 		}
+		setSlot(1, INVENTORY_WIDTH-2, recipeIcon);
 
 		final int progressBarLength = INVENTORY_WIDTH-3; //from column # 1 to INVENTORY_WIDTH-3 (9 - 3 = 6: 1,2,3,4,5,6)
 		double progressPercent = 0;
@@ -129,38 +136,6 @@ public class MachineGUI extends InteractableGUI {
 			setName(progressBar, progressTitle);
 			setLore(progressBar, progressLore);
 		}
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	private static void setName(ItemStack stack, String name) {
-		name = ChatColor.WHITE + name;
-		ItemMeta meta = stack.getItemMeta();
-		meta.setDisplayName(name);
-		stack.setItemMeta(meta);
-	}
-
-	private static void setLore(ItemStack stack, String... lore) {
-		setLore(stack, Arrays.asList(lore));
-	}
-	@SuppressWarnings("ConstantConditions")
-	private static void setLore(ItemStack stack, List<String> lore) {
-		ItemMeta meta = stack.getItemMeta();
-		meta.setLore(lore);
-		stack.setItemMeta(meta);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	private static void insertLore(ItemStack stack, int index, String... lore) {
-		ItemMeta meta = stack.getItemMeta();
-		List<String> currLore = meta.getLore();
-		if(currLore == null)
-			currLore = new ArrayList<>();
-		if(index != -1)
-			currLore.addAll(index, Arrays.asList(lore));
-		else
-			currLore.addAll(Arrays.asList(lore));
-		meta.setLore(currLore);
-		stack.setItemMeta(meta);
 	}
 
 }

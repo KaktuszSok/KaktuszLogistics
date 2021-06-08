@@ -1,64 +1,70 @@
 package kaktusz.kaktuszlogistics.gui;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class InteractableGUI extends CustomGUI {
 
 	public static class GUIButton {
-		private Runnable leftClickAction;
-		private Runnable rightClickAction;
-		private Runnable shiftLeftClickAction;
-		private Runnable shiftRightClickAction;
+		private Consumer<HumanEntity> leftClickAction;
+		private Consumer<HumanEntity> rightClickAction;
+		private Consumer<HumanEntity> shiftLeftClickAction;
+		private Consumer<HumanEntity> shiftRightClickAction;
 
 		public GUIButton() {
 
 		}
 
-		public GUIButton setLeftClickAction(Runnable leftClickAction) {
+		public GUIButton setLeftClickAction(Consumer<HumanEntity> leftClickAction) {
 			this.leftClickAction = leftClickAction;
 
 			return this;
 		}
 
-		public GUIButton setRightClickAction(Runnable rightClickAction) {
+		public GUIButton setRightClickAction(Consumer<HumanEntity> rightClickAction) {
 			this.rightClickAction = rightClickAction;
 
 			return this;
 		}
 
-		public GUIButton setShiftLeftClickAction(Runnable shiftLeftClickAction) {
+		public GUIButton setShiftLeftClickAction(Consumer<HumanEntity> shiftLeftClickAction) {
 			this.shiftLeftClickAction = shiftLeftClickAction;
 
 			return this;
 		}
 
-		public GUIButton setShiftRightClickAction(Runnable shiftRightClickAction) {
+		public GUIButton setShiftRightClickAction(Consumer<HumanEntity> shiftRightClickAction) {
 			this.shiftRightClickAction = shiftRightClickAction;
 
 			return this;
 		}
 
-		public void onClick(ClickType type) {
+		public void onClick(ClickType type, HumanEntity player) {
 			if(type.isLeftClick()) {
 				if(!type.isShiftClick())
-					runAction(leftClickAction);
+					runAction(leftClickAction, player);
 				else
-					runAction(shiftLeftClickAction);
+					runAction(shiftLeftClickAction, player);
 			}
 			else if(type.isRightClick()) {
 				if(!type.isShiftClick())
-					runAction(rightClickAction);
+					runAction(rightClickAction, player);
 				else
-					runAction(shiftRightClickAction);
+					runAction(shiftRightClickAction, player);
 			}
 		}
 
-		private void runAction(Runnable action) {
+		private void runAction(Consumer<HumanEntity> action, HumanEntity player) {
 			if(action == null)
 				return;
 
-			action.run();
+			action.accept(player);
 		}
 	}
 
@@ -67,6 +73,12 @@ public class InteractableGUI extends CustomGUI {
 	public InteractableGUI(int size, String title) {
 		super(size, title);
 		this.buttons = new GUIButton[size];
+	}
+
+	@Override
+	protected void clearInventory() {
+		super.clearInventory();
+		Arrays.fill(buttons, null);
 	}
 
 	/**
@@ -81,10 +93,10 @@ public class InteractableGUI extends CustomGUI {
 	}
 
 	@Override
-	public void onClick(ClickType type, int slot) {
+	public void onClick(ClickType type, int slot, HumanEntity player) {
 		if(slot < inventory.getSize()) {
 			if(buttons[slot] != null)
-				buttons[slot].onClick(type);
+				buttons[slot].onClick(type, player);
 		}
 	}
 }

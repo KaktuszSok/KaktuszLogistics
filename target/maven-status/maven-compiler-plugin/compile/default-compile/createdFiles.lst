@@ -23,6 +23,7 @@ kaktusz\kaktuszlogistics\items\properties\BlockDurability$DurabilityState.class
 kaktusz\kaktuszlogistics\modules\nations\KaktuszNations.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseInfo.class
 kaktusz\kaktuszlogistics\items\properties\MatrixMultiblock.class
+kaktusz\kaktuszlogistics\gui\MultiPageGUI.class
 kaktusz\kaktuszlogistics\util\minecraft\config\ConfigOption.class
 kaktusz\kaktuszlogistics\modules\KModule.class
 kaktusz\kaktuszlogistics\modules\weaponry\projectiles\BulletProjectile.class
@@ -34,6 +35,7 @@ kaktusz\kaktuszlogistics\modules\KaktuszModule.class
 kaktusz\kaktuszlogistics\world\TickingBlock.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentTag.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
+kaktusz\kaktuszlogistics\gui\RecipeListGUI.class
 kaktusz\kaktuszlogistics\KaktuszLogistics$1.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality.class
 kaktusz\kaktuszlogistics\commands\Subcommand$ArgumentType.class
@@ -57,6 +59,8 @@ kaktusz\kaktuszlogistics\world\multiblock\components\ComponentMaterial.class
 kaktusz\kaktuszlogistics\util\DDARaycast.class
 kaktusz\kaktuszlogistics\util\minecraft\SoundEffect.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils.class
+kaktusz\kaktuszlogistics\gui\ListGUI.class
+kaktusz\kaktuszlogistics\gui\MultiPageGUI$1.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\RoomInfo.class
 kaktusz\kaktuszlogistics\recipe\outputs\IRecipeOutput.class
 kaktusz\kaktuszlogistics\items\properties\TieredMetallic$MetalTiers.class
@@ -104,6 +108,7 @@ kaktusz\kaktuszlogistics\recipe\outputs\WoodOutput.class
 kaktusz\kaktuszlogistics\recipe\QualitySmeltingRecipe.class
 kaktusz\kaktuszlogistics\world\multiblock\MultiblockMachine.class
 kaktusz\kaktuszlogistics\items\CustomItem.class
+kaktusz\kaktuszlogistics\gui\ListGUI$ListElement.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener$InventorySlotRange.class
 kaktusz\kaktuszlogistics\world\KLWorld$ChunkCoordinate.class
 kaktusz\kaktuszlogistics\recipe\ingredients\VanillaIngredient.class

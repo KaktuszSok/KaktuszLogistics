@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.gui;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -32,7 +33,7 @@ public class GUIListener implements Listener {
 	public void onInventoryClick(InventoryClickEvent e) {
 		if(openGUIs.containsKey(e.getClickedInventory())) {
 			e.setCancelled(true);
-			openGUIs.get(e.getClickedInventory()).onClick(e.getClick(), e.getSlot());
+			openGUIs.get(e.getClickedInventory()).onClick(e.getClick(), e.getSlot(), e.getWhoClicked());
 		}
 	}
 
@@ -46,7 +47,7 @@ public class GUIListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onInventoryClosed(InventoryCloseEvent e) {
 		if(openGUIs.containsKey(e.getInventory())) {
-			openGUIs.get(e.getInventory()).onClosed();
+			openGUIs.get(e.getInventory()).onClosed(e.getPlayer());
 		}
 	}
 

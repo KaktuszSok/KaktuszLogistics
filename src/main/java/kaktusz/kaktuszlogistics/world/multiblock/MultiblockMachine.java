@@ -153,6 +153,25 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	public IRecipeInput[] getCachedSupplies() {
 		return suppliesCache;
 	}
+	/**
+	 * Gets all recipes that this machine supports.
+	 */
+	public List<MachineRecipe<?>> getAllRecipes() {
+		List<MachineRecipe<?>> result = new ArrayList<>();
+		for (String prefix : getSupportedRecipePrefixes()) {
+			result.addAll(RecipeManager.getMachineRecipesWithPrefix(prefix));
+		}
+		return result.stream().distinct().collect(Collectors.toList());
+	}
+
+	/**
+	 * Usually this should just return one prefix, unless the machine supports recipes of other machines.
+	 */
+	protected abstract List<String> getSupportedRecipePrefixes();
+
+	protected SFXCollection getRecipeDoneSound() {
+		return RECIPE_DONE_SOUND;
+	}
 
 	//ACTIONS
 	protected void openGUI(HumanEntity player) {
@@ -176,7 +195,11 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		abortProcessing(); //stop current recipe
 
 		recipeCache = recipe;
-		CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, recipe.id);
+		if(recipe != null)
+			CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, recipe.id);
+		else
+			CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, null);
+
 		gatherAllInputs(); //update supplies cache so that GUI is up-to-date
 		updateGUI();
 	}
@@ -254,11 +277,14 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			counter++;
 			outputTypesCounter.put(type, counter);
 		}
-		RECIPE_DONE_SOUND.playAll(location);
+		getRecipeDoneSound().playAll(location);
 	}
 
 	public void abortProcessing() {
+		isProcessing = false;
 		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
+		timeLeft = -1;
+		updateGUI();
 	}
 
 	/**

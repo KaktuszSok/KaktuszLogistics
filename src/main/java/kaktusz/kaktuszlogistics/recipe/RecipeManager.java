@@ -15,15 +15,13 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RecipeManager {
 	private static final List<CraftingRecipe> craftingTableRecipes = new ArrayList<>();
 	private static final List<SmeltingRecipe> furnaceRecipes = new ArrayList<>();
 	private static final Map<String, MachineRecipe<?>> machineRecipes = new HashMap<>();
+	private static final Map<String, List<MachineRecipe<?>>> machineRecipesByPrefix = new HashMap<>();
 	private static final Map<List<? extends CustomRecipe<?>>, CustomRecipe<?>> recipesCache = new HashMap<>(); //cache last used recipe from each list
 
 	//CRAFTING
@@ -60,11 +58,27 @@ public class RecipeManager {
 		return matchInputsToRecipeList(furnaceRecipes, inputs);
 	}
 
+	/**
+	 * @param r The recipe to add. If the id starts with a prefix ("prefix.rest_of_id"), it will be added to the prefix's set of recipes.
+	 */
 	public static void addMachineRecipe(MachineRecipe<?> r) {
 		machineRecipes.put(r.id, r);
+		String[] split = r.id.split("\\.");
+		if(split.length > 1) {
+			List<MachineRecipe<?>> prefixRecipes = machineRecipesByPrefix.computeIfAbsent(split[0], k -> new ArrayList<>());
+			if(!prefixRecipes.contains(r))
+				prefixRecipes.add(r);
+		}
 	}
 	public static MachineRecipe<?> getMachineRecipeById(String id) {
 		return machineRecipes.get(id);
+	}
+	public static List<MachineRecipe<?>> getMachineRecipesWithPrefix(String prefix) {
+		List<MachineRecipe<?>> result = machineRecipesByPrefix.get(prefix);
+		if(result == null)
+			return new ArrayList<>();
+		else
+			return result;
 	}
 
 	//HELPER
