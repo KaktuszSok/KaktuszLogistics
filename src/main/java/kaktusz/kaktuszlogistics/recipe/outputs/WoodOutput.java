@@ -32,7 +32,7 @@ public class WoodOutput extends ItemOutput {
 
 	@Override
 	public String getName() {
-		String[] words = item.name().split("_");
+		String[] words = item.name().replace("XXX_", "").split("_");
 		StringJoiner name = new StringJoiner(" ");
 		for (String word : words) {
 			String capitalisedWord = word.substring(0, 1);
@@ -41,6 +41,6 @@ public class WoodOutput extends ItemOutput {
 			name.add(capitalisedWord);
 		}
 
-		return name.toString();
+		return name.toString() + " x" + itemStack.getAmount();
 	}
 }

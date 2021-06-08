@@ -1,18 +1,14 @@
 package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataNBT;
-import kaktusz.kaktuszlogistics.items.nbt.MultiblockDataPDT;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,9 +28,6 @@ public abstract class Multiblock extends BlockDurability {
 		TOWARDS, //facing towards the multiblock
 		AWAY //facing away from the multiblock
 	}
-
-	public static NamespacedKey MULTIBLOCK_DATA_KEY;
-
 	private Class<? extends MultiblockBlock> multiblockType;
 
 	//SETUP
@@ -55,13 +48,9 @@ public abstract class Multiblock extends BlockDurability {
 		return this;
 	}
 
-	//ITEMSTACK
-	@Override
-	public void onCreateStack(ItemStack stack) {
-		super.onCreateStack(stack);
-		ItemMeta meta = stack.getItemMeta();
-		setNBT(meta, new MultiblockDataNBT(item));
-		stack.setItemMeta(meta);
+	//INFO
+	public String getName() {
+		return item.displayName;
 	}
 
 	//STRUCTURE
@@ -175,34 +164,6 @@ public abstract class Multiblock extends BlockDurability {
 		if(worldSpaceOffset == null) //invalid orientation
 			return relativeOrigin.getBlock();
 		return relativeOrigin.getBlock().getRelative(worldSpaceOffset.x, worldSpaceOffset.y, worldSpaceOffset.z);
-	}
-
-	//NBT
-	public BlockFace getFacing(ItemMeta meta) {
-		return readNBT(meta).facing;
-	}
-	public void setFacing(ItemMeta meta, BlockFace facing) {
-		if(facing == null)
-			facing = BlockFace.NORTH; //default value
-		MultiblockDataNBT nbt = readNBT(meta);
-		if(facing.getModY() != 0) //don't allow facing up/down
-			facing = BlockFace.NORTH;
-		nbt.facing = facing;
-		setNBT(meta, nbt);
-	}
-
-	protected void setNBT(ItemMeta meta, MultiblockDataNBT data) {
-		if(meta == null) return;
-		meta.getPersistentDataContainer().set(MULTIBLOCK_DATA_KEY, MultiblockDataPDT.MULTIBLOCK_DATA, data);
-	}
-	protected MultiblockDataNBT readNBT(ItemMeta meta) {
-		if(meta == null) return null;
-
-		if(meta.getPersistentDataContainer().has(MULTIBLOCK_DATA_KEY, MultiblockDataPDT.MULTIBLOCK_DATA)) {
-			return meta.getPersistentDataContainer().get(MULTIBLOCK_DATA_KEY, MultiblockDataPDT.MULTIBLOCK_DATA);
-		}
-
-		return new MultiblockDataNBT(item);
 	}
 
 	//CUSTOMBLOCK

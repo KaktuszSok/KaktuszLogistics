@@ -2,9 +2,9 @@ package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import kaktusz.kaktuszlogistics.world.multiblock.ComponentAgnostic;
+import kaktusz.kaktuszlogistics.world.multiblock.components.ComponentAgnostic;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
-import kaktusz.kaktuszlogistics.world.multiblock.MultiblockComponent;
+import kaktusz.kaktuszlogistics.world.multiblock.components.MultiblockComponent;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
@@ -104,6 +104,9 @@ public class MatrixMultiblock extends Multiblock {
 	}
 
 	//HELPER
+	/**
+	 * Transforms matrix position to block in the world for a given multiblock instance
+	 */
 	protected final Block getBlock(int layerIndex, int row, int column, MultiblockBlock multiblock) {
 		BlockPosition offset;
 		if(horizontalLayers)
@@ -111,9 +114,12 @@ public class MatrixMultiblock extends Multiblock {
 		else {
 			offset = new BlockPosition(column - controllerBlockColumn, (short) (row - controllerBlockRow), layerIndex - controllerBlockLayer);
 		}
-		return Multiblock.getBlockAtRelativeOffset(multiblock.location, multiblock.getProperty().getFacing(multiblock.data), offset.x, offset.y, offset.z);
+		return Multiblock.getBlockAtRelativeOffset(multiblock.location, multiblock.getFacing(), offset.x, offset.y, offset.z);
 	}
 
+	/**
+	 * Transforms matrix position to world position for a given multiblock instance
+	 */
 	protected final BlockPosition getBlockPosition(int layerIndex, int row, int column, MultiblockBlock multiblock) {
 		BlockPosition relativeOffset;
 		if(horizontalLayers)
@@ -121,16 +127,19 @@ public class MatrixMultiblock extends Multiblock {
 		else {
 			relativeOffset = new BlockPosition(column - controllerBlockColumn, (short) (row - controllerBlockRow), layerIndex - controllerBlockLayer);
 		}
-		BlockPosition worldOffset = transformOffset(multiblock.getProperty().getFacing(multiblock.data), relativeOffset);
+		BlockPosition worldOffset = transformOffset(multiblock.getFacing(), relativeOffset);
 		if(worldOffset == null) //invalid multiblock orientation
 			return new BlockPosition(multiblock.location);
 
 		return new BlockPosition(multiblock.location.getBlockX() + worldOffset.x, multiblock.location.getBlockY() + worldOffset.y, multiblock.location.getBlockZ() + worldOffset.z);
 	}
 
+	/**
+	 * Gets the component in the matrix given a world position and a specific multiblock instance
+	 */
 	protected final MultiblockComponent getComponentAtWorldPosition(BlockPosition worldPos, MultiblockBlock multiblock) {
 		BlockPosition worldOffset = new BlockPosition(worldPos.x - multiblock.location.getBlockX(), worldPos.y - multiblock.location.getBlockY(), worldPos.z - multiblock.location.getBlockZ());
-		BlockPosition relativeOffset = transformOffset(multiblock.getProperty().getFacing(multiblock.data), worldOffset);
+		BlockPosition relativeOffset = transformOffset(multiblock.getFacing(), worldOffset);
 		if(relativeOffset == null) //invalid controller orientation
 			return null;
 

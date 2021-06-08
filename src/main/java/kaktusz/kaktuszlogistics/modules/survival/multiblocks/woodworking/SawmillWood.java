@@ -4,9 +4,9 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
 import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
-import kaktusz.kaktuszlogistics.modules.survival.multiblocks.MultiblockMachine;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
-import kaktusz.kaktuszlogistics.world.multiblock.*;
+import kaktusz.kaktuszlogistics.world.multiblock.components.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -34,12 +34,20 @@ public class SawmillWood extends MultiblockMachine {
 	}
 
 	@Override
+	public Material getGUIHeader() {
+		return Material.STONECUTTER;
+	}
+
+	@Override
 	protected void openGUI(HumanEntity player) {
-		if(!isStructureValid())
-			return;
+		super.openGUI(player);
 		//testing:
 		setRecipe(RecipeManager.getMachineRecipeById("sawmill_planks"));
-		tryStartProcessing();
+	}
+
+	@Override
+	public boolean verify(Block block) {
+		return Tag.FENCE_GATES.isTagged(block.getBlockData().getMaterial());
 	}
 
 	/**

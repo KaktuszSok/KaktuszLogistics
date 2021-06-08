@@ -7,6 +7,7 @@ import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -134,24 +135,8 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 	/**
 	 * @return The itemstack used to display this recipe in a list
 	 */
-	@SuppressWarnings("ConstantConditions")
 	public ItemStack getDisplayIcon() {
-		ItemStack icon = new ItemStack(displayIconMaterial, displayIconAmount);
-		icon.getItemMeta().setDisplayName(name);
-		//lore:
-		List<String> lore = new ArrayList<>();
-		lore.add(ChatColor.GRAY + "Time: " + getTimeString(time));
-		lore.add(ChatColor.GRAY + "Inputs:");
-		for(IRecipeIngredient ingredient : ingredients) {
-			lore.add(ChatColor.BLUE + " - " + ingredient.getName());
-		}
-		lore.add(ChatColor.GRAY + "Outputs:");
-		for(String outputName : getOutputNames()) {
-			lore.add(ChatColor.BLUE + " + " + outputName);
-		}
-		icon.getItemMeta().setLore(lore);
-
-		return icon;
+		return getDisplayIcon(null);
 	}
 
 	/**
@@ -160,23 +145,40 @@ public abstract class MachineRecipe<OutputType extends IRecipeOutput> extends Cu
 	@SuppressWarnings("ConstantConditions")
 	public ItemStack getDisplayIcon(IRecipeInput[] givenInputs) {
 		ItemStack icon = new ItemStack(displayIconMaterial, displayIconAmount);
-		icon.getItemMeta().setDisplayName(name);
+		ItemMeta meta = icon.getItemMeta();
+		meta.setDisplayName(ChatColor.WHITE + name);
 		//lore:
-		ConsumptionAftermath aftermath = new ConsumptionAftermath(givenInputs);
 		List<String> lore = new ArrayList<>();
-		lore.add(ChatColor.GRAY + "Inputs:");
-		for(IRecipeIngredient ingredient : ingredients) {
-			ChatColor ingredientColour = ChatColor.RED;
-			if(aftermath.consume(ingredient))
-				ingredientColour = ChatColor.GREEN;
-			lore.add(ingredientColour + " - " + ingredient.getName());
+		lore.add(ChatColor.GRAY + "Time: " + getTimeString(time));
+		applyInputsLore(lore, givenInputs);
+		lore.add(ChatColor.GRAY + "Outputs:");
+		for(String outputName : getOutputNames()) {
+			lore.add(ChatColor.GRAY + " + " + ChatColor.BLUE + outputName);
 		}
-		icon.getItemMeta().setLore(lore);
-
+		meta.setLore(lore);
+		icon.setItemMeta(meta);
 		return icon;
 	}
 
-	private static String getTimeString(int t) {
+	private void applyInputsLore(List<String> lore, IRecipeInput[] givenInputs) {
+		lore.add(ChatColor.GRAY + "Inputs:");
+		if(givenInputs == null) { //input-nonspecific
+			for(IRecipeIngredient ingredient : ingredients) {
+				lore.add(ChatColor.GRAY + " - " + ChatColor.BLUE + ingredient.getName());
+			}
+		}
+		else { //highlight inputs
+			ConsumptionAftermath aftermath = new ConsumptionAftermath(givenInputs);
+			for(IRecipeIngredient ingredient : ingredients) {
+				ChatColor ingredientColour = ChatColor.RED;
+				if(aftermath.consume(ingredient))
+					ingredientColour = ChatColor.GREEN;
+				lore.add(ChatColor.GRAY + " - " + ingredientColour + ingredient.getName());
+			}
+		}
+	}
+
+	public static String getTimeString(int t) {
 		float sec = t/20f;
 		if(sec > 60) {
 			int min = (int)sec/60;

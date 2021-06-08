@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.recipe.ingredients;
 
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -42,7 +43,7 @@ public class WoodIngredient extends ItemIngredient {
 	}
 
 	private final Set<Material> validInputMaterials = new HashSet<>();
-	private WOOD_ITEM item;
+	private final WOOD_ITEM item;
 	private String scannedWoodType = null;
 
 	public WoodIngredient(WOOD_ITEM item, int amount) {
@@ -58,7 +59,7 @@ public class WoodIngredient extends ItemIngredient {
 	@Override
 	protected boolean matchStack(ItemStack stack) {
 		scannedWoodType = null;
-		if (stack.getAmount() >= amount && validInputMaterials.contains(stack.getType())) {
+		if (stack.getAmount() >= amount && validInputMaterials.contains(stack.getType()) && CustomItem.getFromStack(stack) == null) {
 			String woodType = getWoodType(stack.getType());
 			if(scannedWoodType == null) {
 				scannedWoodType = woodType;
@@ -100,7 +101,7 @@ public class WoodIngredient extends ItemIngredient {
 
 	@Override
 	public String getName() {
-		String[] words = item.name().split("_");
+		String[] words = item.name().replace("XXX_", "").split("_");
 		StringJoiner name = new StringJoiner(" ");
 		for (String word : words) {
 			String capitalisedWord = word.substring(0, 1);
@@ -109,6 +110,6 @@ public class WoodIngredient extends ItemIngredient {
 			name.add(capitalisedWord);
 		}
 
-		return name.toString();
+		return name.toString() + " x" + amount;
 	}
 }

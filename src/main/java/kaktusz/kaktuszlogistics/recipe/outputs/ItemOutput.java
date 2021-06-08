@@ -2,18 +2,15 @@ package kaktusz.kaktuszlogistics.recipe.outputs;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock;
-import org.bukkit.Location;
+import kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-
 public class ItemOutput implements IRecipeOutput {
 
-	private final ItemStack itemStack;
+	protected final ItemStack itemStack;
 
 	public ItemOutput(ItemStack itemStack) {
 		this.itemStack = itemStack;
@@ -41,11 +38,7 @@ public class ItemOutput implements IRecipeOutput {
 	public void placeInWorld(World world, VanillaUtils.BlockPosition position) {
 		BlockState state = world.getBlockAt(position.x, position.y, position.z).getState();
 		if(state instanceof Container) {
-			HashMap<Integer, ItemStack> failedStacks = ((Container)state).getInventory().addItem(getStack());
-			//drop items that didn't fit
-			for (ItemStack failedStack : failedStacks.values()) {
-				world.dropItemNaturally(new Location(world, position.x + 0.5d, position.y + 0.5d, position.z + 0.5d), failedStack);
-			}
+			VanillaUtils.addItemsOrDrop(((Container)state).getInventory(), getStack());
 		}
 	}
 

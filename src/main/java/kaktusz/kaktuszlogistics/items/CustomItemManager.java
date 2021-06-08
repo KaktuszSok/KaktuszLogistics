@@ -28,7 +28,6 @@ public class CustomItemManager {
         ItemEnchants.ENCHANTS_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "DefaultEnchants");
         ItemQuality.QUALITY_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Quality");
         BlockDurability.DURA_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "Durability");
-        Multiblock.MULTIBLOCK_DATA_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "MultiblockData");
 
         //register items
         CustomItem ingotSteel = registerItem(new CustomItem("ingotSteel", "Steel Ingot", Material.NETHERITE_INGOT))

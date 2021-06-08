@@ -1,11 +1,13 @@
 package kaktusz.kaktuszlogistics.world.multiblock;
 
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -14,16 +16,17 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
-import static kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock.SpecialType;
+import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
 
 public class MultiblockBlock extends DurableBlock {
+
+	public static NamespacedKey FACING_KEY;
 
 	private transient final Multiblock property;
 	private boolean structureValidCache = false;
@@ -35,12 +38,13 @@ public class MultiblockBlock extends DurableBlock {
 		this.property = property;
 	}
 
-	//OVERRIDES
+	//BEHAVIOUR
 	@Override
 	public ItemStack getDrop(Block block) {
 		ItemStack drop = super.getDrop(block);
 		ItemMeta meta = drop.getItemMeta();
-		property.setFacing(meta, null);
+		//noinspection ConstantConditions
+		meta.getPersistentDataContainer().remove(FACING_KEY);
 		drop.setItemMeta(meta);
 		return drop;
 	}
@@ -60,7 +64,7 @@ public class MultiblockBlock extends DurableBlock {
 		else {
 			facing = facingVector.getZ() > 0 ? BlockFace.SOUTH : BlockFace.NORTH;
 		}
-		getProperty().setFacing(data, facing);
+		setFacing(facing);
 
 		//make placed block match
 		BlockData blockData = e.getBlockPlaced().getBlockData();
@@ -109,6 +113,22 @@ public class MultiblockBlock extends DurableBlock {
 
 	}
 
+	protected void onVerificationFailed() {
+
+	}
+
+	//INFO
+	public String getName() {
+		return getProperty().getName();
+	}
+
+	/**
+	 * @return Lore describing the details of this specific multiblock instance
+	 */
+	public List<String> getLore() {
+		return null;
+	}
+
 	//STRUCTURE
 	/**
 	 * Re-verifies the structure and (de)registers it with the appropriate chunks
@@ -125,6 +145,8 @@ public class MultiblockBlock extends DurableBlock {
 			registerWithChunks(true);
 
 		structureValidCache = valid;
+		if(!valid)
+			onVerificationFailed();
 		return valid;
 	}
 
@@ -159,6 +181,21 @@ public class MultiblockBlock extends DurableBlock {
 	public void markBlockSpecial(BlockPosition block, SpecialType specialType) {
 		Set<BlockPosition> markedBlocks = specialBlocksCache.computeIfAbsent(specialType, k -> new HashSet<>());
 		markedBlocks.add(block);
+	}
+
+	//NBT
+	public BlockFace getFacing() {
+		Byte facing = CustomItem.readNBT(data, FACING_KEY, PersistentDataType.BYTE);
+		if(facing == null) {
+			setFacing(BlockFace.NORTH);
+			facing = 0;
+		}
+		return BlockFace.values()[facing];
+	}
+	public void setFacing(BlockFace facing) {
+		if(facing == null || facing.getModY() != 0) //don't allow null values or facing up/down
+			facing = BlockFace.NORTH; //default value
+		CustomItem.setNBT(data, FACING_KEY, PersistentDataType.BYTE, (byte)facing.ordinal());
 	}
 
 	//HELPER

@@ -47,7 +47,8 @@ public class KaktuszSurvival implements KaktuszModule {
 
 		MachineRecipe<ItemOutput> sawmill_planks = new WoodMachineRecipe<ItemOutput>("sawmill_planks", "Wooden Planks", 40)
 				.addOutputs(new WoodOutput(WoodIngredient.WOOD_ITEM.XXX_PLANKS, 3))
-				.addIngredients(new WoodIngredient(WoodIngredient.WOOD_ITEM.STRIPPED_XXX_LOG, 1));
+				.addIngredients(new WoodIngredient(WoodIngredient.WOOD_ITEM.STRIPPED_XXX_LOG, 1))
+				.setDisplayIcon(Material.OAK_PLANKS, 3);
 		RecipeManager.addMachineRecipe(sawmill_planks);
 	}
 

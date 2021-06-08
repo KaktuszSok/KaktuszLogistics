@@ -1,7 +1,7 @@
 package kaktusz.kaktuszlogistics.recipe.outputs;
 
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock;
+import kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock;
 import org.bukkit.World;
 
 public interface IRecipeOutput {

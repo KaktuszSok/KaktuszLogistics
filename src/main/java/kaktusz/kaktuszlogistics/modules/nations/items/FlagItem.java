@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.modules.nations.items;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.modules.nations.items.properties.FlagPlaceable;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -12,6 +13,7 @@ public class FlagItem extends CustomItem {
 	 */
 	public FlagItem(String type, String displayName, Material material) {
 		super(type, displayName, material);
+		getOrAddProperty(FlagPlaceable.class);
 	}
 
 	/**

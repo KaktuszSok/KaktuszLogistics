@@ -10,6 +10,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,10 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class VanillaUtils {
 
@@ -70,6 +68,21 @@ public class VanillaUtils {
 
     public static boolean canCombineStacks(ItemStack a, ItemStack b) {
         return a == null || b == null || a.isSimilar(b) && a.getMaxStackSize() >= a.getAmount() + b.getAmount();
+    }
+
+    /**
+     * Tries to add items to an inventory, and drops those that didn't fit onto the ground
+     */
+    public static void addItemsOrDrop(Inventory inventory, ItemStack... items) {
+        //add items to inventory
+        HashMap<Integer, ItemStack> failedStacks = inventory.addItem(items);
+        //drop items that didn't fit
+        Location loc = inventory.getLocation();
+        if(loc == null || loc.getWorld() == null)
+            return; //inventory does not have world location - can't drop.
+        for (ItemStack failedStack : failedStacks.values()) {
+            loc.getWorld().dropItemNaturally(loc, failedStack);
+        }
     }
 
     public static <T extends ConfigurationSerializable> byte[] serialiseToBytes(List<T> serialisables) {

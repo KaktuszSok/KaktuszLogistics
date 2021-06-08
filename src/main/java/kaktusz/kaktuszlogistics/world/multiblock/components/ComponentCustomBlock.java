@@ -1,8 +1,9 @@
-package kaktusz.kaktuszlogistics.world.multiblock;
+package kaktusz.kaktuszlogistics.world.multiblock.components;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.world.KLWorld;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.block.Block;
 
 public class ComponentCustomBlock extends MultiblockComponent {

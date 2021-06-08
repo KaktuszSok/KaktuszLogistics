@@ -1,5 +1,6 @@
-package kaktusz.kaktuszlogistics.modules.survival.multiblocks;
+package kaktusz.kaktuszlogistics.world.multiblock;
 
+import kaktusz.kaktuszlogistics.gui.MachineGUI;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
@@ -11,8 +12,8 @@ import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
-import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.serialisablesFromBytes;
-import static kaktusz.kaktuszlogistics.world.multiblock.DecoratorSpecialBlock.SpecialType;
+import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
 
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
 
@@ -45,14 +46,21 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	);
 
 	private transient MachineRecipe<?> recipeCache = null;
+	/**
+	 * refreshes whenever gatherAllInputs() is called
+	 */
+	private transient IRecipeInput[] suppliesCache = null;
 	private transient boolean isProcessing = false;
 	private transient boolean halted = false;
 	private transient int timeLeft = -1;
+	private transient MachineGUI gui;
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
+		initGUI();
 	}
 
+	//BEHAVIOUR
 	@Override
 	public ItemStack getDrop(Block block) {
 		ItemStack drop = super.getDrop(block);
@@ -94,12 +102,29 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	@Override
 	public void onTick() {
-		if(!isProcessing || halted)
+		if(halted)
+			return;
+
+		boolean shouldUpdateGUI = gui.hasViewers();
+		if(shouldUpdateGUI) {
+			//occasional GUI update regardless of machine processing or not
+			if(VanillaUtils.getTickTime() % 20 == 0) {
+				gatherAllInputs(); //refresh the supplies cache every 1.5s, so that the recipe display updates correctly
+				updateGUI();
+			}
+		}
+
+		if(!isProcessing) //the rest of this function only needs to be ran if we're processing a recipe
 			return;
 
 		timeLeft--;
 		if(timeLeft < 0)
 			onProcessingFinished();
+
+		//GUI
+		if(shouldUpdateGUI) {
+			updateGUI();
+		}
 	}
 
 	@Override
@@ -107,8 +132,43 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		CustomItem.setNBT(data, TIME_LEFT_KEY, PersistentDataType.INTEGER, timeLeft);
 	}
 
+	@Override
+	protected void onVerificationFailed() {
+		gui.forceClose();
+	}
+
+	//TODO: make processing inputs drop when block is broken
+
+	//GUI & INFO
+	public abstract Material getGUIHeader();
+	public int getTimeLeft() {
+		return timeLeft;
+	}
+	public boolean isProcessingRecipe() {
+		return isProcessing;
+	}
+	public boolean isHalted() {
+		return halted;
+	}
+	public IRecipeInput[] getCachedSupplies() {
+		return suppliesCache;
+	}
+
 	//ACTIONS
-	protected abstract void openGUI(HumanEntity player);
+	protected void openGUI(HumanEntity player) {
+		if(!isStructureValid())
+			return;
+		gui.open(player);
+		updateGUI();
+	}
+
+	protected void initGUI() {
+		gui = new MachineGUI(this);
+	}
+
+	private void updateGUI() {
+		gui.update();
+	}
 
 	public void setRecipe(MachineRecipe<?> recipe) {
 		if(recipe == getRecipe())
@@ -117,6 +177,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 		recipeCache = recipe;
 		CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, recipe.id);
+		gatherAllInputs(); //update supplies cache so that GUI is up-to-date
+		updateGUI();
 	}
 
 	public MachineRecipe<?> getRecipe() {
@@ -131,7 +193,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	public boolean tryStartProcessing() {
-		if(isProcessing)
+		if(isProcessing || halted)
 			return false;
 		MachineRecipe<?> recipe = getRecipe();
 		if(recipe == null)
@@ -151,6 +213,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	public void onProcessingFinished() {
 		isProcessing = false;
+		gatherAllInputs(); //refresh supplies cache so that the GUI updates as soon as it needs to
 
 		//get the recipe we've finished
 		MachineRecipe<?> recipe = getRecipe();
@@ -200,14 +263,19 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	/**
 	 * Pause/unpause processing of current recipe
+	 */
+	public void toggleProcessing() {
+		toggleProcessing(!halted);
+	}
+	/**
+	 * Pause/unpause processing of current recipe
 	 * @param halt True to pause, false to unpause
 	 */
 	public void toggleProcessing(boolean halt) {
 		halted = halt;
 		CustomItem.setNBT(data, HALTED_KEY, PersistentDataType.BYTE, halted ? (byte)1 : 0);
+		gui.update();
 	}
-
-	//TODO: make processing inputs drop when block is broken
 
 	//HELPER
 	private IRecipeInput[] gatherAllInputs() {
@@ -215,7 +283,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		//items:
 		Set<BlockPosition> itemInputBlocks = specialBlocksCache.get(SpecialType.ITEM_INPUT);
 		if(itemInputBlocks == null)
-			return null;
+			return suppliesCache = new IRecipeInput[0];
 		for(BlockPosition inputBlock : itemInputBlocks) {
 			//noinspection ConstantConditions
 			Stream<ItemInput> items = ItemInput.getInputsFromPosition(location.getWorld(), inputBlock);
@@ -223,6 +291,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 				inputs.addAll(items.collect(Collectors.toList()));
 		}
 
-		return inputs.toArray(new IRecipeInput[0]);
+		return suppliesCache = inputs.toArray(new IRecipeInput[0]);
 	}
 }

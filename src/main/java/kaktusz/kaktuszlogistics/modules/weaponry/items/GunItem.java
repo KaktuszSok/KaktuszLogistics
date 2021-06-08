@@ -341,7 +341,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		if(magStack == null)
 			return;
 
-		returnInventory.addItem(magStack);
+		VanillaUtils.addItemsOrDrop(returnInventory, magStack);
 	}
 	private void removeLoadedMag(ItemStack stack, Location dropLocation) {
 		//take mag out of gun

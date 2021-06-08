@@ -1,10 +1,11 @@
 package kaktusz.kaktuszlogistics;
 
 import kaktusz.kaktuszlogistics.commands.CommandManager;
+import kaktusz.kaktuszlogistics.gui.GUIListener;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.events.ItemEventsListener;
 import kaktusz.kaktuszlogistics.modules.KModule;
-import kaktusz.kaktuszlogistics.modules.survival.multiblocks.MultiblockMachine;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.projectile.ProjectileManager;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
@@ -12,6 +13,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.WorldEventsListener;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,6 +41,7 @@ public class KaktuszLogistics extends JavaPlugin {
         ConfigurationSerialization.registerClass(ItemInput.class);
 
         //init some keys
+        MultiblockBlock.FACING_KEY = new NamespacedKey(this, "Facing");
         MultiblockMachine.CHOSEN_RECIPE_KEY = new NamespacedKey(this, "ChosenRecipe");
         MultiblockMachine.PROCESSING_INPUTS_KEY = new NamespacedKey(this, "ProcessingInputs");
         MultiblockMachine.HALTED_KEY = new NamespacedKey(this, "Halted");
@@ -90,5 +93,7 @@ public class KaktuszLogistics extends JavaPlugin {
         WorldEventsListener worldEvents = new WorldEventsListener();
         getServer().getPluginManager().registerEvents(worldEvents, this);
         worldEvents.loadPreloadedChunks();
+        //gui
+        getServer().getPluginManager().registerEvents(new GUIListener(), this);
     }
 }

@@ -1,5 +1,6 @@
-package kaktusz.kaktuszlogistics.world.multiblock;
+package kaktusz.kaktuszlogistics.world.multiblock.components;
 
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 

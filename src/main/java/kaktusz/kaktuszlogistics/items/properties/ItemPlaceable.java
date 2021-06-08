@@ -10,6 +10,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.function.Consumer;
+
 public class ItemPlaceable extends ItemProperty implements IPlacedListener {
 	public ItemPlaceable(CustomItem item) {
 		super(item);

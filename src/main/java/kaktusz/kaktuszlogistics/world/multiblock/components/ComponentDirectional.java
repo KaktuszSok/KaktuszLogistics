@@ -1,6 +1,7 @@
-package kaktusz.kaktuszlogistics.world.multiblock;
+package kaktusz.kaktuszlogistics.world.multiblock.components;
 
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
@@ -23,7 +24,7 @@ public class ComponentDirectional extends MultiblockComponent {
 	@Override
 	public boolean match(Block block, MultiblockBlock multiblock) {
 		if(block.getBlockData() instanceof Directional) {
-			BlockFace multiblockFacing = multiblock.getProperty().getFacing(multiblock.data);
+			BlockFace multiblockFacing = multiblock.getFacing();
 			BlockFace blockFacing = ((Directional)block.getBlockData()).getFacing();
 			if(!allowOpposite)
 				return Multiblock.relativeDirectionFromGlobal(multiblockFacing, blockFacing) == direction;
