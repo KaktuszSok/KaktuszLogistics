@@ -12,10 +12,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -35,6 +32,9 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.serialisablesFromBytes;
 import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
 
+/**
+ * A core block of a multiblock structure, which can perform recipes
+ */
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
 
 	public static NamespacedKey CHOSEN_RECIPE_KEY;
@@ -50,8 +50,11 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 * refreshes whenever gatherAllInputs() is called
 	 */
 	private transient IRecipeInput[] suppliesCache = null;
+	/**
+	 * Is there currently a recipe being performed? (regardless of halt state)
+	 */
 	private transient boolean isProcessing = false;
-	private transient boolean halted = false;
+	private transient boolean halted = false; //aka paused
 	private transient int timeLeft = -1;
 	private transient MachineGUI gui;
 
@@ -288,7 +291,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	/**
-	 * Pause/unpause processing of current recipe
+	 * Pause/unpause processing of current recipe (i.e. halted/not halted)
 	 */
 	public void toggleProcessing() {
 		toggleProcessing(!halted);

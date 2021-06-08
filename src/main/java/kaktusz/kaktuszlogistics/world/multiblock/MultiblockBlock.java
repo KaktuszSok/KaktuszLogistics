@@ -24,6 +24,9 @@ import java.util.*;
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
 
+/**
+ * The core block of a multiblock structure
+ */
 public class MultiblockBlock extends DurableBlock {
 
 	public static NamespacedKey FACING_KEY;

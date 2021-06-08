@@ -15,6 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
+/**
+ * A property which defines a template for a multiblock
+ */
 public abstract class Multiblock extends BlockDurability {
 
 	/**

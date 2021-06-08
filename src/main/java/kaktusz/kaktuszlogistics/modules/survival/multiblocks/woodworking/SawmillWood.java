@@ -68,13 +68,14 @@ public class SawmillWood extends MultiblockMachine {
 	 */
 	public static CustomItem createCustomItem() {
 		PolymorphicItem sawmill = new PolymorphicItem("multiblockSawmill", "Sawmill", Material.OAK_FENCE_GATE);
+
 		ComponentCompound barrelStripesAlongAxis = new ComponentCompound(
 				new ComponentMaterial(Material.BARREL),
 				new ComponentDirectional(Multiblock.RELATIVE_DIRECTION.RIGHT).setAllowOpposite(true)
 		);
-
 		DecoratorSpecialBlock inputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_INPUT);
 		DecoratorSpecialBlock outputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_OUTPUT);
+
 		sawmill.getOrAddProperty(MatrixMultiblock.class)
 				.setLayerModeHorizontal(true)
 				.addLayer(new MultiblockComponent[][] {
