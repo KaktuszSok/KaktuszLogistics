@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 
@@ -50,6 +49,14 @@ public class HouseInfo {
 
 	public int getTotalBeds() {
 		return rooms.stream().mapToInt(RoomInfo::getBeds).sum();
+	}
+
+	public Set<VanillaUtils.BlockPosition> getAllDoors() {
+		Set<VanillaUtils.BlockPosition> doors = new HashSet<>();
+		for(RoomInfo room : rooms) {
+			doors.addAll(room.getEncounteredDoors());
+		}
+		return doors;
 	}
 
 	public int getTier() {

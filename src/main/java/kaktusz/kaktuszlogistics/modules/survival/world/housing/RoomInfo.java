@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.SetUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
@@ -16,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 
@@ -89,6 +91,7 @@ public class RoomInfo {
 	private int floorArea = 0;
 	private int beds = 0;
 	private final List<BlockPosition> possibleConnectedRooms = new ArrayList<>();
+	private final Set<BlockPosition> encounteredDoors = new HashSet<>();
 
 	public int getFloorArea() {
 		return floorArea;
@@ -100,6 +103,9 @@ public class RoomInfo {
 
 	public List<BlockPosition> getPossibleConnectedRooms() {
 		return possibleConnectedRooms;
+	}
+	public Set<BlockPosition> getEncounteredDoors() {
+		return encounteredDoors;
 	}
 
 	/**
@@ -222,8 +228,9 @@ public class RoomInfo {
 			if(accessibleBlocksCache.contains(floorBehindDoor)) { //door was facing towards where we came from
 				floorBehindDoor = new BlockPosition(currBlock.x - doorDir.getBlockX(), (short)(currBlock.y-1), currBlock.z - doorDir.getBlockZ());
 			}
-			//we might later discover the door leads to the same room, but we will adress that further down the line
+			//we might later discover the door leads to the same room, but we will address that further down the line
 			info.possibleConnectedRooms.add(floorBehindDoor.above());
+			info.encounteredDoors.add(currBlock);
 			return true;
 		}
 

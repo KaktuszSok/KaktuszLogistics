@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
+import java.util.HashMap;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
@@ -52,7 +53,24 @@ public class HouseSignBlock extends CustomBlock {
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
 		if(chunk == null) return;
 
-		chunk.removeFromExtraDataSet("houses", new BlockPosition(location));
+		BlockPosition selfPos = new BlockPosition(location);
+		chunk.removeFromExtraDataSet("houses", selfPos); //de-register from chunk
+
+		//un-claim door:
+		BlockPosition door = getDoor();
+		if(door == null)
+			return; //no door to unclaim. If the door changed after being marked then some leftover data will be left but this will be cleaned up eventually.
+		KLChunk doorChunk = KLWorld.get(location.getWorld()).getChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
+		if(doorChunk == null)
+			return;
+
+		HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
+		if(houseDoors == null)
+			return;
+
+		houseDoors.remove(door, selfPos); //door becomes unclaimed
+		if(houseDoors.isEmpty())
+			doorChunk.setExtraData("houseDoors", null); //clear map from chunk data if it becomes empty
 	}
 
 	@Override
@@ -92,9 +110,11 @@ public class HouseSignBlock extends CustomBlock {
 			return;
 		}
 
-		BlockPosition houseStart = checkForDoor();
-		if(houseStart == null)
+		BlockPosition houseStart = findHouseOrigin();
+		if(houseStart == null) {
+			onHouseRecheckFinished(null);
 			return;
+		}
 
 		if(KaktuszSurvival.CALC_ROOMS_ASYNC.value) {
 			new BukkitRunnable() {
@@ -112,21 +132,58 @@ public class HouseSignBlock extends CustomBlock {
 
 	private void onHouseRecheckFinished(HouseInfo result) {
 		houseInfoCache = result;
+		refreshText(false);
+
 		if(houseInfoCache == null)
 			return;
 
-		KLChunk chunk = KLWorld.get(location.getWorld()).getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
-		chunk.getOrCreateExtraDataSet("houses").add(new BlockPosition(location)); //register with chunk
-		//TODO pop off interfering house signs
+		KLWorld world = KLWorld.get(location.getWorld());
+		KLChunk chunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
+		BlockPosition selfPos = new BlockPosition(location);
+		chunk.getOrCreateExtraDataSet("houses").add(selfPos); //register with chunk
 
-		refreshText(false);
+		//pop off any intersecting house signs
+		for (BlockPosition door : houseInfoCache.getAllDoors()) {
+			KLChunk doorChunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
+			if(doorChunk == null)
+				continue;
+			HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
+			if(houseDoors == null)
+				continue;
+			BlockPosition doorSign = houseDoors.get(door); //the position of the sign the encountered door is assigned to
+			if(doorSign == null || doorSign.equals(selfPos))
+				continue;
+
+			CustomBlock block = world.getBlockAt(doorSign.x, doorSign.y, doorSign.z);
+			if(!(block instanceof HouseSignBlock) || !block.update()) { //bad data
+				houseDoors.remove(door);
+				continue;
+			}
+
+			block.breakBlock(true); //pop off house sign
+		}
+
+		//claim door:
+		BlockPosition door = getDoor();
+		if(door == null)
+			return; //shouldn't ever happen since houseInfoCache is not null
+
+		HashMap<BlockPosition, BlockPosition> houseDoors = world
+				.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z))
+				.getExtraData("houseDoors");
+		if(houseDoors == null) {
+			houseDoors = new HashMap<>();
+			chunk.setExtraData("houseDoors", houseDoors);
+		}
+
+		houseDoors.put(door, selfPos);
 	}
 
 	/**
-	 * Checks if the sign is placed on a wall next to the top part of a door
+	 * Checks if the sign is placed on a wall next to the top part of a door and, if so, returns the origin of the potential house
 	 * @return null if no door could be found, otherwise the position of the block behind the bottom half of the door
 	 */
-	private BlockPosition checkForDoor() {
+	private BlockPosition findHouseOrigin() {
 		WallSign wallSign = getWallSign();
 		if(wallSign == null) return null;
 
@@ -136,6 +193,25 @@ public class HouseSignBlock extends CustomBlock {
 		}
 		if(Tag.DOORS.isTagged(location.getBlock().getRelative(dir.getModX() - dir.getModZ(), 0, dir.getModZ() + dir.getModX()).getType())) { //check block to the right of the wall
 			return new BlockPosition(location.getBlockX() + dir.getModX()*2 - dir.getModZ(), location.getBlockY()-1, location.getBlockZ() + dir.getModZ()*2 + dir.getModX());
+		}
+
+		return null;
+	}
+
+	/**
+	 * Tries to find the top half of a door next to the wall that the sign is placed on.
+	 * @return null if no door could be found, otherwise the position of the bottom half of the door.
+	 */
+	private BlockPosition getDoor() {
+		WallSign wallSign = getWallSign();
+		if(wallSign == null) return null;
+
+		BlockFace dir = wallSign.getFacing().getOppositeFace(); //direction towards the wall
+		if(Tag.DOORS.isTagged(location.getBlock().getRelative(dir.getModX() + dir.getModZ(), 0, dir.getModZ() - dir.getModX()).getType())) { //check block to the left of the wall
+			return new BlockPosition(location.getBlockX() + dir.getModX() + dir.getModZ(), location.getBlockY()-1, location.getBlockZ() + dir.getModZ() - dir.getModX());
+		}
+		if(Tag.DOORS.isTagged(location.getBlock().getRelative(dir.getModX() - dir.getModZ(), 0, dir.getModZ() + dir.getModX()).getType())) { //check block to the right of the wall
+			return new BlockPosition(location.getBlockX() + dir.getModX() - dir.getModZ(), location.getBlockY()-1, location.getBlockZ() + dir.getModZ() + dir.getModX());
 		}
 
 		return null;

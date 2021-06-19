@@ -119,8 +119,8 @@ public final class KLChunk {
      * Allows loading arbitrary data which was previously saved to this chunk using setExtraData
      * @return The saved data for this key, or null if data for this key does not exist
      */
-    public Serializable getExtraData(String key) {
-        return extraData.get(key);
+    public <T extends Serializable> T getExtraData(String key) {
+        return CastingUtils.confidentCast(extraData.get(key));
     }
 
     /**
@@ -150,7 +150,7 @@ public final class KLChunk {
         if(!extraData.containsKey(key))
             return false;
 
-        Set<Serializable> set = CastingUtils.confidentCast(getExtraData(key));
+        Set<Serializable> set = getExtraData(key);
         set.remove(objToRemove);
         if(set.isEmpty()) {
             extraData.remove(key); //remove set from extra data if it is empty

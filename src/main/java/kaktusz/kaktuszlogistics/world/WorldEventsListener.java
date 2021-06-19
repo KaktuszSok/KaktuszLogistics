@@ -113,7 +113,7 @@ public class WorldEventsListener implements Listener {
     private static MultiblockBlock getMultiblockFromBlock(Block b, KLWorld world) {
         KLChunk chunk = world.getLoadedChunkAt(blockToChunkCoord(b.getX()), blockToChunkCoord(b.getZ()));
         if(chunk != null) {
-            Set<BlockPosition> multiblocks = CastingUtils.confidentCast(chunk.getExtraData("multiblocks"));
+            Set<BlockPosition> multiblocks = chunk.getExtraData("multiblocks");
             if(multiblocks != null) {
                 for (BlockPosition pos : multiblocks) {
                     CustomBlock multiblock = world.getBlockAt(pos.x, pos.y, pos.z);
@@ -130,7 +130,7 @@ public class WorldEventsListener implements Listener {
     private static MultiblockBlock getMultiblockFromLocation(Location loc, KLWorld world) {
         KLChunk chunk = world.getChunkAt(blockToChunkCoord(loc.getBlockX()), blockToChunkCoord(loc.getBlockZ()));
         if(chunk != null) {
-            Set<BlockPosition> multiblocks = CastingUtils.confidentCast(chunk.getExtraData("multiblocks"));
+            Set<BlockPosition> multiblocks = chunk.getExtraData("multiblocks");
             if(multiblocks != null) {
                 for (BlockPosition pos : multiblocks) {
                     CustomBlock multiblock = chunk.world.getBlockAt(pos.x, pos.y, pos.z);

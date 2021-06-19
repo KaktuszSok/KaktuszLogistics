@@ -41,7 +41,7 @@ public class ChunkClaimManager {
 		if(chunk == null)
 			return false;
 
-		HashSet<VanillaUtils.BlockPosition> flagsClaimingThisChunk = CastingUtils.confidentCast(chunk.getExtraData("claimedByFlags"));
+		HashSet<VanillaUtils.BlockPosition> flagsClaimingThisChunk = chunk.getExtraData("claimedByFlags");
 		if(flagsClaimingThisChunk == null)
 			return false;
 
