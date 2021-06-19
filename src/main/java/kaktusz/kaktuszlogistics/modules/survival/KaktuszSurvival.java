@@ -1,12 +1,16 @@
 package kaktusz.kaktuszlogistics.modules.survival;
 
+import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.commands.KLCommand;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.survival.commands.HouseSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking.SawmillWood;
+import kaktusz.kaktuszlogistics.modules.survival.world.housing.HouseSignBlock;
+import kaktusz.kaktuszlogistics.modules.survival.world.housing.PlaceableHouseSign;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.RoomInfo;
+import kaktusz.kaktuszlogistics.modules.survival.world.housing.SignEventListener;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.ingredients.WoodIngredient;
 import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
@@ -15,6 +19,7 @@ import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
 import kaktusz.kaktuszlogistics.recipe.outputs.WoodOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.config.BooleanOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.type.Slab;
 
@@ -34,6 +39,9 @@ public class KaktuszSurvival implements KaktuszModule {
 		//update config-based pseudoconstants
 		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.value*RoomInfo.MAX_SIZE_VERTICAL.value*RoomInfo.MAX_SIZE_HORIZONTAL.value/3;
 
+		//register event listeners
+		Bukkit.getPluginManager().registerEvents(new SignEventListener(), KaktuszLogistics.INSTANCE);
+
 		//add content
 		initItemsAndRecipes();
 
@@ -43,6 +51,7 @@ public class KaktuszSurvival implements KaktuszModule {
 	}
 
 	private void initItemsAndRecipes() {
+		CustomItemManager.registerItem(SignEventListener.SIGN_PROPERTY.item);
 		CustomItemManager.registerItem(SawmillWood.createCustomItem());
 
 		MachineRecipe<ItemOutput> sawmill_strip_log = new WoodMachineRecipe<ItemOutput>("sawmill.strip_log", "Stripping", 18)

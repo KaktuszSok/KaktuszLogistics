@@ -183,7 +183,7 @@ public class WorldEventsListener implements Listener {
 
         //call block events
         block.onMined(e);
-        block.onDamaged(1, true);
+        block.onDamaged(1, true, e.getPlayer());
 
         //damage tool
         ItemStack held = e.getPlayer().getInventory().getItemInMainHand();
@@ -250,7 +250,7 @@ public class WorldEventsListener implements Listener {
             CustomBlock cb = getCustomBlockFromLocation(b.getLocation());
             if(cb != null) {
                 e.blockList().remove(b);
-                cb.onDamaged((int)(1 + (2.5f/e.getYield())), !didSound); //yield is inverted?
+                cb.onDamaged((int)(1 + (2.5f/e.getYield())), !didSound, null); //yield is inverted?
                 didSound = true;
             }
         }

@@ -94,7 +94,7 @@ public class InteractableGUI extends CustomGUI {
 
 	@Override
 	public void onClick(ClickType type, int slot, HumanEntity player) {
-		if(slot < inventory.getSize()) {
+		if(slot >= 0 && slot < inventory.getSize()) {
 			if(buttons[slot] != null)
 				buttons[slot].onClick(type, player);
 		}

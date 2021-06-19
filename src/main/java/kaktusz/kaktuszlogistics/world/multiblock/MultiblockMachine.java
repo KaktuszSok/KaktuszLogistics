@@ -230,7 +230,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			return false; //recipe didnt match
 
 		List<IRecipeInput> consumed = consumption.applyToOriginal();
-		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, VanillaUtils.serialiseToBytes(consumed));
+		setProcessingInputs(consumed);
 
 		isProcessing = true;
 		timeLeft = recipe.time;
@@ -247,12 +247,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			return;
 
 		//get the consumed inputs from when the recipe was started
-		byte[] processingInputsSerialised = CustomItem.readNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
-		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
-		if(processingInputsSerialised == null)
-			return;
-
-		List<IRecipeInput> processingInputs = serialisablesFromBytes(processingInputsSerialised);
+		List<IRecipeInput> processingInputs = getProcessingInputs();
+		if (processingInputs == null) return;
+		setProcessingInputs(null); //clear inputs
 		List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processingInputs.toArray(new IRecipeInput[0]));
 		if(outputs == null)
 			return;
@@ -285,7 +282,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	public void abortProcessing() {
 		isProcessing = false;
-		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
+		setProcessingInputs(null);
 		timeLeft = -1;
 		updateGUI();
 	}
@@ -307,6 +304,22 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	//HELPER
+	protected List<IRecipeInput> getProcessingInputs() {
+		byte[] processingInputsSerialised = CustomItem.readNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
+		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
+		if(processingInputsSerialised == null)
+			return null;
+
+		return serialisablesFromBytes(processingInputsSerialised);
+	}
+
+	protected void setProcessingInputs(List<IRecipeInput> consumed) {
+		if(consumed == null)
+			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
+		else
+			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, VanillaUtils.serialiseToBytes(consumed));
+	}
+
 	private IRecipeInput[] gatherAllInputs() {
 		List<IRecipeInput> inputs = new ArrayList<>();
 		//items:

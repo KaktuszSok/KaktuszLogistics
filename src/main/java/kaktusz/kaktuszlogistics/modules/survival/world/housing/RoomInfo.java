@@ -347,4 +347,13 @@ public class RoomInfo {
 				stack.push(element);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "RoomInfo{" +
+				"floorArea=" + floorArea +
+				", beds=" + beds +
+				", possibleConnectedRooms=" + possibleConnectedRooms +
+				'}';
+	}
 }

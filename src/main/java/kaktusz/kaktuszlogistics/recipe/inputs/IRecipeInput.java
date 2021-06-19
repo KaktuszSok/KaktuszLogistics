@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.recipe.inputs;
 
+import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 public interface IRecipeInput extends ConfigurationSerializable {

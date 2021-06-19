@@ -1,8 +1,10 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.items.properties.BlockDurability;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -23,7 +25,7 @@ public class DurableBlock extends CustomBlock {
     }
 
     @Override
-    public void onDamaged(int damage, boolean doSound) {
+    public void onDamaged(int damage, boolean doSound, Player damager) {
         if(doSound) {
             float duraBeforeHit = dura.getDurability(data);
             if (dura.damageSound != null) {
@@ -33,7 +35,7 @@ public class DurableBlock extends CustomBlock {
 
         dura.takeDamage(data, damage);
         if(dura.getDurability(data) <= 0) {
-            breakBlock(true);
+            breakBlock(damager == null || damager.getGameMode() != GameMode.CREATIVE || damager.isSneaking());
         }
     }
 }

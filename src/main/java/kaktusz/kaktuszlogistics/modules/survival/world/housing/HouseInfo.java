@@ -52,4 +52,28 @@ public class HouseInfo {
 		return rooms.stream().mapToInt(RoomInfo::getBeds).sum();
 	}
 
+	public int getTier() {
+		int pop = getMaxPopulation();
+		if(pop == 0)
+			return 0;
+		int areaPerPerson = getTotalFloorArea()/pop;
+		double num = 6.0d;
+		int log = 0;
+		while (num <= areaPerPerson) {
+			num *= 1.4d;
+			log++;
+		}
+		return log;
+	}
+
+	public int getMaxPopulation() {
+		return Math.min(getTotalBeds(), getTotalFloorArea() / 6);
+	}
+
+	@Override
+	public String toString() {
+		return "HouseInfo{" +
+				"rooms=" + rooms.toString() +
+				'}';
+	}
 }

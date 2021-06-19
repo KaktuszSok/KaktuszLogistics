@@ -124,6 +124,42 @@ public final class KLChunk {
     }
 
     /**
+     * Retrieves or creates a Set of arbitrary type from the chunk's extra data. Will error if the key already exists but the entry can not be cast to a set of this type.
+     * @param <T> The type of elements in the set
+     * @param key The key where the set is/should be stored
+     * @return The existing set at this key or a new empty set that has been added to the chunk's extra data at the given key.
+     */
+    public <T extends Serializable> Set<T> getOrCreateExtraDataSet(String key) {
+        if(extraData.containsKey(key))
+            return CastingUtils.confidentCast(extraData.get(key));
+
+        HashSet<T> set = new HashSet<>();
+        setExtraData(key, set);
+        return set;
+    }
+
+    /**
+     * Removes a given object from a Set in extra data at the given key.
+     * If the key has no data associated with it, nothing happens.
+     * If the set becomes empty, it is removed from extra data.
+     * @param key The key in extra data where the set is located. This key must not have a value of the wrong type associated with it!
+     * @param objToRemove The object to be removed from the set
+     * @return True if the set has been removed. Always false if the key does not have a value associated with it.
+     */
+    public boolean removeFromExtraDataSet(String key, Serializable objToRemove) {
+        if(!extraData.containsKey(key))
+            return false;
+
+        Set<Serializable> set = CastingUtils.confidentCast(getExtraData(key));
+        set.remove(objToRemove);
+        if(set.isEmpty()) {
+            extraData.remove(key); //remove set from extra data if it is empty
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Unloads the chunk in its world.
      * This function is not responsible for saving the chunk. For that, see save()
      * @return True if the chunk was loaded in the first place

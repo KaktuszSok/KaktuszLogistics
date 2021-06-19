@@ -8,6 +8,7 @@ import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class ChunkClaimManager {
 
@@ -17,12 +18,8 @@ public class ChunkClaimManager {
 	 */
 	public static void claimChunkAt(KLWorld world, int chunkX, int chunkZ, VanillaUtils.BlockPosition flagPosition) {
 		KLChunk klChunk = world.getOrCreateChunkAt(chunkX, chunkZ);
-		HashSet<VanillaUtils.BlockPosition> flagsClaimingThisChunk = CastingUtils.confidentCast(klChunk.getExtraData("claimedByFlags"));
-		if(flagsClaimingThisChunk == null)
-			flagsClaimingThisChunk = new HashSet<>();
-
+		Set<VanillaUtils.BlockPosition> flagsClaimingThisChunk = klChunk.getOrCreateExtraDataSet("claimedByFlags");
 		flagsClaimingThisChunk.add(flagPosition);
-		klChunk.setExtraData("claimedByFlags", flagsClaimingThisChunk);
 	}
 
 	/**
@@ -34,12 +31,7 @@ public class ChunkClaimManager {
 		if(klChunk == null)
 			return;
 
-		HashSet<VanillaUtils.BlockPosition> flagsClaimingThisChunk = CastingUtils.confidentCast(klChunk.getExtraData("claimedByFlags"));
-		if(flagsClaimingThisChunk == null)
-			return;
-
-		flagsClaimingThisChunk.remove(flagPosition);
-		klChunk.setExtraData("claimedByFlags", flagsClaimingThisChunk);
+		klChunk.removeFromExtraDataSet("claimedByFlags", flagPosition);
 	}
 
 	public static boolean isChunkClaimed(KLWorld world, int blockX, int blockZ) {

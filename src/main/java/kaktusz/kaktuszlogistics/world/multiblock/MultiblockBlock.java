@@ -89,24 +89,24 @@ public class MultiblockBlock extends DurableBlock {
 	private void registerWithChunks(boolean register) {
 		KLWorld world = KLWorld.get(location.getWorld());
 		BlockAABB boundingBox = getAABB();
+		BlockPosition pos = new BlockPosition(location);
 		int chunkMinX = blockToChunkCoord(boundingBox.minCorner.x);
 		int chunkMinZ = blockToChunkCoord(boundingBox.minCorner.z);
 		int chunkMaxX = blockToChunkCoord(boundingBox.maxCorner.x);
 		int chunkMaxZ = blockToChunkCoord(boundingBox.maxCorner.z);
 		for(int cz = chunkMinZ; cz <= chunkMaxZ; cz++) {
 			for(int cx = chunkMinX; cx <= chunkMaxX; cx++) {
-				KLChunk chunk = world.getOrCreateChunkAt(cx, cz);
-				HashSet<BlockPosition> multiblocks = CastingUtils.confidentCast(chunk.getExtraData("multiblocks"));
-				if(multiblocks == null)
-					multiblocks = new HashSet<>();
+				KLChunk chunk = world.getChunkAt(cx, cz);
+				if(chunk == null)
+					continue;
 
-				BlockPosition pos = new BlockPosition(location);
-				if(register)
+				if(register) {
+					Set<BlockPosition> multiblocks = chunk.getOrCreateExtraDataSet("multiblocks");
 					multiblocks.add(pos);
-				else
-					multiblocks.remove(pos);
-
-				chunk.setExtraData("multiblocks", multiblocks);
+				}
+				else {
+					chunk.removeFromExtraDataSet("multiblocks", pos);
+				}
 			}
 		}
 	}

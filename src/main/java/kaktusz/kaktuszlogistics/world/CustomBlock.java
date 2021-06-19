@@ -5,9 +5,12 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -105,9 +108,10 @@ public class CustomBlock {
     /**
      * Called when intentionally damaged, i.e. mined or exploded.
      * @param damage damage value. 1 for vanilla mining. For explosions, damage scales with blast power.
+     * @param damager the player who damaged this block (or null if not applicable)
      */
-    public void onDamaged(int damage, boolean doSound) {
-        breakBlock(true);
+    public void onDamaged(int damage, boolean doSound, Player damager) {
+        breakBlock(damager == null || damager.getGameMode() != GameMode.CREATIVE || damager.isSneaking()); //don't drop block if damager is in creative and not sneaking
     }
 
     /**

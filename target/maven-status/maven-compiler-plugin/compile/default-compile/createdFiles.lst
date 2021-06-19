@@ -1,6 +1,8 @@
 kaktusz\kaktuszlogistics\items\properties\TieredMetallic.class
 kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe.class
 kaktusz\kaktuszlogistics\world\CustomBlock.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\SignEventListener.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\PlaceableHouseSign.class
 kaktusz\kaktuszlogistics\util\minecraft\SFXCollection.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$MutableBlockPosition.class
 kaktusz\kaktuszlogistics\commands\KLCommand.class
@@ -34,6 +36,7 @@ kaktusz\kaktuszlogistics\commands\GiveQSubcommand.class
 kaktusz\kaktuszlogistics\modules\KaktuszModule.class
 kaktusz\kaktuszlogistics\world\TickingBlock.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentTag.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseSignBlock$1.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
 kaktusz\kaktuszlogistics\gui\RecipeListGUI.class
 kaktusz\kaktuszlogistics\KaktuszLogistics$1.class
@@ -49,6 +52,7 @@ kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentDirectional.class
 kaktusz\kaktuszlogistics\world\multiblock\components\DecoratorSpecialBlock$SpecialType.class
 kaktusz\kaktuszlogistics\modules\weaponry\KaktuszWeaponry.class
+kaktusz\kaktuszlogistics\util\StringUtils.class
 kaktusz\kaktuszlogistics\world\DurableBlock.class
 kaktusz\kaktuszlogistics\items\properties\Multiblock$RELATIVE_DIRECTION.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentChoice.class
@@ -111,6 +115,7 @@ kaktusz\kaktuszlogistics\items\CustomItem.class
 kaktusz\kaktuszlogistics\gui\ListGUI$ListElement.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener$InventorySlotRange.class
 kaktusz\kaktuszlogistics\world\KLWorld$ChunkCoordinate.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseSignBlock.class
 kaktusz\kaktuszlogistics\recipe\ingredients\VanillaIngredient.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentAgnostic.class
 kaktusz\kaktuszlogistics\commands\Subcommand.class
