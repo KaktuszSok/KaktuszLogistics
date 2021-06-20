@@ -25,7 +25,7 @@ public class DurableBlock extends CustomBlock {
     }
 
     @Override
-    public void onDamaged(int damage, boolean doSound, Player damager) {
+    public void onDamaged(int damage, boolean doSound, Player damager, boolean wasMined) {
         if(doSound) {
             float duraBeforeHit = dura.getDurability(data);
             if (dura.damageSound != null) {
@@ -35,7 +35,7 @@ public class DurableBlock extends CustomBlock {
 
         dura.takeDamage(data, damage);
         if(dura.getDurability(data) <= 0) {
-            breakBlock(damager == null || damager.getGameMode() != GameMode.CREATIVE || damager.isSneaking());
+            super.onDamaged(damage, doSound, damager, wasMined);
         }
     }
 }

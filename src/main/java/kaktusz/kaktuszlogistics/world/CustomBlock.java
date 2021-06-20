@@ -5,12 +5,10 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -108,10 +106,13 @@ public class CustomBlock {
     /**
      * Called when intentionally damaged, i.e. mined or exploded.
      * @param damage damage value. 1 for vanilla mining. For explosions, damage scales with blast power.
+     * @param doSound if false, no sound will be played (if a player mines a block they will hear the vanilla block break sound anyway as it is client-side)
      * @param damager the player who damaged this block (or null if not applicable)
+     * @param wasMined true if the damage source was the block being mined by the damager
      */
-    public void onDamaged(int damage, boolean doSound, Player damager) {
-        breakBlock(damager == null || damager.getGameMode() != GameMode.CREATIVE || damager.isSneaking()); //don't drop block if damager is in creative and not sneaking
+    public void onDamaged(int damage, boolean doSound, Player damager, boolean wasMined) {
+        boolean dropItem = damager == null || damager.getGameMode() != GameMode.CREATIVE || damager.isSneaking();
+        breakBlock(dropItem, doSound, wasMined ? damager : null); //don't drop block if damager is in creative and not sneaking
     }
 
     /**
@@ -121,12 +122,28 @@ public class CustomBlock {
 
     }
 
+    /**
+     * Removes the block from both the physical world and the KL data
+     */
     public void breakBlock(boolean dropItem) {
+        breakBlock(dropItem, true, null);
+    }
+    /**
+     * Removes the block from both the physical world and the KL data
+     * @param playVanillaSound Should the vanilla sound for this block breaking be played?
+     * @param playerWhoMined The player who mined this block (or null). This player will not hear an additional copy of the vanilla break sound, as it is already played client-side.
+     */
+    public void breakBlock(boolean dropItem, boolean playVanillaSound, Player playerWhoMined) {
         Block b = location.getBlock();
         //get item
         ItemStack drop = null;
         if(dropItem)
             drop = getDrop(b);
+
+        //play sound
+        if(playVanillaSound) {
+            VanillaUtils.playVanillaBreakSound(b, playerWhoMined);
+        }
 
         //remove block
         b.setType(Material.AIR); //clear physical block

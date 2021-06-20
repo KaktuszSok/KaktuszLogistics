@@ -194,6 +194,25 @@ public class VanillaUtils {
     public static float getBlockSFXPitch(Block block) {
         return block.getBlockData().getSoundGroup().getPitch();
     }
+    /**
+     * Plays the vanilla sound of a block breaking
+     * @param ignorePlayer Player that should not hear this sound (i.e. player who mined the block, if applicable). If null, all nearby players will hear it.
+     */
+    public static void playVanillaBreakSound(Block block, Player ignorePlayer) {
+        SoundGroup soundGroup = block.getBlockData().getSoundGroup();
+        if(ignorePlayer == null) {
+            block.getWorld().playSound(block.getLocation().clone().add(0.5d, 0.5d, 0.5d), soundGroup.getBreakSound(), soundGroup.getVolume(), soundGroup.getPitch());
+            return;
+        }
+
+        //otherwise, play for every player other than the ignored one
+        for (Player p : block.getWorld().getPlayers()) {
+            if(p == ignorePlayer)
+                continue;
+
+            p.playSound(block.getLocation().clone().add(0.5d, 0.5d, 0.5d), soundGroup.getBreakSound(), 1, 0.8f);
+        }
+    }
 
     //POSITIONS
     public static class BlockPosition implements Serializable {
