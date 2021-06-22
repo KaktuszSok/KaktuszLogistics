@@ -52,6 +52,11 @@ public final class KLChunk {
         public int hashCode() {
             return Objects.hash(x, y, z);
         }
+
+        @Override
+        public String toString() {
+            return "(" + x + "," + y + "," + z + ")";
+        }
     }
 
     public transient final KLWorld world;
@@ -270,18 +275,22 @@ public final class KLChunk {
                 coord.x = in.readByte(); //byte
                 coord.y = in.readShort(); //short
                 coord.z = in.readByte(); //byte
-                //read block data
-                ItemMeta blockData = (ItemMeta)in.readObject(); //ItemMeta
-                CustomBlock block = CustomBlock.createFromMeta(blockData, new Location(world.world, coord.x + chunkToBlockCoord(chunkX), coord.y, coord.z + chunkToBlockCoord(chunkZ)));
-                if(block == null) {
-                    String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
-                    KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);
-                }
-                else {
-                    result.blocks.put(coord, block);
-                    if(block instanceof TickingBlock) {
-                        result.addTickingBlock((TickingBlock) block);
+                try {
+                    //read block data
+                    ItemMeta blockData = (ItemMeta) in.readObject(); //ItemMeta
+                    CustomBlock block = CustomBlock.createFromMeta(blockData, new Location(world.world, coord.x + chunkToBlockCoord(chunkX), coord.y, coord.z + chunkToBlockCoord(chunkZ)));
+                    if (block == null) {
+                        String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
+                        KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);
+                    } else {
+                        result.blocks.put(coord, block);
+                        if (block instanceof TickingBlock) {
+                            result.addTickingBlock((TickingBlock) block);
+                        }
                     }
+                } catch (Exception e) {
+                    KaktuszLogistics.LOGGER.warning("Couldn't load block at " + coord.toString() + " in chunk " + chunkX + "," + chunkZ + ":");
+                    e.printStackTrace();
                 }
             }
 
