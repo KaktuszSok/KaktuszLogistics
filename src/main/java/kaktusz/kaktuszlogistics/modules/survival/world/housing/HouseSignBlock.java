@@ -145,36 +145,27 @@ public class HouseSignBlock extends CustomBlock {
 
 		//pop off any intersecting house signs
 		for (BlockPosition door : houseInfoCache.getAllDoors()) {
-			Bukkit.broadcastMessage("    " + door.toString() + ":");
 			KLChunk doorChunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
-			Bukkit.broadcastMessage("chunk null: " + (doorChunk == null));
 			if(doorChunk == null)
 				continue;
 			HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
-			Bukkit.broadcastMessage("doors null: " + (houseDoors == null));
 			if(houseDoors == null)
 				continue;
 			BlockPosition doorSign = houseDoors.get(door); //the position of the sign the encountered door is assigned to
-			Bukkit.broadcastMessage("doorSign: " + doorSign + " (self pos: " + selfPos + ")");
 			if(doorSign == null || doorSign.equals(selfPos))
 				continue;
 
 			CustomBlock block = world.getBlockAt(doorSign.x, doorSign.y, doorSign.z);
-			Bukkit.broadcastMessage("block: " + block);
 			if(!(block instanceof HouseSignBlock) || !block.update()) { //bad data
 				houseDoors.remove(door);
-				Bukkit.broadcastMessage("bad data");
 				continue;
 			}
 
-			Bukkit.broadcastMessage("break block");
 			block.breakBlock(true); //pop off house sign
 		}
 
 		//claim door:
-		Bukkit.broadcastMessage("    claim:");
 		BlockPosition door = getDoor();
-		Bukkit.broadcastMessage("door: " + door);
 		if(door == null)
 			return; //shouldn't ever happen since houseInfoCache is not null
 
