@@ -124,7 +124,12 @@ public abstract class CustomProjectile {
 			return;
 		}
 		Vector nextPos = pos.clone().add(vel);
-		if(pos.getBlockY() < Y_MAXIMUM && world.isChunkLoaded(VanillaUtils.blockToChunkCoord(pos.getBlockX()), VanillaUtils.blockToChunkCoord(pos.getBlockZ()))) {
+		if(pos.getBlockY() < Y_MAXIMUM || nextPos.getBlockY() < Y_MAXIMUM) {
+			if(!world.isChunkLoaded(VanillaUtils.blockToChunkCoord(pos.getBlockX()), VanillaUtils.blockToChunkCoord(pos.getBlockZ()))) { //entered unloaded chunk
+				despawn();
+				return;
+			}
+
 			//COLLISION CHECK
 			PriorityQueue<PrioritisedRayHit> rayHits = new PriorityQueue<>(); //blocks and entities which we hit, ordered by distance
 			double velMagnitude = vel.length();
@@ -133,9 +138,6 @@ public abstract class CustomProjectile {
 			Iterator<Block> blockIterator = new DDABlockIterator(world, pos, nextPos, true, true);
 			while (blockIterator.hasNext()) {
 				Block b = blockIterator.next();
-				if (b.isPassable() || b.isLiquid()) { //ignore non-solid blocks
-					continue;
-				}
 
 				//raytrace block
 				RayTraceResult blockHit = b.getBoundingBox().rayTrace(pos, vel, velMagnitude);
@@ -226,9 +228,16 @@ public abstract class CustomProjectile {
 	}
 
 	/**
+	 * Call to despawn the projectile (by setting its lifetime to zero)
+	 */
+	public final void despawn() {
+		lifetime = 0;
+	}
+
+	/**
 	 * Called when the projectile is removed from the active projectiles list
 	 */
-	public void despawn() {
+	public void onDespawned() {
 		if(getRenderer() != null)
 			getRenderer().despawn();
 	}

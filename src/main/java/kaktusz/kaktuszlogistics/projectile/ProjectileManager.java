@@ -18,7 +18,7 @@ public class ProjectileManager {
 			CustomProjectile p = projectiles.get(i);
 			p.onTick();
 			if(p.getLifetime() <= 0) {
-				p.despawn();
+				p.onDespawned();
 				projectiles.remove(i);
 				i--;
 			}
@@ -27,7 +27,7 @@ public class ProjectileManager {
 
 	public static void despawnAll() {
 		while(projectiles.size() > 0) {
-			projectiles.get(0).despawn();
+			projectiles.get(0).onDespawned();
 			projectiles.remove(0);
 		}
 	}
