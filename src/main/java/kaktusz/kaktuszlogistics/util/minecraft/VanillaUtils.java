@@ -89,11 +89,20 @@ public class VanillaUtils {
         }
     }
 
-    public static <T extends ConfigurationSerializable> byte[] serialiseToBytes(List<T> serialisables) {
+    public static <T> byte[] serialiseToBytes(T serialisable) {
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try (BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(byteStream)) {
+            bukkitStream.writeObject(serialisable); //write serialisable
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return byteStream.toByteArray();
+    }
+    public static <T> byte[] serialisablesToBytes(List<T> serialisables) {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(byteStream)) {
             bukkitStream.writeInt(serialisables.size()); //write int
-            for(ConfigurationSerializable serialisable : serialisables) {
+            for(T serialisable : serialisables) {
                 bukkitStream.writeObject(serialisable); //write serialisable (size times)
             }
         } catch (IOException e) {
@@ -102,19 +111,24 @@ public class VanillaUtils {
         return byteStream.toByteArray();
     }
 
-    public static <T extends ConfigurationSerializable> List<T> serialisablesFromBytes(byte[] bytes) {
+    public static <T> T deserialiseFromBytes(byte[] bytes) {
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
+        try(BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(byteStream)) {
+            return CastingUtils.confidentCast(bukkitStream.readObject());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+    public static <T> List<T> serialisablesFromBytes(byte[] bytes) {
         List<T> result = new ArrayList<>();
 
         ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
         try(BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(byteStream)) {
             int size = bukkitStream.readInt(); //read int
             for(int i = 0; i < size; i++) {
-                result.
-                        add(
-                        CastingUtils.
-                        confidentCast(
-                        bukkitStream.
-                        readObject())); //read serialisable (size times)
+                result.add(CastingUtils.confidentCast(bukkitStream.readObject())); //read serialisable (size times)
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -215,7 +229,7 @@ public class VanillaUtils {
     }
 
     //POSITIONS
-    public static class BlockPosition implements Serializable {
+    public static final class BlockPosition implements Serializable {
         private static final long serialVersionUID = 100L;
 
         public final int x;
