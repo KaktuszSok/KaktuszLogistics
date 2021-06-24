@@ -32,7 +32,7 @@ public class MultiblockBlock extends DurableBlock {
 	public static NamespacedKey FACING_KEY;
 
 	private transient final Multiblock property;
-	private boolean structureValidCache = false;
+	private transient boolean structureValidCache = false;
 	private transient BlockAABB aabbCache = null;
 	protected transient final HashMap<SpecialType, Set<BlockPosition>> specialBlocksCache = new HashMap<>();
 

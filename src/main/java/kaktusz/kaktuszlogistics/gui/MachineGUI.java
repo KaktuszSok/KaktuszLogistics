@@ -44,7 +44,7 @@ public class MachineGUI extends InteractableGUI {
 		GUIButton progressButton = new GUIButton()
 				.setLeftClickAction(x -> {
 					if(machine.getRecipe() != null)
-						machine.toggleProcessing();
+						machine.toggleProcessingPaused();
 				});
 		for(int c = 1; c < INVENTORY_WIDTH-2; c++) {
 			addButton(1, c, progressButton, new ItemStack(Material.BARRIER));

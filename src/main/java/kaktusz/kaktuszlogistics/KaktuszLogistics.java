@@ -35,7 +35,7 @@ public class KaktuszLogistics extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
         LOGGER = getLogger();
-        config.initialise();
+        config.initialise(); //init config
 
         //register serialisable classes
         ConfigurationSerialization.registerClass(ItemInput.class);

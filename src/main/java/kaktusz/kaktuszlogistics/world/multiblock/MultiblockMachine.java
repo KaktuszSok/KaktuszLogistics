@@ -53,9 +53,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	/**
 	 * Is there currently a recipe being performed? (regardless of halt state)
 	 */
-	private transient boolean isProcessing = false;
-	private transient boolean halted = false; //aka paused
-	private transient int timeLeft = -1;
+	private boolean isProcessing = false;
+	private boolean halted = false; //aka paused
+	private int timeLeft = -1;
 	private transient MachineGUI gui;
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
@@ -90,6 +90,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	@Override
 	public void onLoaded() {
+		if(!isStructureValid()) //validate structure
+			return;
+
 		isProcessing = data.getPersistentDataContainer().has(PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
 		Integer timeLeft = CustomItem.readNBT(data, TIME_LEFT_KEY, PersistentDataType.INTEGER);
 		if(timeLeft == null)
@@ -219,6 +222,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	public boolean tryStartProcessing() {
+		if(!isStructureValid())
+			return false;
 		if(isProcessing || halted)
 			return false;
 		MachineRecipe<?> recipe = getRecipe();
@@ -237,8 +242,12 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		return true;
 	}
 
-	public void onProcessingFinished() {
+	protected void onProcessingFinished() {
 		isProcessing = false;
+		if(!isStructureValid()) {
+			toggleProcessingPaused(false);
+			return;
+		}
 		gatherAllInputs(); //refresh supplies cache so that the GUI updates as soon as it needs to
 
 		//get the recipe we've finished
@@ -280,6 +289,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		getRecipeDoneSound().playAll(location);
 	}
 
+	/**
+	 * Abort the current recipe
+	 */
 	public void abortProcessing() {
 		isProcessing = false;
 		setProcessingInputs(null);
@@ -288,16 +300,16 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	/**
-	 * Pause/unpause processing of current recipe (i.e. halted/not halted)
+	 * Pause/unpause processing of current recipe (aka halted/not halted)
 	 */
-	public void toggleProcessing() {
-		toggleProcessing(!halted);
+	public void toggleProcessingPaused() {
+		toggleProcessingPaused(!halted);
 	}
 	/**
-	 * Pause/unpause processing of current recipe
-	 * @param halt True to pause, false to unpause
+	 * Pause/unpause processing of current recipe (aka halted/not halted)
+	 * @param halt True to pause , false to unpause
 	 */
-	public void toggleProcessing(boolean halt) {
+	public void toggleProcessingPaused(boolean halt) {
 		halted = halt;
 		CustomItem.setNBT(data, HALTED_KEY, PersistentDataType.BYTE, halted ? (byte)1 : 0);
 		gui.update();
