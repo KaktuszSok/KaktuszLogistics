@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.SetUtils;
-import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
@@ -15,16 +14,20 @@ import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 
 /**
  * Information about some enclosed area. Used to calculate labour supply etc.
  */
-public class RoomInfo {
+public class RoomInfo implements Serializable {
+	private static final long serialVersionUID = 100L;
 	private static final boolean DEBUG_MODE = false;
 
 	/**

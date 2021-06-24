@@ -5,9 +5,11 @@ import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class HouseInfo {
+public class HouseInfo implements Serializable {
+	private static final long serialVersionUID = 100L;
 
 	/**
 	 * A house which caches more chunks than this amount will be considered too large

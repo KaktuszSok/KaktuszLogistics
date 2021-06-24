@@ -21,6 +21,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.BooleanOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.type.Slab;
 
 public class KaktuszSurvival implements KaktuszModule {
@@ -38,6 +39,9 @@ public class KaktuszSurvival implements KaktuszModule {
 
 		//update config-based pseudoconstants
 		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.value*RoomInfo.MAX_SIZE_VERTICAL.value*RoomInfo.MAX_SIZE_HORIZONTAL.value/3;
+
+		//init keys
+		HouseSignBlock.HOUSE_INFO_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "HouseInfo");
 
 		//register event listeners
 		Bukkit.getPluginManager().registerEvents(new SignEventListener(), KaktuszLogistics.INSTANCE);

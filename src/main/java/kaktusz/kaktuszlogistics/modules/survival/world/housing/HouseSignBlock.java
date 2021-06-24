@@ -1,16 +1,14 @@
 package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.modules.survival.KaktuszSurvival;
 import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Tag;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -19,6 +17,7 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
@@ -30,6 +29,8 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
  * A sign that detects a house if placed next to a door
  */
 public class HouseSignBlock extends CustomBlock {
+
+	public static NamespacedKey HOUSE_INFO_KEY;
 
 	private transient Sign signCache;
 	private transient HouseInfo houseInfoCache;
@@ -77,7 +78,7 @@ public class HouseSignBlock extends CustomBlock {
 	public void onInteracted(PlayerInteractEvent e) {
 		refreshText(true);
 
-		if(houseInfoCache == null) {
+		if(getHouseInfoCache() == null) {
 			e.getPlayer().sendMessage(ChatColor.GRAY + "Could not detect a house. Possible reasons for failure:" +
 					"\n1. The entrance room is too big." +
 					"\n2. The sign is not placed on a wall next to the top half of a door." +
@@ -87,13 +88,13 @@ public class HouseSignBlock extends CustomBlock {
 	}
 
 	public double getLabourPerDay() {
-		if(houseInfoCache == null)
+		if(getHouseInfoCache() == null)
 			return 0;
 		return houseInfoCache.getMaxPopulation() * 8;
 	}
 
 	public int getLabourTier() {
-		if(houseInfoCache == null)
+		if(getHouseInfoCache() == null)
 			return 0;
 		return houseInfoCache.getTier();
 	}
@@ -102,7 +103,7 @@ public class HouseSignBlock extends CustomBlock {
 	 * Checks if the house is valid and updates the houseInfoCache and sign text accordingly
 	 */
 	private void recheckHouse() {
-		houseInfoCache = null;
+		setHouseInfoCache(null);
 
 		Sign state = getState();
 		if(state == null) { //not valid sign
@@ -131,49 +132,57 @@ public class HouseSignBlock extends CustomBlock {
 	}
 
 	private void onHouseRecheckFinished(HouseInfo result) {
-		houseInfoCache = result;
+		setHouseInfoCache(result);
 		refreshText(false);
 
 		if(houseInfoCache == null)
 			return;
 
 		KLWorld world = KLWorld.get(location.getWorld());
-		KLChunk chunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
+		KLChunk signChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
 		BlockPosition selfPos = new BlockPosition(location);
-		chunk.getOrCreateExtraDataSet("houses").add(selfPos); //register with chunk
+		signChunk.getOrCreateExtraDataSet("houses").add(selfPos); //register with chunk
 
 		//pop off any intersecting house signs
 		for (BlockPosition door : houseInfoCache.getAllDoors()) {
+			Bukkit.broadcastMessage("    " + door.toString() + ":");
 			KLChunk doorChunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
+			Bukkit.broadcastMessage("chunk null: " + (doorChunk == null));
 			if(doorChunk == null)
 				continue;
 			HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
+			Bukkit.broadcastMessage("doors null: " + (houseDoors == null));
 			if(houseDoors == null)
 				continue;
 			BlockPosition doorSign = houseDoors.get(door); //the position of the sign the encountered door is assigned to
+			Bukkit.broadcastMessage("doorSign: " + doorSign + " (self pos: " + selfPos + ")");
 			if(doorSign == null || doorSign.equals(selfPos))
 				continue;
 
 			CustomBlock block = world.getBlockAt(doorSign.x, doorSign.y, doorSign.z);
+			Bukkit.broadcastMessage("block: " + block);
 			if(!(block instanceof HouseSignBlock) || !block.update()) { //bad data
 				houseDoors.remove(door);
+				Bukkit.broadcastMessage("bad data");
 				continue;
 			}
 
+			Bukkit.broadcastMessage("break block");
 			block.breakBlock(true); //pop off house sign
 		}
 
 		//claim door:
+		Bukkit.broadcastMessage("    claim:");
 		BlockPosition door = getDoor();
+		Bukkit.broadcastMessage("door: " + door);
 		if(door == null)
 			return; //shouldn't ever happen since houseInfoCache is not null
 
-		HashMap<BlockPosition, BlockPosition> houseDoors = world
-				.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z))
-				.getExtraData("houseDoors");
+		KLChunk doorChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
+		HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
 		if(houseDoors == null) {
 			houseDoors = new HashMap<>();
-			chunk.setExtraData("houseDoors", houseDoors);
+			doorChunk.setExtraData("houseDoors", houseDoors);
 		}
 
 		houseDoors.put(door, selfPos);
@@ -244,6 +253,27 @@ public class HouseSignBlock extends CustomBlock {
 		return (WallSign)state.getBlockData();
 	}
 
+	public HouseInfo getHouseInfoCache() {
+		if(houseInfoCache != null)
+			return houseInfoCache;
+
+		byte[] serialisedHouseInfo = CustomItem.readNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY);
+		if(serialisedHouseInfo == null)
+			return null;
+		return houseInfoCache = VanillaUtils.deserialiseFromBytes(serialisedHouseInfo);
+	}
+
+	private void setHouseInfoCache(HouseInfo newValue) {
+		houseInfoCache = newValue;
+		if(newValue == null)
+			CustomItem.setNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY, null);
+		else {
+			byte[] serialisedHouseInfo = VanillaUtils.serialiseToBytes(houseInfoCache);
+			CustomItem.setNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY, serialisedHouseInfo);
+		}
+	}
+
+	//DISPLAY
 	/**
 	 * @param showNextPage If true, the displayed page will advance to the next page
 	 */
@@ -267,7 +297,7 @@ public class HouseSignBlock extends CustomBlock {
 	 * @param page The page to show (1, 2 or 3)
 	 */
 	private void showPage(int page) {
-		if(houseInfoCache == null) {
+		if(getHouseInfoCache() == null) {
 			updateSignToInvalid();
 			return;
 		}
