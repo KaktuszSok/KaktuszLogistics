@@ -257,6 +257,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 		//get the consumed inputs from when the recipe was started
 		List<IRecipeInput> processingInputs = getProcessingInputs();
+		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null); //clear saved processing inputs
 		if (processingInputs == null) return;
 		setProcessingInputs(null); //clear inputs
 		List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processingInputs.toArray(new IRecipeInput[0]));
@@ -318,7 +319,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	//HELPER
 	protected List<IRecipeInput> getProcessingInputs() {
 		byte[] processingInputsSerialised = CustomItem.readNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
-		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
 		if(processingInputsSerialised == null)
 			return null;
 
@@ -329,7 +329,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		if(consumed == null)
 			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
 		else
-			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, VanillaUtils.serialiseToBytes(consumed));
+			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, VanillaUtils.serialisablesToBytes(consumed));
 	}
 
 	private IRecipeInput[] gatherAllInputs() {

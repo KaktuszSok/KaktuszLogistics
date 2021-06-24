@@ -1,6 +1,8 @@
 package kaktusz.kaktuszlogistics.world.multiblock.components;
 
 import kaktusz.kaktuszlogistics.util.SetUtils;
+import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,6 +21,7 @@ public class ComponentMaterial extends MultiblockComponent {
 
 	@Override
 	public boolean match(Block block, MultiblockBlock multiblock) {
-		return validMaterials.contains(block.getBlockData().getMaterial());
+		return validMaterials.contains(block.getBlockData().getMaterial())
+				&& KLWorld.get(block.getWorld()).getBlockAt(block.getX(), block.getY(), block.getZ()) == null; //don't allow custom blocks
 	}
 }

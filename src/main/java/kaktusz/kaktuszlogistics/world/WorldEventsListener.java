@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -157,12 +158,21 @@ public class WorldEventsListener implements Listener {
     }
     private static void cancelEventIfCBlockInList(List<Block> blocks, Cancellable e) {
         for(Block b : blocks) {
-            if(KLWorld.get(b.getWorld()).getLoadedBlockAt(b.getX(), b.getY(), b.getZ()) != null) {
+            if(getCustomBlockFromLocation(b.getLocation()) != null) {
                 e.setCancelled(true);
                 return;
             }
         }
     }
+    private static void cancelEventIfCBlockInList(List<Block> blocks, Cancellable e, BlockFace offset) {
+        for(Block b : blocks) {
+            if(getCustomBlockFromLocation(b.getLocation().add(offset.getModX(), offset.getModY(), offset.getModZ())) != null) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+    }
+
     private static void updateMultiblockValidity(MultiblockBlock multiblock, Block newBlock) {
         if(multiblock != null) {
             multiblock.reverifyStructure();
@@ -274,10 +284,14 @@ public class WorldEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent e) {
         cancelEventIfCBlockInList(e.getBlocks(), e);
+        if(!e.isCancelled())
+            cancelEventIfCBlockInList(e.getBlocks(), e, e.getDirection());
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockPistonRetract(BlockPistonRetractEvent e) {
         cancelEventIfCBlockInList(e.getBlocks(), e);
+        if(!e.isCancelled())
+            cancelEventIfCBlockInList(e.getBlocks(), e, e.getDirection());
     }
     @EventHandler(ignoreCancelled = true)
     public void onFurnaceBurn(FurnaceBurnEvent e) { //don't allow custom block furnaces to function as normal furnaces

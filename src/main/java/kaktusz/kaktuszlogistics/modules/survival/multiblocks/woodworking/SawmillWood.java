@@ -83,7 +83,7 @@ public class SawmillWood extends MultiblockMachine {
 						{new ComponentAgnostic(), inputBarrel}
 				})
 				.addLayer(new MultiblockComponent[][] {
-						{new ComponentTag(Tag.WOODEN_FENCES), ComponentCustomBlock.fromCustomItem(sawmill)},
+						{new ComponentTag(Tag.WOODEN_FENCES), new ComponentCustomBlock(sawmill)},
 						{null, null}
 				})
 				.setControllerBlockOffset(1, 0, 1)
