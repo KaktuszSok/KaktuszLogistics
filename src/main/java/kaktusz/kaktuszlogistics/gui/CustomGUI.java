@@ -11,13 +11,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+@SuppressWarnings("SameParameterValue")
 public abstract class CustomGUI {
 
 	protected static final int INVENTORY_WIDTH = 9;
 	protected final Inventory inventory;
 
 	private boolean needsSetup = true;
+	private final ConcurrentMap<HumanEntity, CustomGUI> childGUI = new ConcurrentHashMap<>();
+	private final ConcurrentMap<HumanEntity, CustomGUI> parentGUI = new ConcurrentHashMap<>();
 
 	//SETUP
 	public CustomGUI(int size, String title) {
@@ -49,8 +55,16 @@ public abstract class CustomGUI {
 	//INTERACTION
 	/**
 	 * Opens the inventory for a specified viewer
+	 * @param parent If the parent GUI is forcibly closed, so will be this one
 	 */
-	public void open(HumanEntity viewer) {
+	public void open(HumanEntity viewer, CustomGUI parent) {
+		if(parent != null) {
+			//keep track of parent (for this viewer)
+			parentGUI.put(viewer, parent);
+			//set self as parent's child (for this viewer)
+			parent.childGUI.put(viewer, this);
+		}
+
 		if(needsSetup) {
 			needsSetup = false;
 			clearInventory();
@@ -64,10 +78,20 @@ public abstract class CustomGUI {
 	}
 
 	/**
-	 * Kicks out all viewers from viewing this inventory
+	 * Kicks out all viewers from viewing this inventory (and its children)
 	 */
 	public void forceClose() {
-		inventory.getViewers().forEach(this::close);
+		//close the child guis recursively
+		for(Map.Entry<HumanEntity, CustomGUI> entry : childGUI.entrySet()) {
+			entry.getValue().forceClose();
+		}
+
+		//close self for all viewers
+		GUIListener.deregisterGUI(inventory);
+		new ArrayList<>(inventory.getViewers()).forEach(v -> {
+				close(v);
+				onClosedForcefully(v);
+		});
 	}
 
 	public boolean hasViewers() {
@@ -78,11 +102,28 @@ public abstract class CustomGUI {
 	public abstract void onClick(ClickType type, int slot, HumanEntity player);
 
 	/**
-	 * Called when the player quits out of this inventory the vanilla way.
+	 * Called when the player quits out of this inventory, but not if it was caused by forceClose()
 	 */
 	public void onClosed(HumanEntity viewer) {
 		if(inventory.getViewers().size() <= 1) //last viewer closing inventory
 			GUIListener.deregisterGUI(inventory);
+
+		deregisterFromParent(viewer);
+	}
+
+	/**
+	 * Called when the player quits out of this inventory due to forceClose() being called
+	 */
+	protected void onClosedForcefully(HumanEntity viewer) {
+		deregisterFromParent(viewer);
+	}
+
+	private void deregisterFromParent(HumanEntity viewer) {
+		CustomGUI parent = parentGUI.get(viewer);
+		if(parent != null) {
+			parent.childGUI.remove(viewer);
+			parentGUI.remove(viewer);
+		}
 	}
 
 	//HELPER

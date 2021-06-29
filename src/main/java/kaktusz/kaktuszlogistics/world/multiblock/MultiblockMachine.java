@@ -1,7 +1,6 @@
 package kaktusz.kaktuszlogistics.world.multiblock;
 
 import kaktusz.kaktuszlogistics.gui.MachineGUI;
-import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
@@ -12,15 +11,18 @@ import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
-import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.serialisablesFromBytes;
 import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
 
 /**
@@ -37,73 +38,51 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
  */
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
 
-	public static NamespacedKey CHOSEN_RECIPE_KEY;
-	public static NamespacedKey PROCESSING_INPUTS_KEY; //Key where the inputs that we are currently processing are stored
-	public static NamespacedKey HALTED_KEY;
-	public static NamespacedKey TIME_LEFT_KEY;
-	public static final SFXCollection RECIPE_DONE_SOUND = new SFXCollection(
+	private static final SFXCollection DEFAULT_RECIPE_DONE_SOUND = new SFXCollection(
 			new SoundEffect(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f)
 	);
 
-	private transient MachineRecipe<?> recipeCache = null;
+	private transient MachineGUI gui;
 	/**
 	 * refreshes whenever gatherAllInputs() is called
 	 */
 	private transient IRecipeInput[] suppliesCache = null;
+	private transient MachineRecipe<?> currentRecipe = null;
 	/**
-	 * Is there currently a recipe being performed? (regardless of halt state)
+	 * The recipe inputs which we are currently processing
 	 */
-	private boolean isProcessing = false;
+	private List<IRecipeInput> processingInputs = null;
 	private boolean halted = false; //aka paused
 	private int timeLeft = -1;
-	private transient MachineGUI gui;
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 		initGUI();
 	}
 
-	//BEHAVIOUR
-	@Override
-	public ItemStack getDrop(Block block) {
-		ItemStack drop = super.getDrop(block);
-		ItemMeta meta = drop.getItemMeta();
-		@SuppressWarnings("ConstantConditions")
-		PersistentDataContainer pdc = meta.getPersistentDataContainer();
-
-		//remove data that shouldn't persist after the block is broken
-		pdc.remove(CHOSEN_RECIPE_KEY);
-		pdc.remove(PROCESSING_INPUTS_KEY);
-		pdc.remove(HALTED_KEY);
-		pdc.remove(TIME_LEFT_KEY);
-
-		drop.setItemMeta(meta);
-		return drop;
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(currentRecipe == null ? null : currentRecipe.id); //write recipe id string
 	}
 
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		currentRecipe = RecipeManager.getMachineRecipeById((String)in.readObject()); //read recipe id string
+		setUpTransients();
+	}
+
+	@Override
+	protected void setUpTransients() {
+		super.setUpTransients();
+		initGUI();
+	}
+
+	//BEHAVIOUR
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
 		super.onInteracted(e);
 
 		openGUI(e.getPlayer());
-	}
-
-	@Override
-	public void onLoaded() {
-		if(!isStructureValid()) //validate structure
-			return;
-
-		isProcessing = data.getPersistentDataContainer().has(PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
-		Integer timeLeft = CustomItem.readNBT(data, TIME_LEFT_KEY, PersistentDataType.INTEGER);
-		if(timeLeft == null)
-			this.timeLeft = -1;
-		else
-			this.timeLeft = timeLeft;
-		Byte halted = CustomItem.readNBT(data, HALTED_KEY, PersistentDataType.BYTE);
-		if(halted == null)
-			this.halted = false;
-		else
-			this.halted = halted == 1;
 	}
 
 	@Override
@@ -120,7 +99,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			}
 		}
 
-		if(!isProcessing) //the rest of this function only needs to be ran if we're processing a recipe
+		if(!isProcessingRecipe()) //the rest of this function only needs to be ran if we're processing a recipe
 			return;
 
 		timeLeft--;
@@ -134,31 +113,35 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	@Override
-	public void onSave() {
-		CustomItem.setNBT(data, TIME_LEFT_KEY, PersistentDataType.INTEGER, timeLeft);
-	}
-
-	@Override
 	protected void onVerificationFailed() {
 		gui.forceClose();
 	}
 
-	//TODO: make processing inputs drop when block is broken
+	@Override
+	public void breakBlock(boolean dropItem, boolean playVanillaSound, Player playerWhoMined) {
+		super.breakBlock(dropItem, playVanillaSound, playerWhoMined);
+		gui.forceClose();
+	}
 
 	//GUI & INFO
 	public abstract Material getGUIHeader();
+
+	public boolean isProcessingRecipe() {
+		return processingInputs != null;
+	}
+
 	public int getTimeLeft() {
 		return timeLeft;
 	}
-	public boolean isProcessingRecipe() {
-		return isProcessing;
-	}
+
 	public boolean isHalted() {
 		return halted;
 	}
+
 	public IRecipeInput[] getCachedSupplies() {
 		return suppliesCache;
 	}
+
 	/**
 	 * Gets all recipes that this machine supports.
 	 */
@@ -176,14 +159,14 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	protected abstract List<String> getSupportedRecipePrefixes();
 
 	protected SFXCollection getRecipeDoneSound() {
-		return RECIPE_DONE_SOUND;
+		return DEFAULT_RECIPE_DONE_SOUND;
 	}
 
 	//ACTIONS
 	protected void openGUI(HumanEntity player) {
 		if(!isStructureValid())
 			return;
-		gui.open(player);
+		gui.open(player, null);
 		updateGUI();
 	}
 
@@ -200,31 +183,21 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			return;
 		abortProcessing(); //stop current recipe
 
-		recipeCache = recipe;
-		if(recipe != null)
-			CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, recipe.id);
-		else
-			CustomItem.setNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING, null);
+		currentRecipe = recipe;
 
 		gatherAllInputs(); //update supplies cache so that GUI is up-to-date
 		updateGUI();
 	}
 
 	public MachineRecipe<?> getRecipe() {
-		if(recipeCache != null)
-			return recipeCache;
-
-		String recipeId = CustomItem.readNBT(data, CHOSEN_RECIPE_KEY, PersistentDataType.STRING);
-		if(recipeId == null)
-			return null;
-
-		return recipeCache = RecipeManager.getMachineRecipeById(recipeId); //may be null
+		return currentRecipe;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public boolean tryStartProcessing() {
 		if(!isStructureValid())
 			return false;
-		if(isProcessing || halted)
+		if(isProcessingRecipe() || halted)
 			return false;
 		MachineRecipe<?> recipe = getRecipe();
 		if(recipe == null)
@@ -237,15 +210,14 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		List<IRecipeInput> consumed = consumption.applyToOriginal();
 		setProcessingInputs(consumed);
 
-		isProcessing = true;
 		timeLeft = recipe.time;
 		return true;
 	}
 
 	protected void onProcessingFinished() {
-		isProcessing = false;
 		if(!isStructureValid()) {
-			toggleProcessingPaused(false);
+			toggleProcessingPaused(true);
+			setProcessingInputs(null);
 			return;
 		}
 		gatherAllInputs(); //refresh supplies cache so that the GUI updates as soon as it needs to
@@ -256,14 +228,14 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			return;
 
 		//get the consumed inputs from when the recipe was started
-		List<IRecipeInput> processingInputs = getProcessingInputs();
-		CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null); //clear saved processing inputs
-		if (processingInputs == null) return;
+		List<IRecipeInput> processedInputs = getProcessingInputs();
 		setProcessingInputs(null); //clear inputs
-		List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processingInputs.toArray(new IRecipeInput[0]));
+		if (processedInputs == null) return;
+		List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processedInputs.toArray(new IRecipeInput[0]));
 		if(outputs == null)
 			return;
 
+		Location location = getLocation();
 		HashMap<SpecialType, Integer> outputTypesCounter = new HashMap<>();
 		for(IRecipeOutput output : outputs) {
 			//get type of output block we're looking for
@@ -294,7 +266,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 * Abort the current recipe
 	 */
 	public void abortProcessing() {
-		isProcessing = false;
 		setProcessingInputs(null);
 		timeLeft = -1;
 		updateGUI();
@@ -312,24 +283,16 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	public void toggleProcessingPaused(boolean halt) {
 		halted = halt;
-		CustomItem.setNBT(data, HALTED_KEY, PersistentDataType.BYTE, halted ? (byte)1 : 0);
 		gui.update();
 	}
 
 	//HELPER
 	protected List<IRecipeInput> getProcessingInputs() {
-		byte[] processingInputsSerialised = CustomItem.readNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY);
-		if(processingInputsSerialised == null)
-			return null;
-
-		return serialisablesFromBytes(processingInputsSerialised);
+		return processingInputs;
 	}
 
 	protected void setProcessingInputs(List<IRecipeInput> consumed) {
-		if(consumed == null)
-			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, null);
-		else
-			CustomItem.setNBT(data, PROCESSING_INPUTS_KEY, PersistentDataType.BYTE_ARRAY, VanillaUtils.serialisablesToBytes(consumed));
+		processingInputs = consumed;
 	}
 
 	private IRecipeInput[] gatherAllInputs() {
@@ -340,7 +303,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			return suppliesCache = new IRecipeInput[0];
 		for(BlockPosition inputBlock : itemInputBlocks) {
 			//noinspection ConstantConditions
-			Stream<ItemInput> items = ItemInput.getInputsFromPosition(location.getWorld(), inputBlock);
+			Stream<ItemInput> items = ItemInput.getInputsFromPosition(getLocation().getWorld(), inputBlock);
 			if(items != null)
 				inputs.addAll(items.collect(Collectors.toList()));
 		}

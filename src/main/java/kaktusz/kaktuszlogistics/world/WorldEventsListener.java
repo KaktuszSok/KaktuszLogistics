@@ -1,6 +1,5 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -63,6 +62,7 @@ public class WorldEventsListener implements Listener {
     }
 
     //CHUNK
+    //TODO: multithreading?
     @EventHandler(ignoreCancelled = true)
     public void onChunkLoaded(ChunkLoadEvent e) {
         KLWorld world = KLWorld.get(e.getWorld());
@@ -184,7 +184,7 @@ public class WorldEventsListener implements Listener {
         CustomBlock block = getCustomBlockFromEvent(e);
         if(block == null)
             return;
-        KLWorld world = KLWorld.get(block.location.getWorld());
+        KLWorld world = KLWorld.get(block.getLocation().getWorld());
         if(!block.update()) { //something went wrong!
             return;
         }

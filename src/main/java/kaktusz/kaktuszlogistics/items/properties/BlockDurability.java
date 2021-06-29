@@ -84,7 +84,7 @@ public class BlockDurability extends ItemPlaceable {
 		}
 	}
 
-	//durability is stored as a percentage
+	//note - durability is stored as a percentage
 	/**
 	 * Called if the itemstack does not have durability info attached (e.g. after updating, where before it was not a durable item)
 	 */
@@ -92,6 +92,9 @@ public class BlockDurability extends ItemPlaceable {
 		ItemMeta meta = stack.getItemMeta();
 		fixPercent(meta);
 		stack.setItemMeta(meta);
+	}
+	private void fixPercent(ItemMeta meta) {
+		setPercent(meta, 1.0f);
 	}
 
 	public void setPercent(ItemStack stack, float percent) {
@@ -101,15 +104,23 @@ public class BlockDurability extends ItemPlaceable {
 		ItemMeta meta = stack.getItemMeta();
 		setPercent(meta, percent);
 		stack.setItemMeta(meta);
-
 		if(!dontUpdateStack)
 			item.updateStack(stack);
 	}
+	public void setPercent(ItemMeta meta, float percent) {
+		CustomItem.setNBT(meta, DURA_KEY, PersistentDataType.FLOAT, percent);
+	}
+
 	public float getPercent(ItemStack stack) {
 		if(stack.getItemMeta() == null)
 			return 0;
-
 		return getPercent(stack.getItemMeta());
+	}
+	public float getPercent(ItemMeta meta) {
+		if(!meta.getPersistentDataContainer().has(DURA_KEY, PersistentDataType.FLOAT)) {
+			fixPercent(meta);
+		}
+		return CustomItem.readNBT(meta, DURA_KEY, PersistentDataType.FLOAT);
 	}
 
 	public DurabilityState getState(ItemStack stack) {
@@ -117,20 +128,6 @@ public class BlockDurability extends ItemPlaceable {
 	}
 	public DurabilityState getState(float percent) {
 		return STATE_MAP.floorEntry(percent).getValue();
-	}
-
-	//for blocks:
-	public void fixPercent(ItemMeta meta) {
-		setPercent(meta, 1.0f);
-	}
-	public void setPercent(ItemMeta meta, float percent) {
-		CustomItem.setNBT(meta, DURA_KEY, PersistentDataType.FLOAT, percent);
-	}
-	public float getPercent(ItemMeta meta) {
-		if(!meta.getPersistentDataContainer().has(DURA_KEY, PersistentDataType.FLOAT)) {
-			fixPercent(meta);
-		}
-		return CustomItem.readNBT(meta, DURA_KEY, PersistentDataType.FLOAT);
 	}
 
 	//converting percent to durability

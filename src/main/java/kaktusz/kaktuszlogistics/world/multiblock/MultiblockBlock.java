@@ -1,25 +1,23 @@
 package kaktusz.kaktuszlogistics.world.multiblock;
 
-import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
-import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBlock.SpecialType;
@@ -28,30 +26,24 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
  * The core block of a multiblock structure
  */
 public class MultiblockBlock extends DurableBlock {
-
-	public static NamespacedKey FACING_KEY;
-
-	private transient final Multiblock property;
-	private transient boolean structureValidCache = false;
-	private transient BlockAABB aabbCache = null;
-	protected transient final HashMap<SpecialType, Set<BlockPosition>> specialBlocksCache = new HashMap<>();
+	private transient Multiblock property;
+	private BlockFace facing;
+	private boolean structureValidCache = false;
+	private BlockAABB aabbCache = null;
+	protected final HashMap<SpecialType, Set<BlockPosition>> specialBlocksCache = new HashMap<>();
 
 	public MultiblockBlock(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 		this.property = property;
 	}
 
-	//BEHAVIOUR
 	@Override
-	public ItemStack getDrop(Block block) {
-		ItemStack drop = super.getDrop(block);
-		ItemMeta meta = drop.getItemMeta();
-		//noinspection ConstantConditions
-		meta.getPersistentDataContainer().remove(FACING_KEY);
-		drop.setItemMeta(meta);
-		return drop;
+	protected void setUpTransients() {
+		super.setUpTransients();
+		property = (Multiblock)getType();
 	}
 
+	//BEHAVIOUR
 	@Override
 	public void onPlaced(BlockPlaceEvent e) {
 		setFacingFromPlaceEvent(e);
@@ -87,9 +79,9 @@ public class MultiblockBlock extends DurableBlock {
 	 * @param register registers if true, deregisters if false.
 	 */
 	private void registerWithChunks(boolean register) {
-		KLWorld world = KLWorld.get(location.getWorld());
+		KLWorld world = KLWorld.get(getLocation().getWorld());
 		BlockAABB boundingBox = getAABB();
-		BlockPosition pos = new BlockPosition(location);
+		BlockPosition pos = new BlockPosition(getLocation());
 		int chunkMinX = blockToChunkCoord(boundingBox.minCorner.x);
 		int chunkMinZ = blockToChunkCoord(boundingBox.minCorner.z);
 		int chunkMaxX = blockToChunkCoord(boundingBox.maxCorner.x);
@@ -118,6 +110,14 @@ public class MultiblockBlock extends DurableBlock {
 
 	protected void onVerificationFailed() {
 
+	}
+
+	//GETTERS & SETTERS
+	public BlockFace getFacing() {
+		return facing;
+	}
+	public void setFacing(BlockFace facing) {
+		this.facing = facing;
 	}
 
 	//INFO
@@ -186,21 +186,6 @@ public class MultiblockBlock extends DurableBlock {
 		markedBlocks.add(block);
 	}
 
-	//NBT
-	public BlockFace getFacing() {
-		Byte facing = CustomItem.readNBT(data, FACING_KEY, PersistentDataType.BYTE);
-		if(facing == null) {
-			setFacing(BlockFace.NORTH);
-			facing = 0;
-		}
-		return BlockFace.values()[facing];
-	}
-	public void setFacing(BlockFace facing) {
-		if(facing == null || facing.getModY() != 0) //don't allow null values or facing up/down
-			facing = BlockFace.NORTH; //default value
-		CustomItem.setNBT(data, FACING_KEY, PersistentDataType.BYTE, (byte)facing.ordinal());
-	}
-
 	//HELPER
 	public boolean isBlockPartOfMultiblock(Block block) {
 		BlockPosition pos = new BlockPosition(block.getLocation());
@@ -220,7 +205,6 @@ public class MultiblockBlock extends DurableBlock {
 		return getAABB().containsPosition(position);
 	}
 
-	//HELPER
 	/**
 	 * Gets the property which is responsible for handling the multiblock data
 	 */

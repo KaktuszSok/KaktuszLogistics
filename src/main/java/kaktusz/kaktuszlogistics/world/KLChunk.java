@@ -244,7 +244,7 @@ public final class KLChunk {
                 out.writeShort(coord.y); //short
                 out.writeByte(coord.z); //byte
                 //write block data
-                out.writeObject(entry.getValue().data); //ItemMeta
+                out.writeObject(entry.getValue()); //CustomBlock
             }
 
             //write extra data
@@ -276,17 +276,12 @@ public final class KLChunk {
                 coord.y = in.readShort(); //short
                 coord.z = in.readByte(); //byte
                 try {
-                    //read block data
-                    ItemMeta blockData = (ItemMeta) in.readObject(); //ItemMeta
-                    CustomBlock block = CustomBlock.createFromMeta(blockData, new Location(world.world, coord.x + chunkToBlockCoord(chunkX), coord.y, coord.z + chunkToBlockCoord(chunkZ)));
-                    if (block == null) {
-                        String typeStr = blockData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
-                        KaktuszLogistics.LOGGER.warning("Read invalid item type when loading chunk " + chunkX + "," + chunkZ + ": " + typeStr);
-                    } else {
-                        result.blocks.put(coord, block);
-                        if (block instanceof TickingBlock) {
-                            result.addTickingBlock((TickingBlock) block);
-                        }
+                    //read block data and figure out world coords
+                    CustomBlock block = (CustomBlock)in.readObject(); //CustomBlock
+                    block.setLocation(new Location(world.world, coord.x + chunkToBlockCoord(chunkX), coord.y, coord.z + chunkToBlockCoord(chunkZ)));
+                    result.blocks.put(coord, block);
+                    if (block instanceof TickingBlock) {
+                        result.addTickingBlock((TickingBlock) block);
                     }
                 } catch (Exception e) {
                     KaktuszLogistics.LOGGER.warning("Couldn't load block at " + coord.toString() + " in chunk " + chunkX + "," + chunkZ + ":");

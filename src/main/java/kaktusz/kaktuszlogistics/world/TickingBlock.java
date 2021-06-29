@@ -1,7 +1,10 @@
 package kaktusz.kaktuszlogistics.world;
 
+/**
+ * Block that can run code on every tick as well as on being loaded and saved
+ */
 public interface TickingBlock {
-	void onLoaded();
+	default void onLoaded() {}
 	void onTick();
-	void onSave();
+	default void onSave() {}
 }

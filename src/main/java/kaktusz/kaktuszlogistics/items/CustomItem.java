@@ -150,6 +150,13 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 		String type = readNBT(stack, TYPE_KEY, PersistentDataType.STRING);
 		return CustomItemManager.tryGetItem(type);
 	}
+	/**
+	 * Returns the type of CustomItem that an item meta is tagged as being, or null if it is not a custom item.
+	 */
+	public static CustomItem getFromMeta(ItemMeta meta) {
+		String type = readNBT(meta, TYPE_KEY, PersistentDataType.STRING);
+		return CustomItemManager.tryGetItem(type);
+	}
 
 	public void updateStack(ItemStack stack) {
 		//properties

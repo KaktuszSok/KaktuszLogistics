@@ -55,9 +55,9 @@ public class MachineGUI extends InteractableGUI {
 					if(machine.getRecipe() != null)
 						machine.tryStartProcessing();
 					else
-						new RecipeListGUI(this).open(v);
+						new RecipeListGUI(this).open(v, this);
 				})
-				.setRightClickAction(v -> new RecipeListGUI(this).open(v));
+				.setRightClickAction(v -> new RecipeListGUI(this).open(v, this));
 		addButton(1, INVENTORY_WIDTH-2, recipeButton, new ItemStack(Material.BARRIER));
 
 		//update visuals for progress bar and recipe

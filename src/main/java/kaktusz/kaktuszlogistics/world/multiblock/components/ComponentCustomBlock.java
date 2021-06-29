@@ -24,6 +24,6 @@ public class ComponentCustomBlock extends MultiblockComponent {
 	@Override
 	public boolean match(Block block, MultiblockBlock multiblock) {
 		CustomBlock cb = KLWorld.get(block.getWorld()).getBlockAt(block.getX(), block.getY(), block.getZ());
-		return cb != null && cb.type == type;
+		return cb != null && cb.getType() == type;
 	}
 }

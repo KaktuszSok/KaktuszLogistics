@@ -5,6 +5,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.components.ComponentAgnostic;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import kaktusz.kaktuszlogistics.world.multiblock.components.MultiblockComponent;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class MatrixMultiblock extends Multiblock {
 		else {
 			offset = new BlockPosition(column - controllerBlockColumn, (short) (row - controllerBlockRow), layerIndex - controllerBlockLayer);
 		}
-		return Multiblock.getBlockAtRelativeOffset(multiblock.location, multiblock.getFacing(), offset.x, offset.y, offset.z);
+		return Multiblock.getBlockAtRelativeOffset(multiblock.getLocation(), multiblock.getFacing(), offset.x, offset.y, offset.z);
 	}
 
 	/**
@@ -129,16 +130,18 @@ public class MatrixMultiblock extends Multiblock {
 		}
 		BlockPosition worldOffset = transformOffset(multiblock.getFacing(), relativeOffset);
 		if(worldOffset == null) //invalid multiblock orientation
-			return new BlockPosition(multiblock.location);
+			return new BlockPosition(multiblock.getLocation());
 
-		return new BlockPosition(multiblock.location.getBlockX() + worldOffset.x, multiblock.location.getBlockY() + worldOffset.y, multiblock.location.getBlockZ() + worldOffset.z);
+		Location location = multiblock.getLocation();
+		return new BlockPosition(location.getBlockX() + worldOffset.x, location.getBlockY() + worldOffset.y, location.getBlockZ() + worldOffset.z);
 	}
 
 	/**
 	 * Gets the component in the matrix given a world position and a specific multiblock instance
 	 */
 	protected final MultiblockComponent getComponentAtWorldPosition(BlockPosition worldPos, MultiblockBlock multiblock) {
-		BlockPosition worldOffset = new BlockPosition(worldPos.x - multiblock.location.getBlockX(), worldPos.y - multiblock.location.getBlockY(), worldPos.z - multiblock.location.getBlockZ());
+		Location location = multiblock.getLocation();
+		BlockPosition worldOffset = new BlockPosition(worldPos.x - location.getBlockX(), worldPos.y - location.getBlockY(), worldPos.z - location.getBlockZ());
 		BlockPosition relativeOffset = transformOffset(multiblock.getFacing(), worldOffset);
 		if(relativeOffset == null) //invalid controller orientation
 			return null;

@@ -21,7 +21,7 @@ public abstract class MultiPageGUI extends InteractableGUI {
 		if(previousGUI == null)
 			super.close(viewer);
 		else
-			previousGUI.open(viewer);
+			previousGUI.open(viewer, null);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public abstract class MultiPageGUI extends InteractableGUI {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
-					previousGUI.open(viewer);
+					previousGUI.open(viewer, null);
 
 				}
 			}.runTask(KaktuszLogistics.INSTANCE);

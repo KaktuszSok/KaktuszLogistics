@@ -42,8 +42,8 @@ public class RecipeListGUI extends ListGUI {
 	}
 
 	@Override
-	public void open(HumanEntity viewer) {
-		super.open(viewer);
+	public void open(HumanEntity viewer, CustomGUI parent) {
+		super.open(viewer, parent);
 
 		renderPage(0);
 	}

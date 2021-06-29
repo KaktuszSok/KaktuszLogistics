@@ -40,9 +40,6 @@ public class KaktuszSurvival implements KaktuszModule {
 		//update config-based pseudoconstants
 		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.value*RoomInfo.MAX_SIZE_VERTICAL.value*RoomInfo.MAX_SIZE_HORIZONTAL.value/3;
 
-		//init keys
-		HouseSignBlock.HOUSE_INFO_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "HouseInfo");
-
 		//register event listeners
 		Bukkit.getPluginManager().registerEvents(new SignEventListener(), KaktuszLogistics.INSTANCE);
 

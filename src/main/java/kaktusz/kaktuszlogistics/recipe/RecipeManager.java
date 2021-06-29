@@ -70,6 +70,9 @@ public class RecipeManager {
 				prefixRecipes.add(r);
 		}
 	}
+	/**
+	 * @return The machine recipe matching this unique id, or null if no registered recipes match
+	 */
 	public static MachineRecipe<?> getMachineRecipeById(String id) {
 		return machineRecipes.get(id);
 	}

@@ -310,7 +310,9 @@ public class VanillaUtils {
         }
     }
 
-    public static class BlockAABB {
+    public static class BlockAABB implements Serializable {
+        private static final long serialVersionUID = 100L;
+
         public final BlockPosition minCorner;
         public final BlockPosition maxCorner;
 

@@ -9,7 +9,6 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -29,18 +28,18 @@ public class InspectionTool extends CustomItem {
             if(cb == null) {
                 e.getPlayer().sendMessage("This is " + b.getType().name());
             } else {
-                e.getPlayer().sendMessage("This is " + cb.type.item.getFullDisplayName(cb.getDrop(b)));
+                e.getPlayer().sendMessage("This is " + cb.getType().item.getFullDisplayName(cb.getDrop(b)));
                 //extra info:
                 List<String> lore = new ArrayList<>();
-                ItemQuality quality = cb.type.item.findProperty(ItemQuality.class);
+                ItemQuality quality = cb.getType().item.findProperty(ItemQuality.class);
                 if(quality != null) {
                     quality.modifyLore(lore, cb.getDrop(b));
                 }
                 if(cb instanceof DurableBlock) {
                     DurableBlock db = (DurableBlock)cb;
-                    ItemStack dbItem = db.type.item.createStack(1);
+                    ItemStack dbItem = db.getType().item.createStack(1);
                     dbItem.setItemMeta(db.data);
-                    db.type.modifyLore(lore, dbItem);
+                    db.getType().modifyLore(lore, dbItem);
                 }
                 for(String line : lore) {
                     e.getPlayer().sendMessage(line);

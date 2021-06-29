@@ -16,15 +16,20 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * A custom block is an instance of a custom item which is physically placed in the world.
+ * You must call setLocation() after deserialising this object, as the location is not stored to save space.
  */
-public class CustomBlock {
+public class CustomBlock implements Serializable {
+    private static final long serialVersionUID = 100L;
 
-    public transient final ItemPlaceable type;
-    public transient final Location location;
+    private transient ItemPlaceable type;
+    private transient Location location;
     public ItemMeta data;
 
     public CustomBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
@@ -33,21 +38,13 @@ public class CustomBlock {
         this.type = prop;
     }
 
-    /**
-     * Creates a CustomBlock with the correct class given some item meta
-     */
-    public static CustomBlock createFromMeta(ItemMeta customItemData, Location location) {
-        //read type from data
-        String typeStr = customItemData.getPersistentDataContainer().get(CustomItem.TYPE_KEY, PersistentDataType.STRING);
-        CustomItem type = CustomItemManager.tryGetItem(typeStr);
-        //check if type was valid
-        if(type == null)
-            return null;
-        //try get placeable property
-        ItemPlaceable placeableProperty = type.findProperty(ItemPlaceable.class);
-        if(placeableProperty == null)
-            return null;
-        return placeableProperty.createCustomBlock(customItemData, location);
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        setUpTransients();
+    }
+
+    protected void setUpTransients() {
+        type = CustomItem.getFromMeta(data).findProperty(ItemPlaceable.class);
     }
 
     /**
@@ -69,7 +66,18 @@ public class CustomBlock {
         return type.verify(block);
     }
 
-    //GETTERS
+    //GETTERS & SETTERS
+    public ItemPlaceable getType() {
+        return type;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public ItemStack getDrop(Block block) {
         ItemStack drop = type.item.createStack(1);
         drop.setItemMeta(data);
@@ -125,7 +133,7 @@ public class CustomBlock {
     /**
      * Removes the block from both the physical world and the KL data
      */
-    public void breakBlock(boolean dropItem) {
+    public final void breakBlock(boolean dropItem) {
         breakBlock(dropItem, true, null);
     }
     /**

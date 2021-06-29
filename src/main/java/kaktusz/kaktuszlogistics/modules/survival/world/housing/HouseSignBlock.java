@@ -1,14 +1,16 @@
 package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
-import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.modules.survival.KaktuszSurvival;
 import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -17,7 +19,6 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
@@ -30,10 +31,8 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
  */
 public class HouseSignBlock extends CustomBlock {
 
-	public static NamespacedKey HOUSE_INFO_KEY;
-
 	private transient Sign signCache;
-	private transient HouseInfo houseInfoCache;
+	private HouseInfo houseInfoCache;
 
 	public HouseSignBlock(PlaceableHouseSign prop, Location location, ItemMeta meta) {
 		super(prop, location, meta);
@@ -54,6 +53,7 @@ public class HouseSignBlock extends CustomBlock {
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
 		if(chunk == null) return;
 
+		Location location = getLocation();
 		BlockPosition selfPos = new BlockPosition(location);
 		chunk.removeFromExtraDataSet("houses", selfPos); //de-register from chunk
 
@@ -78,7 +78,7 @@ public class HouseSignBlock extends CustomBlock {
 	public void onInteracted(PlayerInteractEvent e) {
 		refreshText(true);
 
-		if(getHouseInfoCache() == null) {
+		if(houseInfoCache == null) {
 			e.getPlayer().sendMessage(ChatColor.GRAY + "Could not detect a house. Possible reasons for failure:" +
 					"\n1. The entrance room is too big." +
 					"\n2. The sign is not placed on a wall next to the top half of a door." +
@@ -88,13 +88,13 @@ public class HouseSignBlock extends CustomBlock {
 	}
 
 	public double getLabourPerDay() {
-		if(getHouseInfoCache() == null)
+		if(houseInfoCache == null)
 			return 0;
 		return houseInfoCache.getMaxPopulation() * 8;
 	}
 
 	public int getLabourTier() {
-		if(getHouseInfoCache() == null)
+		if(houseInfoCache == null)
 			return 0;
 		return houseInfoCache.getTier();
 	}
@@ -117,6 +117,7 @@ public class HouseSignBlock extends CustomBlock {
 			return;
 		}
 
+		Location location = getLocation();
 		if(KaktuszSurvival.CALC_ROOMS_ASYNC.value) {
 			new BukkitRunnable() {
 				@Override
@@ -138,6 +139,7 @@ public class HouseSignBlock extends CustomBlock {
 		if(houseInfoCache == null)
 			return;
 
+		Location location = getLocation();
 		KLWorld world = KLWorld.get(location.getWorld());
 		KLChunk signChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
 		BlockPosition selfPos = new BlockPosition(location);
@@ -187,6 +189,7 @@ public class HouseSignBlock extends CustomBlock {
 		WallSign wallSign = getWallSign();
 		if(wallSign == null) return null;
 
+		Location location = getLocation();
 		BlockFace dir = wallSign.getFacing().getOppositeFace(); //direction towards the wall
 		if(Tag.DOORS.isTagged(location.getBlock().getRelative(dir.getModX() + dir.getModZ(), 0, dir.getModZ() - dir.getModX()).getType())) { //check block to the left of the wall
 			return new BlockPosition(location.getBlockX() + dir.getModX()*2 + dir.getModZ(), location.getBlockY()-1, location.getBlockZ() + dir.getModZ()*2 - dir.getModX());
@@ -206,6 +209,7 @@ public class HouseSignBlock extends CustomBlock {
 		WallSign wallSign = getWallSign();
 		if(wallSign == null) return null;
 
+		Location location = getLocation();
 		BlockFace dir = wallSign.getFacing().getOppositeFace(); //direction towards the wall
 		if(Tag.DOORS.isTagged(location.getBlock().getRelative(dir.getModX() + dir.getModZ(), 0, dir.getModZ() - dir.getModX()).getType())) { //check block to the left of the wall
 			return new BlockPosition(location.getBlockX() + dir.getModX() + dir.getModZ(), location.getBlockY()-1, location.getBlockZ() + dir.getModZ() - dir.getModX());
@@ -225,7 +229,7 @@ public class HouseSignBlock extends CustomBlock {
 		if(signCache != null)
 			return signCache;
 
-		BlockState data = location.getBlock().getState();
+		BlockState data = getLocation().getBlock().getState();
 		if(!(data instanceof Sign) || !(data.getBlockData() instanceof WallSign))
 			return null;
 
@@ -245,23 +249,11 @@ public class HouseSignBlock extends CustomBlock {
 	}
 
 	public HouseInfo getHouseInfoCache() {
-		if(houseInfoCache != null)
-			return houseInfoCache;
-
-		byte[] serialisedHouseInfo = CustomItem.readNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY);
-		if(serialisedHouseInfo == null)
-			return null;
-		return houseInfoCache = VanillaUtils.deserialiseFromBytes(serialisedHouseInfo);
+		return houseInfoCache;
 	}
 
 	private void setHouseInfoCache(HouseInfo newValue) {
 		houseInfoCache = newValue;
-		if(newValue == null)
-			CustomItem.setNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY, null);
-		else {
-			byte[] serialisedHouseInfo = VanillaUtils.serialiseToBytes(houseInfoCache);
-			CustomItem.setNBT(data, HOUSE_INFO_KEY, PersistentDataType.BYTE_ARRAY, serialisedHouseInfo);
-		}
 	}
 
 	//DISPLAY
@@ -288,7 +280,7 @@ public class HouseSignBlock extends CustomBlock {
 	 * @param page The page to show (1, 2 or 3)
 	 */
 	private void showPage(int page) {
-		if(getHouseInfoCache() == null) {
+		if(houseInfoCache == null) {
 			updateSignToInvalid();
 			return;
 		}
