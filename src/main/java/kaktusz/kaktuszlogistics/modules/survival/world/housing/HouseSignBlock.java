@@ -30,6 +30,7 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
  * A sign that detects a house if placed next to a door
  */
 public class HouseSignBlock extends CustomBlock {
+	private static final long serialVersionUID = 100L;
 
 	private transient Sign signCache;
 	private HouseInfo houseInfoCache;

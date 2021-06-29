@@ -37,6 +37,7 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
  * A core block of a multiblock structure, which can perform recipes
  */
 public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
+	private static final long serialVersionUID = 100L;
 
 	private static final SFXCollection DEFAULT_RECIPE_DONE_SOUND = new SFXCollection(
 			new SoundEffect(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f)

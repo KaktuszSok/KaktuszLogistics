@@ -26,6 +26,8 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
  * The core block of a multiblock structure
  */
 public class MultiblockBlock extends DurableBlock {
+	private static final long serialVersionUID = 100L;
+
 	private transient Multiblock property;
 	private BlockFace facing;
 	private boolean structureValidCache = false;

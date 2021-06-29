@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class DurableBlock extends CustomBlock {
+    private static final long serialVersionUID = 100L;
 
     private transient BlockDurability dura;
 

@@ -13,6 +13,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Collection;
 
 public class FlagBlock extends CustomBlock {
+	private static final long serialVersionUID = 100L;
+
 	public FlagBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
 		super(prop, location, meta);
 	}

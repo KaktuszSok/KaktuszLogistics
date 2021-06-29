@@ -21,6 +21,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 
 public class SawmillWood extends MultiblockMachine {
+	private static final long serialVersionUID = 100L;
+
 	public static final SFXCollection RECIPE_DONE_SOUND = new SFXCollection(
 			new SoundEffect(Sound.BLOCK_WOOD_BREAK, 0.5f, 0.5f, 1.4f, 1.6f)
 	);
