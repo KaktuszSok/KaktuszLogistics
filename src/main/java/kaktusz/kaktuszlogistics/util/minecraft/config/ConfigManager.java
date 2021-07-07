@@ -43,7 +43,7 @@ public class ConfigManager {
 	@SuppressWarnings("UnusedReturnValue")
 	public <T extends ConfigOption<?>> T registerOption(T option) {
 		configOptions.add(option);
-		fileConfig.addDefault(option.path, option.value);
+		fileConfig.addDefault(option.path, option.getValue());
 		return option;
 	}
 

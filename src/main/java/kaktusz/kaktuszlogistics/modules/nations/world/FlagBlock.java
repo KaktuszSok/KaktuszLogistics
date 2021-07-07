@@ -23,8 +23,8 @@ public class FlagBlock extends CustomBlock {
 	public void onSet(KLWorld world, int x, int y, int z) {
 		VanillaUtils.BlockPosition pos = new VanillaUtils.BlockPosition(x,(short)y,z);
 
-		for(int dx = -KaktuszNations.CLAIM_DISTANCE.value; dx <= KaktuszNations.CLAIM_DISTANCE.value; dx++) {
-			for(int dz = -KaktuszNations.CLAIM_DISTANCE.value; dz <= KaktuszNations.CLAIM_DISTANCE.value; dz++) {
+		for(int dx = -KaktuszNations.CLAIM_DISTANCE.getValue(); dx <= KaktuszNations.CLAIM_DISTANCE.getValue(); dx++) {
+			for(int dz = -KaktuszNations.CLAIM_DISTANCE.getValue(); dz <= KaktuszNations.CLAIM_DISTANCE.getValue(); dz++) {
 				ChunkClaimManager.claimChunkAt(world, dx + VanillaUtils.blockToChunkCoord(x), dz + VanillaUtils.blockToChunkCoord(z), pos);
 			}
 		}
@@ -34,8 +34,8 @@ public class FlagBlock extends CustomBlock {
 	public void onRemoved(KLWorld world, int x, int y, int z) {
 		VanillaUtils.BlockPosition pos = new VanillaUtils.BlockPosition(x,(short)y,z);
 
-		for(int dx = -KaktuszNations.CLAIM_DISTANCE.value; dx <= KaktuszNations.CLAIM_DISTANCE.value; dx++) {
-			for(int dz = -KaktuszNations.CLAIM_DISTANCE.value; dz <= KaktuszNations.CLAIM_DISTANCE.value; dz++) {
+		for(int dx = -KaktuszNations.CLAIM_DISTANCE.getValue(); dx <= KaktuszNations.CLAIM_DISTANCE.getValue(); dx++) {
+			for(int dz = -KaktuszNations.CLAIM_DISTANCE.getValue(); dz <= KaktuszNations.CLAIM_DISTANCE.getValue(); dz++) {
 				ChunkClaimManager.unclaimChunkAt(world, dx + VanillaUtils.blockToChunkCoord(x), dz + VanillaUtils.blockToChunkCoord(z), pos);
 			}
 		}

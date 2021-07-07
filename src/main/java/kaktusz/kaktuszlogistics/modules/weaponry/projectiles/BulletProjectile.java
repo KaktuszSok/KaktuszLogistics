@@ -19,7 +19,7 @@ public class BulletProjectile extends CustomProjectile {
 	//SETTINGS
 	private float damage = 3f;
 	private float maxPenetration = 1.5f;
-	private String killMessage = KaktuszWeaponry.SHOT_MESSAGE.value;
+	private String killMessage = KaktuszWeaponry.SHOT_MESSAGE.getValue();
 
 	//RUNTIME
 	private final double startSpeed;

@@ -47,6 +47,7 @@ kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe$ConsumptionAftermath.class
 kaktusz\kaktuszlogistics\world\WorldEventsListener.class
 kaktusz\kaktuszlogistics\world\KLChunk.class
 kaktusz\kaktuszlogistics\recipe\machine\SimpleMachineRecipe.class
+kaktusz\kaktuszlogistics\world\LabourConsumer.class
 kaktusz\kaktuszlogistics\world\multiblock\MultiblockBlock.class
 kaktusz\kaktuszlogistics\util\MathsUtils.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentDirectional.class
@@ -125,6 +126,7 @@ kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$1.class
 kaktusz\kaktuszlogistics\items\events\IPlacedListener.class
 kaktusz\kaktuszlogistics\util\minecraft\config\StringOption.class
 kaktusz\kaktuszlogistics\commands\Subcommand$1.class
+kaktusz\kaktuszlogistics\world\LabourSupplier.class
 kaktusz\kaktuszlogistics\util\minecraft\config\ConfigManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\BulletContainer$BulletType.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentCompound.class

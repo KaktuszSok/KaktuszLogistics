@@ -7,6 +7,7 @@ import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
+import kaktusz.kaktuszlogistics.world.LabourSupplier;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,22 +24,26 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Map;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
 /**
  * A sign that detects a house if placed next to a door
  */
-public class HouseSignBlock extends CustomBlock {
+public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 	private static final long serialVersionUID = 100L;
 
 	private transient Sign signCache;
 	private HouseInfo houseInfoCache;
 
+	private final Map<BlockPosition, Double> labourSupplied = new HashMap<>();
+
 	public HouseSignBlock(PlaceableHouseSign prop, Location location, ItemMeta meta) {
 		super(prop, location, meta);
 	}
 
+	//BEHAVIOUR
 	@Override
 	public ItemStack getDrop(Block block) {
 		return new ItemStack(block.getDrops().iterator().next()); //drop sign
@@ -56,7 +61,7 @@ public class HouseSignBlock extends CustomBlock {
 
 		Location location = getLocation();
 		BlockPosition selfPos = new BlockPosition(location);
-		chunk.removeFromExtraDataSet("houses", selfPos); //de-register from chunk
+		deregisterAsLabourSupplier(chunk, selfPos);
 
 		//un-claim door:
 		BlockPosition door = getDoor();
@@ -88,18 +93,7 @@ public class HouseSignBlock extends CustomBlock {
 		}
 	}
 
-	public double getLabourPerDay() {
-		if(houseInfoCache == null)
-			return 0;
-		return houseInfoCache.getMaxPopulation() * 8;
-	}
-
-	public int getLabourTier() {
-		if(houseInfoCache == null)
-			return 0;
-		return houseInfoCache.getTier();
-	}
-
+	//VALIDATION
 	/**
 	 * Checks if the house is valid and updates the houseInfoCache and sign text accordingly
 	 */
@@ -119,7 +113,7 @@ public class HouseSignBlock extends CustomBlock {
 		}
 
 		Location location = getLocation();
-		if(KaktuszSurvival.CALC_ROOMS_ASYNC.value) {
+		if(KaktuszSurvival.CALC_ROOMS_ASYNC.getValue()) {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
@@ -137,14 +131,16 @@ public class HouseSignBlock extends CustomBlock {
 		setHouseInfoCache(result);
 		refreshText(false);
 
-		if(houseInfoCache == null)
-			return;
-
+		//(de)registration
 		Location location = getLocation();
 		KLWorld world = KLWorld.get(location.getWorld());
 		KLChunk signChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
 		BlockPosition selfPos = new BlockPosition(location);
-		signChunk.getOrCreateExtraDataSet("houses").add(selfPos); //register with chunk
+		if(houseInfoCache == null) {
+			deregisterAsLabourSupplier(signChunk, selfPos);
+			return;
+		}
+		registerAsLabourSupplier(signChunk, selfPos);
 
 		//pop off any intersecting house signs
 		for (BlockPosition door : houseInfoCache.getAllDoors()) {
@@ -154,7 +150,7 @@ public class HouseSignBlock extends CustomBlock {
 			HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");
 			if(houseDoors == null)
 				continue;
-			BlockPosition doorSign = houseDoors.get(door); //the position of the sign the encountered door is assigned to
+			BlockPosition doorSign = houseDoors.get(door); //the position of the sign which the encountered door is assigned to
 			if(doorSign == null || doorSign.equals(selfPos))
 				continue;
 
@@ -182,6 +178,31 @@ public class HouseSignBlock extends CustomBlock {
 		houseDoors.put(door, selfPos);
 	}
 
+	//LABOUR
+	@Override
+	public Map<BlockPosition, Double> getLabourConsumers() {
+		return labourSupplied;
+	}
+
+	/**
+	 * How many units of labour can this house supply per day
+	 */
+	public double getLabourPerDay() {
+		if(houseInfoCache == null)
+			return 0;
+		return houseInfoCache.getMaxPopulation() * 8;
+	}
+
+	/**
+	 * What tier of machines can the labourers of this house operate
+	 */
+	public int getLabourTier() {
+		if(houseInfoCache == null)
+			return 0;
+		return houseInfoCache.getTier();
+	}
+
+	//HELPERS
 	/**
 	 * Checks if the sign is placed on a wall next to the top part of a door and, if so, returns the origin of the potential house
 	 * @return null if no door could be found, otherwise the position of the block behind the bottom half of the door
@@ -249,6 +270,9 @@ public class HouseSignBlock extends CustomBlock {
 		return (WallSign)state.getBlockData();
 	}
 
+	/**
+	 * Gets the most recently calculated HouseInfo for this house
+	 */
 	public HouseInfo getHouseInfoCache() {
 		return houseInfoCache;
 	}

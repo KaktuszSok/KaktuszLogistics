@@ -203,7 +203,7 @@ public class ItemEventsListener implements Listener {
             return;
         }
         //banned inventories:
-        if(CustomItem.getFromStack(stack) == null)
+        if(CustomItem.getFromStack(stack) == null) //don't block vanilla items
             return;
         for (InventorySlotRange bannedInv : bannedInventories) {
             if(bannedInv.check(inv, slot)) {

@@ -5,7 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public abstract class ConfigOption<T> {
 
 	public final String path;
-	public T value;
+	protected T value;
 
 	public ConfigOption(String path, T defaultValue) {
 		this.path = path;
@@ -22,6 +22,10 @@ public abstract class ConfigOption<T> {
 
 	@Override
 	public String toString() {
-		return value.toString();
+		return getValue().toString();
+	}
+
+	public T getValue() {
+		return value;
 	}
 }

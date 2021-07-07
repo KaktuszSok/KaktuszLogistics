@@ -6,7 +6,6 @@ import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.events.ItemEventsListener;
 import kaktusz.kaktuszlogistics.modules.KModule;
 import kaktusz.kaktuszlogistics.util.StringUtils;
-import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.projectile.ProjectileManager;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
@@ -14,14 +13,11 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.WorldEventsListener;
-import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.sql.Time;
 import java.util.logging.Logger;
 
 /**
@@ -51,7 +47,7 @@ public class KaktuszLogistics extends JavaPlugin {
         registerCommands();
         registerListeners();
 
-        boolean enableKWeaponry = KModule.WEAPONRY.isEnabled.value;
+        boolean enableKWeaponry = KModule.WEAPONRY.isEnabled.getValue();
 
         new BukkitRunnable() {
             @Override
@@ -83,7 +79,7 @@ public class KaktuszLogistics extends JavaPlugin {
 
     private void initModules() {
         for (KModule module : KModule.values()) {
-            if(module.isEnabled.value)
+            if(module.isEnabled.getValue())
                 module.instance.initialise();
         }
     }

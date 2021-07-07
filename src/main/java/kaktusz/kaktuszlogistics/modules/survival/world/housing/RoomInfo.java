@@ -14,9 +14,6 @@ import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -41,7 +38,7 @@ public class RoomInfo implements Serializable {
 	/**
 	 * Maximum volume of room, including walls, floors and ceilings. An enclosed area bigger than this is considered outside.
 	 */
-	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL.value*MAX_SIZE_VERTICAL.value*MAX_SIZE_HORIZONTAL.value/3;
+	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL.getValue() * MAX_SIZE_VERTICAL.getValue() * MAX_SIZE_HORIZONTAL.getValue() /3;
 
 	public static final Set<Material> SOLID_FALSE_POSITIVES = SetUtils.setFromElements(
 			Material.OAK_SIGN,
@@ -140,21 +137,21 @@ public class RoomInfo implements Serializable {
 			}
 			minimumCorner.x = Math.min(minimumCorner.x, currBlock.x);
 			maximumCorner.x = Math.max(maximumCorner.x, currBlock.x);
-			if(maximumCorner.x - minimumCorner.x > MAX_SIZE_HORIZONTAL.value) {//room too big
+			if(maximumCorner.x - minimumCorner.x > MAX_SIZE_HORIZONTAL.getValue()) {//room too big
 				if(DEBUG_MODE)
 					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;
 			}
 			minimumCorner.y = (short)Math.min(minimumCorner.y, currBlock.y);
 			maximumCorner.y = (short)Math.max(maximumCorner.y, currBlock.y);
-			if(maximumCorner.y - minimumCorner.y > MAX_SIZE_VERTICAL.value) { //room too big
+			if(maximumCorner.y - minimumCorner.y > MAX_SIZE_VERTICAL.getValue()) { //room too big
 				if(DEBUG_MODE)
 					Bukkit.broadcastMessage("Height exceeded " + MAX_SIZE_VERTICAL + " at " + currBlock);
 				return null;
 			}
 			minimumCorner.z = Math.min(minimumCorner.z, currBlock.z);
 			maximumCorner.z = Math.max(maximumCorner.z, currBlock.z);
-			if(maximumCorner.z - minimumCorner.z > MAX_SIZE_HORIZONTAL.value) { //room too big
+			if(maximumCorner.z - minimumCorner.z > MAX_SIZE_HORIZONTAL.getValue()) { //room too big
 				if(DEBUG_MODE)
 					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;

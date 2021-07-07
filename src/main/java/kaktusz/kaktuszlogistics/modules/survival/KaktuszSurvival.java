@@ -7,8 +7,6 @@ import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.survival.commands.HouseSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking.SawmillWood;
-import kaktusz.kaktuszlogistics.modules.survival.world.housing.HouseSignBlock;
-import kaktusz.kaktuszlogistics.modules.survival.world.housing.PlaceableHouseSign;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.RoomInfo;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.SignEventListener;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
@@ -21,7 +19,6 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.BooleanOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.type.Slab;
 
 public class KaktuszSurvival implements KaktuszModule {
@@ -38,7 +35,7 @@ public class KaktuszSurvival implements KaktuszModule {
 		precalcSlabs();
 
 		//update config-based pseudoconstants
-		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.value*RoomInfo.MAX_SIZE_VERTICAL.value*RoomInfo.MAX_SIZE_HORIZONTAL.value/3;
+		RoomInfo.MAX_VOLUME = RoomInfo.MAX_SIZE_HORIZONTAL.getValue() * RoomInfo.MAX_SIZE_VERTICAL.getValue() * RoomInfo.MAX_SIZE_HORIZONTAL.getValue() /3;
 
 		//register event listeners
 		Bukkit.getPluginManager().registerEvents(new SignEventListener(), KaktuszLogistics.INSTANCE);

@@ -5,7 +5,6 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
@@ -157,9 +155,9 @@ public class VanillaUtils {
      * @param killMessage String that is formatted into the kill message. %k = killed entity, %s = damage source
      */
     private static void killEntity(LivingEntity entity, Entity source, String killMessage) {
-        if(entity instanceof Player && !ConfigManager.BROADCAST_PLAYER_KILLS.value)
+        if(entity instanceof Player && !ConfigManager.BROADCAST_PLAYER_KILLS.getValue())
             return;
-        else if(!ConfigManager.BROADCAST_NAMED_MOB_KILLS.value)
+        else if(!ConfigManager.BROADCAST_NAMED_MOB_KILLS.getValue())
             return;
 
         String killedName = entity.getCustomName();

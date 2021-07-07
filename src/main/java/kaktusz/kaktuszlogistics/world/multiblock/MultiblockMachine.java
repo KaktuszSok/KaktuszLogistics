@@ -10,8 +10,8 @@ import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.world.LabourConsumer;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -23,10 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +33,7 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
 /**
  * A core block of a multiblock structure, which can perform recipes
  */
-public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock {
+public abstract class MultiblockMachine extends MultiblockBlock implements TickingBlock, LabourConsumer {
 	private static final long serialVersionUID = 100L;
 
 	private static final SFXCollection DEFAULT_RECIPE_DONE_SOUND = new SFXCollection(
@@ -55,6 +52,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	private List<IRecipeInput> processingInputs = null;
 	private boolean halted = false; //aka paused
 	private int timeLeft = -1;
+	private boolean automationOn = true;
+	private final Set<BlockPosition> labourSuppliers = new HashSet<>();
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
@@ -100,8 +99,12 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 			}
 		}
 
-		if(!isProcessingRecipe()) //the rest of this function only needs to be ran if we're processing a recipe
-			return;
+		if(!isProcessingRecipe()) {
+			if(isAutomationOn() && VanillaUtils.getTickTime() % 400 == 0) {
+				tryStartProcessingByAutomation();
+			}
+			return; //the rest of this function only needs to be ran if we're processing a recipe
+		}
 
 		timeLeft--;
 		if(timeLeft < 0)
@@ -137,6 +140,10 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	public boolean isHalted() {
 		return halted;
+	}
+
+	public boolean isAutomationOn() {
+		return automationOn;
 	}
 
 	public IRecipeInput[] getCachedSupplies() {
@@ -194,6 +201,18 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		return currentRecipe;
 	}
 
+	/**
+	 * Tries to start the recipe through means of automation.
+	 * Checks if automation criteria are met.
+	 */
+	private void tryStartProcessingByAutomation() {
+		if(validateAndFixSupply())
+			tryStartProcessing();
+		else {
+			//TODO update GUI
+		}
+	}
+
 	@SuppressWarnings("UnusedReturnValue")
 	public boolean tryStartProcessing() {
 		if(!isStructureValid())
@@ -231,37 +250,42 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		//get the consumed inputs from when the recipe was started
 		List<IRecipeInput> processedInputs = getProcessingInputs();
 		setProcessingInputs(null); //clear inputs
-		if (processedInputs == null) return;
-		List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processedInputs.toArray(new IRecipeInput[0]));
-		if(outputs == null)
-			return;
+		if (processedInputs != null) {
+			Location location = getLocation();
+			List<? extends IRecipeOutput> outputs = recipe.getOutputsMatching(processedInputs.toArray(new IRecipeInput[0]));
+			if (outputs != null) {
+				HashMap<SpecialType, Integer> outputTypesCounter = new HashMap<>();
+				for (IRecipeOutput output : outputs) {
+					//get type of output block we're looking for
+					SpecialType type = output.getOutputBlockType();
+					//see if we cached the appropriate output blocks.
+					Set<BlockPosition> outputBlocksSet = specialBlocksCache.get(type);
+					if (outputBlocksSet == null) {
+						output.placeInWorld(location.getWorld(), new BlockPosition(location));
+						continue;
+					}
+					BlockPosition[] outputBlocks = outputBlocksSet.toArray(new BlockPosition[0]);
+					//see if we have a tally for how many outputs, that share the same output block type, we have outputted already
+					Integer counter = outputTypesCounter.get(type);
+					if (counter == null) {
+						counter = 0;
+					}
+					//determine the block we will put this output into based on the tally.
+					BlockPosition appropriateBlock = outputBlocks[counter % outputBlocks.length];
+					output.placeInWorld(location.getWorld(), appropriateBlock);
 
-		Location location = getLocation();
-		HashMap<SpecialType, Integer> outputTypesCounter = new HashMap<>();
-		for(IRecipeOutput output : outputs) {
-			//get type of output block we're looking for
-			SpecialType type = output.getOutputBlockType();
-			//see if we cached the appropriate output blocks.
-			Set<BlockPosition> outputBlocksSet = specialBlocksCache.get(type);
-			if(outputBlocksSet == null) {
-				output.placeInWorld(location.getWorld(), new BlockPosition(location));
-				continue;
+					counter++;
+					outputTypesCounter.put(type, counter);
+				}
 			}
-			BlockPosition[] outputBlocks = outputBlocksSet.toArray(new BlockPosition[0]);
-			//see if we have a tally for how many outputs, that share the same output block type, we have outputted already
-			Integer counter = outputTypesCounter.get(type);
-			if(counter == null) {
-				counter = 0;
-			}
-			//determine the block we will put this output into based on the tally.
-			BlockPosition appropriateBlock = outputBlocks[counter % outputBlocks.length];
-			output.placeInWorld(location.getWorld(), appropriateBlock);
-
-			counter++;
-			outputTypesCounter.put(type, counter);
+			getRecipeDoneSound().playAll(location);
 		}
-		getRecipeDoneSound().playAll(location);
+
+		//automation
+		if(isAutomationOn())
+			tryStartProcessingByAutomation();
 	}
+
 
 	/**
 	 * Abort the current recipe
@@ -285,6 +309,35 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	public void toggleProcessingPaused(boolean halt) {
 		halted = halt;
 		gui.update();
+	}
+
+	public void toggleAutomation() {
+		toggleAutomation(!automationOn);
+	}
+	public void toggleAutomation(boolean automate) {
+		automationOn = automate;
+		if(!automate) {
+			deregisterFromAllSuppliers();
+		}
+		else {
+			requestLabour();
+		}
+	}
+
+	//LABOUR
+	@Override
+	public Set<BlockPosition> getLabourSuppliers() {
+		return labourSuppliers;
+	}
+
+	@Override
+	public int getTier() {
+		return 1;
+	}
+
+	@Override
+	public double getRequiredLabour() {
+		return 8;
 	}
 
 	//HELPER

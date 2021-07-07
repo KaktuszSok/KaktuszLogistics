@@ -24,7 +24,7 @@ public class KaktuszWeaponry implements KaktuszModule {
 	public void initialise() {
 		INSTANCE = this;
 
-		PlayerContinuousShootingManager.INPUT_EVENTS_DELAY = INPUT_EVENTS_DELAY.value;
+		PlayerContinuousShootingManager.INPUT_EVENTS_DELAY = INPUT_EVENTS_DELAY.getValue();
 
 		initKeys();
 		initItems();

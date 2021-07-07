@@ -237,10 +237,10 @@ public class WorldEventsListener implements Listener {
     public void onBlockReceivedItem(InventoryMoveItemEvent e) {
         //block custom blocks from receiving items
         if(e.getDestination().getLocation() != null)
-            cancelCustomBlockEvent(getCustomBlockFromLocation(e.getDestination().getLocation()), e);
+            cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getDestination().getLocation()), e);
         //block extracting items from custom blocks
         if(!e.isCancelled() && e.getSource().getLocation() != null)
-            cancelCustomBlockEvent(getCustomBlockFromLocation(e.getSource().getLocation()), e);
+            cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getSource().getLocation()), e);
     }
 
     //General events that destroy (or otherwise mess up) our block
