@@ -42,17 +42,22 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	private transient MachineGUI gui;
 	/**
-	 * refreshes whenever gatherAllInputs() is called
+	 * Cache of available recipe supplies.
+	 * Refreshes whenever gatherAllInputs() is called.
 	 */
 	private transient IRecipeInput[] suppliesCache = null;
 	private transient MachineRecipe<?> currentRecipe = null;
+	/**
+	 * Stores the last result of validateAndFixSupply()
+	 */
+	private transient boolean labourReqMetLastCheck = false;
 	/**
 	 * The recipe inputs which we are currently processing
 	 */
 	private List<IRecipeInput> processingInputs = null;
 	private boolean halted = false; //aka paused
 	private int timeLeft = -1;
-	private boolean automationOn = true;
+	private boolean automationOn = false;
 	private final Set<BlockPosition> labourSuppliers = new HashSet<>();
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
@@ -100,8 +105,12 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		}
 
 		if(!isProcessingRecipe()) {
-			if(isAutomationOn() && VanillaUtils.getTickTime() % 400 == 0) {
-				tryStartProcessingByAutomation();
+			if(isAutomationOn() && getRecipe() != null) {
+				Location loc = getLocation();
+				int tickTimeOffset = loc.getBlockX() + loc.getBlockY() + loc.getBlockZ();
+				if ((VanillaUtils.getTickTime() + tickTimeOffset) % 400 == 0) {
+					tryStartProcessingByAutomation();
+				}
 			}
 			return; //the rest of this function only needs to be ran if we're processing a recipe
 		}
@@ -130,24 +139,50 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 
 	//GUI & INFO
+
+	/**
+	 * Get the material for the icon used to represent this machine in the GUI
+	 */
 	public abstract Material getGUIHeader();
 
+	/**
+	 * @return True if the machine is currently processing a recipe
+	 */
 	public boolean isProcessingRecipe() {
 		return processingInputs != null;
 	}
 
+	/**
+	 * @return The time until the current recipe is complete, or -1 if no recipe is being processed
+	 */
 	public int getTimeLeft() {
 		return timeLeft;
 	}
 
+	/**
+	 * @return True if the machine is halted
+	 */
 	public boolean isHalted() {
 		return halted;
 	}
 
+	/**
+	 * @return True if the machine will try to automate processing by use of nearby suppliers (i.e. labour)
+	 */
 	public boolean isAutomationOn() {
 		return automationOn;
 	}
 
+	/**
+	 * @return True if the last automation supply check was successful
+	 */
+	public boolean isAutomationSupplied() {
+		return labourReqMetLastCheck;
+	}
+
+	/**
+	 * Get the last result of available recipe supplies
+	 */
 	public IRecipeInput[] getCachedSupplies() {
 		return suppliesCache;
 	}
@@ -188,6 +223,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		gui.update();
 	}
 
+	/**
+	 * Set the recipe assigned to this machine
+	 */
 	public void setRecipe(MachineRecipe<?> recipe) {
 		if(recipe == getRecipe())
 			return;
@@ -205,22 +243,27 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		updateGUI();
 	}
 
+	/**
+	 * Get the recipe that this machine was assigned
+	 */
 	public MachineRecipe<?> getRecipe() {
 		return currentRecipe;
 	}
 
 	/**
-	 * Tries to start the recipe through means of automation.
+	 * Tries to start the recipe through means of automation, registering with suppliers if needed.
 	 * Checks if automation criteria are met.
 	 */
 	public void tryStartProcessingByAutomation() {
-		if(isAutomationOn() && validateAndFixSupply())
+		if(!halted && isAutomationOn() && isStructureValid() && getRecipe() != null && validateAndFixSupply()) {
 			tryStartProcessing();
-		else {
-			//TODO update GUI
 		}
+		gui.updateHeader();
 	}
 
+	/**
+	 * Try start processing the currently assigned recipe
+	 */
 	@SuppressWarnings("UnusedReturnValue")
 	public boolean tryStartProcessing() {
 		if(!isStructureValid())
@@ -242,6 +285,9 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		return true;
 	}
 
+	/**
+	 * Called when the current recipe completes
+	 */
 	protected void onProcessingFinished() {
 		if(!isStructureValid()) {
 			toggleProcessingPaused(true);
@@ -312,24 +358,32 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	}
 	/**
 	 * Pause/unpause processing of current recipe (aka halted/not halted)
-	 * @param halt True to pause , false to unpause
+	 * @param halt True to pause, false to unpause
 	 */
 	public void toggleProcessingPaused(boolean halt) {
 		halted = halt;
 		if(halt)
 			deregisterFromAllSuppliers();
+		else
+			tryStartProcessingByAutomation();
 		gui.update();
 	}
 
+	/**
+	 * Toggle whether the machine will try to use nearby suppliers (i.e. labour) to automate processing
+	 */
 	public void toggleAutomation() {
 		toggleAutomation(!automationOn);
 	}
+	/**
+	 * Toggle whether the machine will try to use nearby suppliers (i.e. labour) to automate processing
+	 */
 	public void toggleAutomation(boolean automate) {
 		automationOn = automate;
 		if(!automate) {
 			deregisterFromAllSuppliers();
 		}
-		else if(getRecipe() != null) {
+		else {
 			tryStartProcessingByAutomation();
 		}
 	}
@@ -350,11 +404,28 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		return 8;
 	}
 
+	@Override
+	public void onValidateSupplyFinished(boolean requirementsMet) {
+		labourReqMetLastCheck = requirementsMet;
+	}
+
+	@Override
+	public void deregisterFromAllSuppliers() {
+		LabourConsumer.super.deregisterFromAllSuppliers();
+		gui.updateHeader();
+	}
+
 	//HELPER
+
+	/**
+	 * Get the recipe inputs that were consumed for the current recipe (null if no recipe is being processed)
+	 */
 	protected List<IRecipeInput> getProcessingInputs() {
 		return processingInputs;
 	}
-
+	/**
+	 * Set the recipe inputs for the recipe currently being processed
+	 */
 	protected void setProcessingInputs(List<IRecipeInput> consumed) {
 		processingInputs = consumed;
 	}

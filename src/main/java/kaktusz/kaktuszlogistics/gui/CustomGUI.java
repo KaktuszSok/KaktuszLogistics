@@ -140,6 +140,8 @@ public abstract class CustomGUI {
 	}
 	@SuppressWarnings("ConstantConditions")
 	protected static void setLore(ItemStack stack, List<String> lore) {
+		if(stack == null)
+			return;
 		ItemMeta meta = stack.getItemMeta();
 		meta.setLore(lore);
 		stack.setItemMeta(meta);

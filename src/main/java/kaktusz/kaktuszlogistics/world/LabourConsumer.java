@@ -159,10 +159,18 @@ public interface LabourConsumer {
 			amountSupplied += amountFromSupplier;
 		}
 
-		if(amountSupplied == getRequiredLabour())
+		if(amountSupplied == getRequiredLabour()) {
+			onValidateSupplyFinished(true);
 			return true; //all is fine
+		}
 
-		return requestLabour(); //otherwise, fetch labour again
+		boolean success = requestLabour(); //otherwise, fetch labour again
+		onValidateSupplyFinished(success);
+		return success;
+	}
+
+	default void onValidateSupplyFinished(boolean requirementsMet) {
+
 	}
 
 	/**

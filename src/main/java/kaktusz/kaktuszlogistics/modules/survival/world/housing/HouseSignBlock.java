@@ -4,10 +4,7 @@ import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.modules.survival.KaktuszSurvival;
 import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import kaktusz.kaktuszlogistics.world.CustomBlock;
-import kaktusz.kaktuszlogistics.world.KLChunk;
-import kaktusz.kaktuszlogistics.world.KLWorld;
-import kaktusz.kaktuszlogistics.world.LabourSupplier;
+import kaktusz.kaktuszlogistics.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,6 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
@@ -82,6 +80,44 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
+		if(e.getPlayer().isSneaking()) {
+			double labourSupplied = 0;
+
+			KLWorld world = KLWorld.get(getLocation().getWorld());
+			StringBuilder consumersList = new StringBuilder();
+			for (Map.Entry<BlockPosition, Double> entry : new HashSet<>(getLabourConsumers().entrySet())) {
+				BlockPosition pos = entry.getKey();
+				CustomBlock block = world.getBlockAt(pos.x, pos.y, pos.z);
+				if(!(block instanceof LabourConsumer)) { //bad data
+					getLabourConsumers().remove(pos);
+					continue;
+				}
+				LabourConsumer consumer = (LabourConsumer) block;
+				labourSupplied += consumer.getRequiredLabour();
+				if(consumer.getTier() > getLabourTier() || labourSupplied > getLabourPerDay()) { //bad data
+					getLabourConsumers().remove(pos);
+					consumer.validateAndFixSupply();
+					labourSupplied -= consumer.getRequiredLabour();
+				}
+				consumersList.append("\n - ")
+						.append(StringUtils.formatDouble(entry.getValue())) //labour/day
+						.append(" labour/day (T").append(consumer.getTier()) //labour tier
+						.append(") to ").append(block.getType().item.displayName) //name
+						.append(" at ").append(entry.getKey()); //position
+			}
+			int consumerAmt = getLabourConsumers().size();
+			if(consumerAmt > 0) {
+				String messageHeader =
+						ChatColor.GRAY + "This house provides " + StringUtils.formatDouble(labourSupplied)
+								+ " labour/day to " + consumerAmt + (consumerAmt == 1 ? " consumer:" : " consumers:");
+				e.getPlayer().sendMessage(messageHeader + consumersList);
+			} else {
+				e.getPlayer().sendMessage(ChatColor.GRAY + "This house is not providing labour to any consumers.");
+			}
+			refreshText(false);
+			return;
+		}
+
 		refreshText(true);
 
 		if(houseInfoCache == null) {
@@ -98,10 +134,9 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 	 * Checks if the house is valid and updates the houseInfoCache and sign text accordingly
 	 */
 	private void recheckHouse() {
-		setHouseInfoCache(null);
-
 		Sign state = getState();
 		if(state == null) { //not valid sign
+			setHouseInfoCache(null);
 			update();
 			return;
 		}
@@ -140,6 +175,9 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 			deregisterAsLabourSupplier(signChunk, selfPos);
 			return;
 		}
+		if(getTotalLabourSupplied() > getLabourPerDay()) { //(momentarily) de-register if new labour supply is lower than demand
+			deregisterAsLabourSupplier(signChunk, selfPos);
+		}
 		registerAsLabourSupplier(signChunk, selfPos);
 
 		//pop off any intersecting house signs
@@ -165,8 +203,11 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 
 		//claim door:
 		BlockPosition door = getDoor();
-		if(door == null)
-			return; //shouldn't ever happen since houseInfoCache is not null
+		if(door == null) { //shouldn't ever happen since houseInfoCache is not null
+			breakBlock(true);
+			KaktuszLogistics.LOGGER.warning("Could not find door for house sign w/ valid house. This should never happen.");
+			return;
+		}
 
 		KLChunk doorChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(door.x), VanillaUtils.blockToChunkCoord(door.z));
 		HashMap<BlockPosition, BlockPosition> houseDoors = doorChunk.getExtraData("houseDoors");

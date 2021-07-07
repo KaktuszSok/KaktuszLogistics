@@ -56,6 +56,15 @@ public interface LabourSupplier {
 		chunk.removeFromExtraDataSet("labourSuppliers", selfPos); //deregister from chunk
 		//remove all consumers
 		Map<BlockPosition, Double> consumers = getLabourConsumers();
+		for(BlockPosition consumerPos : consumers.keySet()) {
+			CustomBlock block = chunk.world.getBlockAt(consumerPos.x, consumerPos.y, consumerPos.z);
+			if(!(block instanceof LabourConsumer))
+				continue;
+			LabourConsumer consumer = (LabourConsumer) block;
+			consumer.getLabourSuppliers().remove(selfPos);
+			consumer.validateAndFixSupply();
+		}
+		consumers.clear();
 	}
 
 	default double getTotalLabourSupplied() {

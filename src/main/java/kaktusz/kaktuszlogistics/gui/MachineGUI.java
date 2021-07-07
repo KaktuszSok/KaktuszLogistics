@@ -37,8 +37,9 @@ public class MachineGUI extends InteractableGUI {
 		//top middle
 		ItemStack header = new ItemStack(machine.getGUIHeader(), 1);
 		setName(header, machine.getName());
-		setLore(header, machine.getLore());
-		setSlot(0, 4, header);
+		GUIButton headerButton = new GUIButton()
+				.setLeftClickAction(x -> machine.toggleAutomation());
+		addButton(0, 4, headerButton, header);
 
 		//progress bar and recipe
 		GUIButton progressButton = new GUIButton()
@@ -60,13 +61,44 @@ public class MachineGUI extends InteractableGUI {
 				.setRightClickAction(v -> new RecipeListGUI(this).open(v, this));
 		addButton(1, INVENTORY_WIDTH-2, recipeButton, new ItemStack(Material.BARRIER));
 
-		//update visuals for progress bar and recipe
+		//update visuals for header, progress bar and recipe
+		updateHeader();
 		update();
+	}
+
+	public void updateHeader() {
+		ItemStack header = getItemInSlot(0, 4);
+		List<String> lore = new ArrayList<>();
+		ChatColor automationColour;
+		ChatColor normalColour = ChatColor.GRAY;
+		ChatColor labelColour;
+		if(machine.isHalted() || machine.getRecipe() == null) {
+			automationColour = machine.isAutomationOn() ? ChatColor.BLUE : ChatColor.DARK_GRAY;
+			labelColour = ChatColor.BLUE;
+		}
+		else {
+			if (!machine.isAutomationOn()) {
+				automationColour = ChatColor.DARK_GRAY;
+				labelColour = ChatColor.BLUE;
+			} else {
+				automationColour = machine.isAutomationSupplied() ? ChatColor.GREEN : ChatColor.RED;
+				labelColour = machine.isAutomationSupplied() ? ChatColor.BLUE : ChatColor.RED;
+			}
+		}
+		String automationString = automationColour.toString() + ChatColor.BOLD + "Automation" + ChatColor.GRAY + " requires:";
+		lore.add(automationString);
+		lore.add(normalColour + " - " + labelColour + "Labour Tier " + normalColour + machine.getTier());
+		lore.add(normalColour + " - " + machine.getRequiredLabour() + labelColour + " Labour/day");
+		List<String> machineLore = machine.getLore();
+		if(machineLore != null)
+			lore.addAll(machineLore);
+		setLore(header, lore);
 	}
 
 	public void update() {
 		MachineRecipe<?> recipe = machine.getRecipe();
 
+		//recipe
 		ItemStack recipeIcon;
 		if(recipe == null) {
 			recipeIcon = new ItemStack(Material.PAINTING);
@@ -96,6 +128,7 @@ public class MachineGUI extends InteractableGUI {
 		}
 		setSlot(1, INVENTORY_WIDTH-2, recipeIcon);
 
+		//progress bar
 		final int progressBarLength = INVENTORY_WIDTH-3; //from column # 1 to INVENTORY_WIDTH-3 (9 - 3 = 6: 1,2,3,4,5,6)
 		double progressPercent = 0;
 		int filledProgressSlots = 0;
@@ -128,6 +161,8 @@ public class MachineGUI extends InteractableGUI {
 
 		for(int c = 1; c <= progressBarLength; c++) {
 			ItemStack progressBar = getItemInSlot(1,c);
+			if(progressBar == null) //for whatever reason this happened once?
+				continue;
 			if(c <= filledProgressSlots) {
 				progressBar.setType(machine.isHalted() ? Material.BLUE_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE);
 			} else {
