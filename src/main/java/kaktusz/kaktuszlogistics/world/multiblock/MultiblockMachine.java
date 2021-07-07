@@ -10,13 +10,13 @@ import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.LabourConsumer;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -119,12 +119,14 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	@Override
 	protected void onVerificationFailed() {
 		gui.forceClose();
+		deregisterFromAllSuppliers();
 	}
 
 	@Override
-	public void breakBlock(boolean dropItem, boolean playVanillaSound, Player playerWhoMined) {
-		super.breakBlock(dropItem, playVanillaSound, playerWhoMined);
+	public void onRemoved(KLWorld world, int x, int y, int z) {
+		super.onRemoved(world, x, y, z);
 		gui.forceClose();
+		deregisterFromAllSuppliers();
 	}
 
 	//GUI & INFO
@@ -192,6 +194,12 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		abortProcessing(); //stop current recipe
 
 		currentRecipe = recipe;
+		if(isAutomationOn()) {
+			if(recipe != null)
+				tryStartProcessingByAutomation();
+			else
+				deregisterFromAllSuppliers();
+		}
 
 		gatherAllInputs(); //update supplies cache so that GUI is up-to-date
 		updateGUI();
@@ -205,8 +213,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 * Tries to start the recipe through means of automation.
 	 * Checks if automation criteria are met.
 	 */
-	private void tryStartProcessingByAutomation() {
-		if(validateAndFixSupply())
+	public void tryStartProcessingByAutomation() {
+		if(isAutomationOn() && validateAndFixSupply())
 			tryStartProcessing();
 		else {
 			//TODO update GUI
@@ -308,6 +316,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	public void toggleProcessingPaused(boolean halt) {
 		halted = halt;
+		if(halt)
+			deregisterFromAllSuppliers();
 		gui.update();
 	}
 
@@ -319,8 +329,8 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		if(!automate) {
 			deregisterFromAllSuppliers();
 		}
-		else {
-			requestLabour();
+		else if(getRecipe() != null) {
+			tryStartProcessingByAutomation();
 		}
 	}
 

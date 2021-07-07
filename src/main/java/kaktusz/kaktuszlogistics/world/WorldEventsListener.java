@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -236,8 +237,16 @@ public class WorldEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockReceivedItem(InventoryMoveItemEvent e) {
         //block custom blocks from receiving items
-        if(e.getDestination().getLocation() != null)
-            cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getDestination().getLocation()), e);
+        Location destLocation = e.getDestination().getLocation();
+        if(destLocation != null)
+            if(!cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(destLocation), e)) {
+                //update multiblock machines when an item enters one of their inventories
+                CustomBlock multiblock = getMultiblockFromLocation(e.getDestination().getLocation(), KLWorld.get(destLocation.getWorld()));
+                if(multiblock instanceof MultiblockMachine) {
+                    MultiblockMachine machine = (MultiblockMachine) multiblock;
+                    machine.tryStartProcessingByAutomation(); //might cause lag?
+                }
+            }
         //block extracting items from custom blocks
         if(!e.isCancelled() && e.getSource().getLocation() != null)
             cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getSource().getLocation()), e);
