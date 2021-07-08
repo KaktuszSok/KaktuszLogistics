@@ -1,5 +1,6 @@
 package kaktusz.kaktuszlogistics.world.multiblock;
 
+import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.gui.MachineGUI;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
@@ -7,18 +8,20 @@ import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
 import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
+import kaktusz.kaktuszlogistics.util.MathsUtils;
+import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.LabourConsumer;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,6 +42,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	private static final SFXCollection DEFAULT_RECIPE_DONE_SOUND = new SFXCollection(
 			new SoundEffect(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f)
 	);
+	private static final double CHILD_LABOUR_CHANCE = 0.1;
 
 	private transient MachineGUI gui;
 	/**
@@ -47,18 +51,21 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	private transient IRecipeInput[] suppliesCache = null;
 	private transient MachineRecipe<?> currentRecipe = null;
-	/**
-	 * Stores the last result of validateAndFixSupply()
-	 */
-	private transient boolean labourReqMetLastCheck = false;
-	/**
+		/**
 	 * The recipe inputs which we are currently processing
 	 */
 	private List<IRecipeInput> processingInputs = null;
 	private boolean halted = false; //aka paused
 	private int timeLeft = -1;
 	private boolean automationOn = false;
+	/**
+	 * Stores the last result of validateAndFixSupply()
+	 */
+	private boolean labourReqMetLastCheck = false;
 	private final Set<BlockPosition> labourSuppliers = new HashSet<>();
+	//labour display:
+	private transient LivingEntity labourerEntity = null;
+	private UUID labourerUUID = null;
 
 	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
@@ -92,7 +99,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	@Override
 	public void onTick() {
-		if(halted)
+		if(halted || !isStructureValid_cached())
 			return;
 
 		boolean shouldUpdateGUI = gui.hasViewers();
@@ -138,7 +145,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		deregisterFromAllSuppliers();
 	}
 
-	//GUI & INFO
+	//DISPLAY & INFO
 
 	/**
 	 * Get the material for the icon used to represent this machine in the GUI
@@ -203,8 +210,21 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	protected abstract List<String> getSupportedRecipePrefixes();
 
-	protected SFXCollection getRecipeDoneSound() {
+	protected SFXCollection getRecipeDoneSound(MachineRecipe<?> recipe) {
 		return DEFAULT_RECIPE_DONE_SOUND;
+	}
+
+	protected BlockData getRecipeDoneParticlesData(MachineRecipe<?> recipe) {
+		return getLocation().getBlock().getBlockData();
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	protected void playRecipeDoneEffect(MachineRecipe<?> recipe) {
+		SFXCollection sfx = getRecipeDoneSound(recipe);
+		if(sfx != null)
+			sfx.playAll(getLocation());
+		getLocation().getWorld().spawnParticle(Particle.BLOCK_CRACK, getLocation().clone().add(0.5d,0.5d,0.5d),
+				5,0.25d,0.25d,0.25d, getRecipeDoneParticlesData(recipe));
 	}
 
 	//ACTIONS
@@ -290,6 +310,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	protected void onProcessingFinished() {
 		if(!isStructureValid()) {
+			Bukkit.broadcastMessage("oops!");
 			toggleProcessingPaused(true);
 			setProcessingInputs(null);
 			return;
@@ -332,7 +353,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 					outputTypesCounter.put(type, counter);
 				}
 			}
-			getRecipeDoneSound().playAll(location);
+			playRecipeDoneEffect(recipe);
 		}
 
 		//automation
@@ -361,6 +382,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 * @param halt True to pause, false to unpause
 	 */
 	public void toggleProcessingPaused(boolean halt) {
+		Bukkit.broadcastMessage("paused: " + halt);
 		halted = halt;
 		if(halt)
 			deregisterFromAllSuppliers();
@@ -406,13 +428,91 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 
 	@Override
 	public void onValidateSupplyFinished(boolean requirementsMet) {
+
+		if(requirementsMet) {
+			LivingEntity labourer = getLabourerEntity();
+			if(labourer == null)
+				labourer = spawnLabourerEntity();
+			//TODO colours
+			labourer.setCustomName(ChatColor.GRAY +
+					"[Using " + StringUtils.formatDouble(getRequiredLabour()) + " labour/day]");
+		}
+		else
+			despawnLabourerEntity();
 		labourReqMetLastCheck = requirementsMet;
 	}
 
 	@Override
 	public void deregisterFromAllSuppliers() {
 		LabourConsumer.super.deregisterFromAllSuppliers();
+		despawnLabourerEntity();
 		gui.updateHeader();
+	}
+
+	/**
+	 * Spawns an entity representing the labourer working this machine.
+	 * Updates the labourer entity reference and UUID to the newly spawned entity.
+	 * @return The new value of the labourer entity reference
+	 */
+	protected LivingEntity spawnLabourerEntity() {
+		//TODO entity location dictated by special block decorator
+		Location entityLocation = getLocation().clone().add(getFacing().getDirection());
+		entityLocation.setDirection(getFacing().getOppositeFace().getDirection());
+		entityLocation.add(0.5d, 0.0d, 0.5d);
+		@SuppressWarnings("ConstantConditions")
+		LivingEntity labourer = (LivingEntity) getLocation().getWorld().spawnEntity(entityLocation, EntityType.VILLAGER);
+		labourer.setCustomNameVisible(true);
+		labourer.setInvulnerable(true);
+		labourer.setPersistent(true);
+		labourer.setAI(false);
+		if(MathsUtils.rollChance100(CHILD_LABOUR_CHANCE) && labourer instanceof Ageable) {
+			((Ageable)labourer).setBaby();
+		}
+		//look at machine
+		Vector lookDir = getLocation().clone().add(0.5d, 0.0d, 0.5d).toVector()
+				.subtract(labourer.getEyeLocation().toVector());
+		entityLocation.setDirection(lookDir);
+		Bukkit.getScheduler().runTaskLater(KaktuszLogistics.INSTANCE, ()->labourer.teleport(entityLocation), 2);
+
+		labourerEntity = labourer;
+		labourerUUID = labourer.getUniqueId();
+
+		return labourer;
+	}
+
+	/**
+	 * Despawns the labourer entity (if it exists) and clears the cached reference and UUID
+	 */
+	protected void despawnLabourerEntity() {
+		Entity labourer = getLabourerEntity();
+		if(labourer != null)
+			labourer.remove();
+		labourerEntity = null;
+		labourerUUID = null;
+	}
+
+	/**
+	 * Returns the cached labourer entity or, if it's null, tries to find it using the saved UUID.
+	 * Updates the labourer entity reference if it was null.
+	 * @return The new value of the labourer entity reference
+	 */
+	protected LivingEntity getLabourerEntity() {
+		//try use cached reference
+		if(labourerEntity != null) {
+			if(!labourerEntity.isValid())
+				labourerEntity = null;
+			else
+				return labourerEntity;
+		}
+
+		//resort to UUID
+		if(labourerUUID == null)
+			return null;
+
+		Entity foundEntity = Bukkit.getEntity(labourerUUID);
+		if(!(foundEntity instanceof LivingEntity))
+			return null;
+		return labourerEntity = (LivingEntity) foundEntity;
 	}
 
 	//HELPER

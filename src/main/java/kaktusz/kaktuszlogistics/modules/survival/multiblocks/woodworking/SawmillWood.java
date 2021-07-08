@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
 import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
 import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
 import kaktusz.kaktuszlogistics.util.ListUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
@@ -14,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,9 +25,10 @@ import java.util.List;
 public class SawmillWood extends MultiblockMachine {
 	private static final long serialVersionUID = 100L;
 
-	public static final SFXCollection RECIPE_DONE_SOUND = new SFXCollection(
+	private static final SFXCollection RECIPE_DONE_SOUND = new SFXCollection(
 			new SoundEffect(Sound.BLOCK_WOOD_BREAK, 0.5f, 0.5f, 1.4f, 1.6f)
 	);
+	private static final BlockData RECIPE_DONE_PARTICLE_DATA = Material.OAK_PLANKS.createBlockData();
 
 	public SawmillWood(Multiblock property, Location location, ItemMeta meta) {
 		super(property, location, meta);
@@ -54,8 +57,13 @@ public class SawmillWood extends MultiblockMachine {
 	}
 
 	@Override
-	protected SFXCollection getRecipeDoneSound() {
+	protected SFXCollection getRecipeDoneSound(MachineRecipe<?> recipe) {
 		return RECIPE_DONE_SOUND;
+	}
+
+	@Override
+	protected BlockData getRecipeDoneParticlesData(MachineRecipe<?> recipe) {
+		return RECIPE_DONE_PARTICLE_DATA;
 	}
 
 	@Override

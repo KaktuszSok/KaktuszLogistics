@@ -2,19 +2,18 @@ package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -152,6 +151,7 @@ public class CustomBlock implements Serializable {
         if(playVanillaSound) {
             VanillaUtils.playVanillaBreakSound(b, playerWhoMined);
         }
+        //TODO play block break particles for other players
 
         //remove block
         b.setType(Material.AIR); //clear physical block

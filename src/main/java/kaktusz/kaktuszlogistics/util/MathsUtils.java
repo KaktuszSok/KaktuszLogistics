@@ -5,6 +5,7 @@ import org.bukkit.util.Vector;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class MathsUtils {
@@ -43,6 +44,34 @@ public class MathsUtils {
 
     public static float randomRange(float min, float max) {
         return min + RandomUtils.nextFloat()*(max-min);
+    }
+    public static double randomRange(double min, double max) {
+        return min + RandomUtils.nextDouble()*(max-min);
+    }
+
+    /**
+     * @param chance The chance to get "true", between 0 and 1
+     * @return True or false based on the chance
+     */
+    public static boolean rollChanceFraction(double chance) {
+        return rollChance100(chance*100d);
+    }
+    /**
+     * @param chance The percent chance to get "true", out of 100
+     * @return True or false based on the chance
+     */
+    public static boolean rollChance100(double chance) {
+        if(chance >= 100)
+            return true;
+        return randomRange(0, 100d) < chance;
+    }
+
+    public static <T> T chooseRandom(List<T> possibilities) {
+        return possibilities.get(RandomUtils.nextInt(possibilities.size()));
+    }
+    @SafeVarargs
+    public static <T> T chooseRandom(T... possibilities) {
+        return possibilities[RandomUtils.nextInt(possibilities.length)];
     }
 
     //VECTORS

@@ -165,6 +165,14 @@ public class MultiblockBlock extends DurableBlock {
 		return structureValidCache = reverifyStructure();
 	}
 
+	/**
+	 * Checks if the multiblock structure was valid last time reverifyStructure() was called.
+	 * Unlike isStructureValid(), it will not try to reverify the structure if the cached validity is false.
+	 */
+	public boolean isStructureValid_cached() {
+		return structureValidCache;
+	}
+
 	public BlockAABB getAABB() {
 		if(aabbCache != null)
 			return aabbCache;

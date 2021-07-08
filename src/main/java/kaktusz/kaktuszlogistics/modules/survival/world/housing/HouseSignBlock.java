@@ -14,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -80,40 +81,8 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
-		if(e.getPlayer().isSneaking()) {
-			double labourSupplied = 0;
-
-			KLWorld world = KLWorld.get(getLocation().getWorld());
-			StringBuilder consumersList = new StringBuilder();
-			for (Map.Entry<BlockPosition, Double> entry : new HashSet<>(getLabourConsumers().entrySet())) {
-				BlockPosition pos = entry.getKey();
-				CustomBlock block = world.getBlockAt(pos.x, pos.y, pos.z);
-				if(!(block instanceof LabourConsumer)) { //bad data
-					getLabourConsumers().remove(pos);
-					continue;
-				}
-				LabourConsumer consumer = (LabourConsumer) block;
-				labourSupplied += consumer.getRequiredLabour();
-				if(consumer.getTier() > getLabourTier() || labourSupplied > getLabourPerDay()) { //bad data
-					getLabourConsumers().remove(pos);
-					consumer.validateAndFixSupply();
-					labourSupplied -= consumer.getRequiredLabour();
-				}
-				consumersList.append("\n - ")
-						.append(StringUtils.formatDouble(entry.getValue())) //labour/day
-						.append(" labour/day (T").append(consumer.getTier()) //labour tier
-						.append(") to ").append(block.getType().item.displayName) //name
-						.append(" at ").append(entry.getKey()); //position
-			}
-			int consumerAmt = getLabourConsumers().size();
-			if(consumerAmt > 0) {
-				String messageHeader =
-						ChatColor.GRAY + "This house provides " + StringUtils.formatDouble(labourSupplied)
-								+ " labour/day to " + consumerAmt + (consumerAmt == 1 ? " consumer:" : " consumers:");
-				e.getPlayer().sendMessage(messageHeader + consumersList);
-			} else {
-				e.getPlayer().sendMessage(ChatColor.GRAY + "This house is not providing labour to any consumers.");
-			}
+		if(e.getPlayer().isSneaking()) { //labour summary
+			sendLabourSummary(e.getPlayer());
 			refreshText(false);
 			return;
 		}
@@ -409,5 +378,41 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 		state.setLine(2, "");
 		state.setLine(3, "");
 		state.update(false, false);
+	}
+
+	private void sendLabourSummary(Player player) { //TODO colours
+		double labourSupplied = 0;
+
+		KLWorld world = KLWorld.get(getLocation().getWorld());
+		StringBuilder consumersList = new StringBuilder();
+		for (Map.Entry<BlockPosition, Double> entry : new HashSet<>(getLabourConsumers().entrySet())) {
+			BlockPosition pos = entry.getKey();
+			CustomBlock block = world.getBlockAt(pos.x, pos.y, pos.z);
+			if(!(block instanceof LabourConsumer)) { //bad data
+				getLabourConsumers().remove(pos);
+				continue;
+			}
+			LabourConsumer consumer = (LabourConsumer) block;
+			labourSupplied += consumer.getRequiredLabour();
+			if(consumer.getTier() > getLabourTier() || labourSupplied > getLabourPerDay()) { //bad data
+				getLabourConsumers().remove(pos);
+				consumer.validateAndFixSupply();
+				labourSupplied -= consumer.getRequiredLabour();
+			}
+			consumersList.append("\n - ")
+					.append(StringUtils.formatDouble(entry.getValue())) //labour/day
+					.append(" labour/day (T").append(consumer.getTier()) //labour tier
+					.append(") to ").append(block.getType().item.displayName) //name
+					.append(" at ").append(entry.getKey()); //position
+		}
+		int consumerAmt = getLabourConsumers().size();
+		if(consumerAmt > 0) {
+			String messageHeader =
+					ChatColor.GRAY + "This house provides " + StringUtils.formatDouble(labourSupplied)
+							+ " labour/day to " + consumerAmt + (consumerAmt == 1 ? " consumer:" : " consumers:");
+			player.sendMessage(messageHeader + consumersList);
+		} else {
+			player.sendMessage(ChatColor.GRAY + "This house is not providing labour to any consumers.");
+		}
 	}
 }

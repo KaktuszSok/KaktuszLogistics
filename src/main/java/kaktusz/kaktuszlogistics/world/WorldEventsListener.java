@@ -13,12 +13,14 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class WorldEventsListener implements Listener {
     public void onChunkUnloaded(ChunkUnloadEvent e) {
         KLWorld world = KLWorld.get(e.getWorld());
         Chunk c = e.getChunk();
-        KLChunk chunk = world.getChunkAt(c.getX(), c.getZ());
+        KLChunk chunk = world.getLoadedChunkAt(c.getX(), c.getZ());
 
         if(chunk != null)
             chunk.onChunkUnloaded(e);
@@ -130,7 +132,7 @@ public class WorldEventsListener implements Listener {
         return null;
     }
     private static MultiblockBlock getMultiblockFromLocation(Location loc, KLWorld world) {
-        KLChunk chunk = world.getChunkAt(blockToChunkCoord(loc.getBlockX()), blockToChunkCoord(loc.getBlockZ()));
+        KLChunk chunk = world.getLoadedChunkAt(blockToChunkCoord(loc.getBlockX()), blockToChunkCoord(loc.getBlockZ()));
         if(chunk != null) {
             Set<BlockPosition> multiblocks = chunk.getExtraData("multiblocks");
             if(multiblocks != null) {
@@ -240,16 +242,28 @@ public class WorldEventsListener implements Listener {
         Location destLocation = e.getDestination().getLocation();
         if(destLocation != null)
             if(!cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(destLocation), e)) {
-                //update multiblock machines when an item enters one of their inventories
-                CustomBlock multiblock = getMultiblockFromLocation(e.getDestination().getLocation(), KLWorld.get(destLocation.getWorld()));
-                if(multiblock instanceof MultiblockMachine) {
-                    MultiblockMachine machine = (MultiblockMachine) multiblock;
-                    machine.tryStartProcessingByAutomation(); //might cause lag?
-                }
+                onInventoryReceivedItem(e.getDestination());
             }
         //block extracting items from custom blocks
         if(!e.isCancelled() && e.getSource().getLocation() != null)
             cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getSource().getLocation()), e);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerCloseInventory(InventoryCloseEvent e) {
+        onInventoryReceivedItem(e.getInventory());
+    }
+
+    private void onInventoryReceivedItem(Inventory inventory) {
+        if(inventory.getLocation() == null)
+            return;
+        //update multiblock machines when an item enters one of their inventories
+        CustomBlock multiblock = getMultiblockFromLocation(inventory.getLocation(), KLWorld.get(inventory.getLocation().getWorld()));
+        if(multiblock instanceof MultiblockMachine) {
+            MultiblockMachine machine = (MultiblockMachine) multiblock;
+            if(machine.isStructureValid_cached())
+                machine.tryStartProcessingByAutomation();
+        }
     }
 
     //General events that destroy (or otherwise mess up) our block
