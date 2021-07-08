@@ -261,7 +261,7 @@ public class WorldEventsListener implements Listener {
         CustomBlock multiblock = getMultiblockFromLocation(inventory.getLocation(), KLWorld.get(inventory.getLocation().getWorld()));
         if(multiblock instanceof MultiblockMachine) {
             MultiblockMachine machine = (MultiblockMachine) multiblock;
-            if(machine.isStructureValid_cached())
+            if(machine.isStructureValid_cached() && !machine.isProcessingRecipe())
                 machine.tryStartProcessingByAutomation();
         }
     }
