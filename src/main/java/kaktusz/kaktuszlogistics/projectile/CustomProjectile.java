@@ -39,7 +39,7 @@ public abstract class CustomProjectile {
 	//POSITION
 	private final World world;
 	private Vector pos;
-	@SuppressWarnings("FieldMayBeFinal") //kinda misleading to label it final
+	@SuppressWarnings({"FieldMayBeFinal", "CanBeFinal"}) //kinda misleading to label it final
 	private Vector vel;
 
 	//STATE
@@ -212,6 +212,7 @@ public abstract class CustomProjectile {
 	/**
 	 * @return True if the physicsStep should cease
 	 */
+	@SuppressWarnings("unused")
 	protected boolean onCollideEntity(RayTraceResult hit, Entity entity) {
 		destroy();
 		return true;

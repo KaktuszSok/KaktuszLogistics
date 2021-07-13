@@ -1,12 +1,10 @@
 package kaktusz.kaktuszlogistics.recipe.ingredients;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.util.ListUtils;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.Set;
 
 public class CustomItemIngredient extends ItemIngredient {

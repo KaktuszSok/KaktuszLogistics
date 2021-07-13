@@ -14,6 +14,7 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
+@SuppressWarnings("UnusedReturnValue")
 public abstract class AmmoContainer extends ItemProperty {
 
 	public static NamespacedKey AMMO_CONTAINER_KEY;
@@ -108,5 +109,6 @@ public abstract class AmmoContainer extends ItemProperty {
 	}
 
 	//ACTIONS
+	@SuppressWarnings("unused")
 	public abstract CustomProjectile spawnProjectile(AmmoContainerNBT ammoContainerData, World world, Vector pos, Vector vel);
 }

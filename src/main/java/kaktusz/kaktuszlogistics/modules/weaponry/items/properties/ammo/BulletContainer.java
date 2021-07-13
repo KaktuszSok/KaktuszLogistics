@@ -13,6 +13,7 @@ public class BulletContainer extends AmmoContainer {
 	private float damage = 3f;
 	private float velocityMultiplier = 1f;
 
+	@SuppressWarnings("unused")
 	public enum BulletType implements AmmoType {
 		PISTOL_9mm("9mm Standard Pistol Round"),
 		RIFLE_7_62x39mm("7.62x39mm Standard Rifle Round");

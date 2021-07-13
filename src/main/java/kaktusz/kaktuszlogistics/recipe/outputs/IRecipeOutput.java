@@ -10,5 +10,6 @@ public interface IRecipeOutput {
 	/**
 	 * @return The blocks this output should be outputted into
 	 */
+	@SuppressWarnings("SameReturnValue")
 	DecoratorSpecialBlock.SpecialType getOutputBlockType();
 }

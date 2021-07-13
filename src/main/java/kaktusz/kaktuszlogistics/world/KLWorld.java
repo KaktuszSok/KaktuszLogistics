@@ -4,9 +4,8 @@ import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.World;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KLWorld {
 
@@ -14,8 +13,8 @@ public class KLWorld {
      * Represents the position of a chunk in the world
      */
     public static class ChunkCoordinate {
-        public int chunkX;
-        public int chunkZ;
+        public final int chunkX;
+        public final int chunkZ;
 
         public ChunkCoordinate(int chunkX, int chunkZ) {
             this.chunkX = chunkX;
@@ -39,7 +38,8 @@ public class KLWorld {
     public static final Map<World, KLWorld> loadedWorlds = new HashMap<>();
 
     public final World world;
-    public final Map<ChunkCoordinate, KLChunk> loadedChunks = new HashMap<>();
+    private final Map<ChunkCoordinate, KLChunk> loadedChunks = new ConcurrentHashMap<>();
+    private final Queue<Runnable> endOfTickQueue = new LinkedList<>();
 
     //WORLD
     public KLWorld(World world) {
@@ -175,6 +175,13 @@ public class KLWorld {
         for (KLChunk chunk : loadedChunks.values()) {
             chunk.onTick();
         }
+        while (!endOfTickQueue.isEmpty()) {
+            endOfTickQueue.poll().run();
+        }
+    }
+
+    public void runAtEndOfTick(Runnable r) {
+        endOfTickQueue.add(r);
     }
 
     //HELPER

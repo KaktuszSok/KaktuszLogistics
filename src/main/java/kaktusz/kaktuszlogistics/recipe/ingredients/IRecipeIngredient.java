@@ -1,10 +1,6 @@
 package kaktusz.kaktuszlogistics.recipe.ingredients;
 
-import kaktusz.kaktuszlogistics.recipe.CustomRecipe;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
-
-import java.util.Map;
-import java.util.stream.Stream;
 
 public interface IRecipeIngredient {
 

@@ -11,8 +11,7 @@ import java.util.*;
 
 public class KLCommand implements CommandExecutor, TabCompleter {
 
-    @SuppressWarnings("FieldMayBeFinal")
-    private static Map<String, Subcommand> SUBCOMMANDS = new HashMap<>();
+    private static final Map<String, Subcommand> SUBCOMMANDS = new HashMap<>();
     public static final String COMMAND_NAME = "kl";
 
     public static void registerSubcommand(Subcommand sub) {

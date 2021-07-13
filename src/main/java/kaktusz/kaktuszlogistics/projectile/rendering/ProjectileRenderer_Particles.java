@@ -18,7 +18,7 @@ public class ProjectileRenderer_Particles extends ProjectileRenderer<CustomProje
 	private Particle impactParticle = Particle.CRIT;
 	private int impactParticleAmount = 3;
 
-	private double accumOffset = 0f;
+	private double accumOffset;
 
 	//SETUP
 	public ProjectileRenderer_Particles(CustomProjectile projectile) {

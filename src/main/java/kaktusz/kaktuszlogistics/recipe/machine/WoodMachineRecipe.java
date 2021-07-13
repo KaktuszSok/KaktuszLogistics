@@ -5,7 +5,6 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.WoodIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 import kaktusz.kaktuszlogistics.recipe.outputs.WoodOutput;
-import org.bukkit.Bukkit;
 
 import java.util.List;
 

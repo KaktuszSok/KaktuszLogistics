@@ -2,14 +2,10 @@ package kaktusz.kaktuszlogistics.commands;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GiveSubcommand extends Subcommand {
     public GiveSubcommand(String name) {

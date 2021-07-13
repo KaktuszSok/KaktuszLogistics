@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 
 public class TieredMetallic extends ItemQuality {
 

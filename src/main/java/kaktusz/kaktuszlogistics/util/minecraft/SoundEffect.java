@@ -2,8 +2,6 @@ package kaktusz.kaktuszlogistics.util.minecraft;
 
 import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 public class SoundEffect {
 

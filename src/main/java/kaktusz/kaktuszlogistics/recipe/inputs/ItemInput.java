@@ -6,8 +6,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -72,10 +70,19 @@ public class ItemInput implements IRecipeInput {
 		Block block = world.getBlockAt(position.x, position.y, position.z);
 		BlockState state = block.getState();
 		if(state instanceof Container) {
-			return Arrays.stream(((Container) state).getInventory().getStorageContents())
+			return Arrays.stream(((Container)state).getInventory().getStorageContents())
 					.filter(Objects::nonNull)
 					.map(ItemInput::new);
 		}
 		return null;
+	}
+
+	public static Stream<ItemInput> getInputsFromContainer(Container container) {
+		if(container == null)
+			return null;
+
+		return Arrays.stream(container.getInventory().getStorageContents())
+				.filter(Objects::nonNull)
+				.map(ItemInput::new);
 	}
 }

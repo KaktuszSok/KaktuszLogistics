@@ -214,6 +214,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 		return DEFAULT_RECIPE_DONE_SOUND;
 	}
 
+	@SuppressWarnings("unused")
 	protected BlockData getRecipeDoneParticlesData(MachineRecipe<?> recipe) {
 		return getLocation().getBlock().getBlockData();
 	}
@@ -310,7 +311,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 */
 	protected void onProcessingFinished() {
 		if(!isStructureValid()) {
-			Bukkit.broadcastMessage("oops!");
 			toggleProcessingPaused(true);
 			setProcessingInputs(null);
 			return;
@@ -382,7 +382,6 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	 * @param halt True to pause, false to unpause
 	 */
 	public void toggleProcessingPaused(boolean halt) {
-		Bukkit.broadcastMessage("paused: " + halt);
 		halted = halt;
 		if(halt)
 			deregisterFromAllSuppliers();

@@ -2,8 +2,11 @@ package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.modules.survival.KaktuszSurvival;
+import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
+import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
@@ -21,22 +23,25 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 
 /**
  * A sign that detects a house if placed next to a door
  */
-public class HouseSignBlock extends CustomBlock implements LabourSupplier {
+public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, TickingBlock {
 	private static final long serialVersionUID = 100L;
+	/**
+	 * How often the house is re-checked, in seconds
+	 */
+	public static final IntegerOption HOUSE_RECHECK_FREQUENCY = new IntegerOption("survival.housing.houseRecheckFrequency", 20*60);
 
-	private transient Sign signCache;
 	private HouseInfo houseInfoCache;
-
-	private final Map<BlockPosition, Double> labourSupplied = new HashMap<>();
+	private long nextRecheckTime;
+	private Map<BlockPosition, Double> labourSupplied = new HashMap<>();
+	private int lastRecheckTier = 0;
 
 	public HouseSignBlock(PlaceableHouseSign prop, Location location, ItemMeta meta) {
 		super(prop, location, meta);
@@ -46,11 +51,6 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 	@Override
 	public ItemStack getDrop(Block block) {
 		return new ItemStack(block.getDrops().iterator().next()); //drop sign
-	}
-
-	@Override
-	public void onSet(KLWorld world, int x, int y, int z) {
-		Bukkit.getScheduler().runTaskLater(KaktuszLogistics.INSTANCE, this::recheckHouse, 1);
 	}
 
 	@Override
@@ -80,6 +80,12 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 	}
 
 	@Override
+	public void onLoaded() {
+		if(labourSupplied == null) //bad data!
+			labourSupplied = new HashMap<>();
+	}
+
+	@Override
 	public void onInteracted(PlayerInteractEvent e) {
 		if(e.getPlayer().isSneaking()) { //labour summary
 			sendLabourSummary(e.getPlayer());
@@ -98,11 +104,24 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 		}
 	}
 
+	@Override
+	public void onTick() {
+		//recheck house if it is time or if we are suspiciously far behind the recheck time (which ideally wouldn't happen)
+		if(VanillaUtils.getTickTime() > nextRecheckTime || nextRecheckTime - VanillaUtils.getTickTime() > 20L*HOUSE_RECHECK_FREQUENCY.getValue()*2) {
+			nextRecheckTime = VanillaUtils.getTickTime() + 20L*HOUSE_RECHECK_FREQUENCY.getValue();
+			KLWorld.get(getLocation().getWorld()).runAtEndOfTick(this::recheckHouse);
+		}
+	}
+
 	//VALIDATION
 	/**
 	 * Checks if the house is valid and updates the houseInfoCache and sign text accordingly
 	 */
 	private void recheckHouse() {
+		nextRecheckTime = VanillaUtils.getTickTime() + 20L*HOUSE_RECHECK_FREQUENCY.getValue();
+		if(!update())
+			return;
+
 		Sign state = getState();
 		if(state == null) { //not valid sign
 			setHouseInfoCache(null);
@@ -133,21 +152,38 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 
 	private void onHouseRecheckFinished(HouseInfo result) {
 		setHouseInfoCache(result);
-		refreshText(false);
 
 		//(de)registration
 		Location location = getLocation();
 		KLWorld world = KLWorld.get(location.getWorld());
 		KLChunk signChunk = world.getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(location.getBlockX()), VanillaUtils.blockToChunkCoord(location.getBlockZ()));
 		BlockPosition selfPos = new BlockPosition(location);
+		deregisterAsLabourSupplier(signChunk, selfPos);
 		if(houseInfoCache == null) {
-			deregisterAsLabourSupplier(signChunk, selfPos);
+			refreshText(false);
 			return;
 		}
-		if(getTotalLabourSupplied() > getLabourPerDay()) { //(momentarily) de-register if new labour supply is lower than demand
-			deregisterAsLabourSupplier(signChunk, selfPos);
+		else {
+			//consume goods based on tier
+			for(lastRecheckTier = houseInfoCache.getTier(); lastRecheckTier > 0; lastRecheckTier--) {
+				ItemIngredient[] goodsRequired = LabourTierRequirements.requirements.floorEntry(lastRecheckTier).getValue();
+				if(goodsRequired == null)
+					continue;
+
+				List<ItemInput> accumulatedSupplies = new ArrayList<>();
+				boolean supplied = ChunkSupplySystem.requestFromNearbyChunks(location, "goodsSuppliers",
+						(Function<GoodsSupplySignBlock, Boolean>) supplier -> {
+							accumulatedSupplies.addAll(Arrays.asList(supplier.getSupplies()));
+							return GoodsSupplySignBlock.consumeGoodsAccumulated(goodsRequired, accumulatedSupplies, houseInfoCache.getMaxPopulation());
+						}
+				);
+
+				if(supplied)
+					break;
+			}
 		}
 		registerAsLabourSupplier(signChunk, selfPos);
+		refreshText(false);
 
 		//pop off any intersecting house signs
 		for (BlockPosition door : houseInfoCache.getAllDoors()) {
@@ -209,7 +245,7 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 	public int getLabourTier() {
 		if(houseInfoCache == null)
 			return 0;
-		return houseInfoCache.getTier();
+		return Math.min(houseInfoCache.getTier(), lastRecheckTier);
 	}
 
 	//HELPERS
@@ -251,33 +287,6 @@ public class HouseSignBlock extends CustomBlock implements LabourSupplier {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Gets the state of the sign
-	 * @return The state of the sign or null if something is wrong
-	 */
-	private Sign getState() {
-		if(signCache != null)
-			return signCache;
-
-		BlockState data = getLocation().getBlock().getState();
-		if(!(data instanceof Sign) || !(data.getBlockData() instanceof WallSign))
-			return null;
-
-		return signCache = (Sign)data;
-	}
-
-	/**
-	 * Gets the block data of the sign
-	 * @return The block data of the sign or null if something is wrong
-	 */
-	private WallSign getWallSign() {
-		Sign state = getState();
-		if(state == null)
-			return null;
-
-		return (WallSign)state.getBlockData();
 	}
 
 	/**

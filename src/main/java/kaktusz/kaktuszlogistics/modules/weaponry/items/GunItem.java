@@ -58,7 +58,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	private SFXCollection reloadSFX = new SFXCollection(
 			new SoundEffect(Sound.BLOCK_IRON_DOOR_OPEN, 0.7f, 1.85f)
 	);
-	private SFXCollection relaodFailedSFX = new SFXCollection(
+	private SFXCollection reloadFailedSFX = new SFXCollection(
 			new SoundEffect(Sound.BLOCK_IRON_TRAPDOOR_OPEN, 0.5f, 1.5f)
 	);
 	private SFXCollection unloadSFX = new SFXCollection(
@@ -110,7 +110,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 
 	public GunItem setReloadSounds(SFXCollection reloadSFX, SFXCollection reloadFailedSFX, SFXCollection unloadSFX) {
 		this.reloadSFX = reloadSFX;
-		this.relaodFailedSFX = reloadFailedSFX;
+		this.reloadFailedSFX = reloadFailedSFX;
 		this.unloadSFX = unloadSFX;
 		return this;
 	}
@@ -144,7 +144,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 			if(mag == null)
 				loadGun(e.getPlayer(), stack);
 			else if(mag.ammoCount <= 0)
-				relaodFailedSFX.playAll(e.getPlayer().getEyeLocation().add(e.getPlayer().getEyeLocation().getDirection()));
+				reloadFailedSFX.playAll(e.getPlayer().getEyeLocation().add(e.getPlayer().getEyeLocation().getDirection()));
 			else
 				triggerDown(e.getPlayer(), stack);
 			e.setCancelled(true);
@@ -257,7 +257,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 			item.setAmount(item.getAmount() - 1);
 			return;
 		}
-		relaodFailedSFX.playAll(p.getEyeLocation().add(p.getEyeLocation().getDirection()));
+		reloadFailedSFX.playAll(p.getEyeLocation().add(p.getEyeLocation().getDirection()));
 	}
 	private void unloadGun(Player p, ItemStack stack) {
 		if(PlayerReloadManager.isPlayerReloading(p))

@@ -7,6 +7,7 @@ import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.survival.commands.HouseSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking.SawmillWood;
+import kaktusz.kaktuszlogistics.modules.survival.world.housing.HouseSignBlock;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.RoomInfo;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.SignEventListener;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
@@ -22,11 +23,11 @@ import org.bukkit.Material;
 import org.bukkit.block.data.type.Slab;
 
 public class KaktuszSurvival implements KaktuszModule {
-
+	@SuppressWarnings("unused")
 	public static KaktuszSurvival INSTANCE;
 
-	//config quick access
-	public static BooleanOption CALC_ROOMS_ASYNC = new BooleanOption("survival.housing.room.calculateRoomsAsync", false);
+	//config
+	public static final BooleanOption CALC_ROOMS_ASYNC = new BooleanOption("survival.housing.room.calculateRoomsAsync", false);
 
 	public void initialise() {
 		INSTANCE = this;
@@ -49,7 +50,8 @@ public class KaktuszSurvival implements KaktuszModule {
 	}
 
 	private void initItemsAndRecipes() {
-		CustomItemManager.registerItem(SignEventListener.SIGN_PROPERTY.item);
+		CustomItemManager.registerItem(SignEventListener.HOUSE_SIGN_PROPERTY.item);
+		CustomItemManager.registerItem(SignEventListener.GOODS_SIGN_PROPERTY.item);
 		CustomItemManager.registerItem(SawmillWood.createCustomItem());
 
 		MachineRecipe<ItemOutput> sawmill_strip_log = new WoodMachineRecipe<ItemOutput>("sawmill.strip_log", "Stripping", 18)
@@ -70,7 +72,8 @@ public class KaktuszSurvival implements KaktuszModule {
 		return new ConfigOption[] {
 				CALC_ROOMS_ASYNC,
 				RoomInfo.MAX_SIZE_HORIZONTAL,
-				RoomInfo.MAX_SIZE_VERTICAL
+				RoomInfo.MAX_SIZE_VERTICAL,
+				HouseSignBlock.HOUSE_RECHECK_FREQUENCY
 		};
 	}
 

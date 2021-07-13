@@ -7,6 +7,7 @@ public class ProjectileManager {
 
 	private static final List<CustomProjectile> projectiles = new ArrayList<>();
 
+	@SuppressWarnings("UnusedReturnValue")
 	public static CustomProjectile spawnProjectile(CustomProjectile projectile) {
 		projectiles.add(projectile);
 		return projectile;

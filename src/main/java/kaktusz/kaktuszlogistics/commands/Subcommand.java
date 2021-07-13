@@ -61,8 +61,8 @@ public abstract class Subcommand {
     }
 
     protected static class CommandArg {
-        public String argName;
-        public ArgumentType argType;
+        public final String argName;
+        public final ArgumentType argType;
 
         public CommandArg(String n, ArgumentType t) {
             argName = n;

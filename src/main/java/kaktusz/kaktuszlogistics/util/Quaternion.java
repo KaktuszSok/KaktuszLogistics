@@ -3,6 +3,7 @@ package kaktusz.kaktuszlogistics.util;
 import org.bukkit.util.Vector;
 
 //https://introcs.cs.princeton.edu/java/32class/Quaternion.java.html
+@SuppressWarnings("SuspiciousNameCombination")
 public class Quaternion {
 	private final double x0, x1, x2, x3; //1 scalar & 3 vector components
 

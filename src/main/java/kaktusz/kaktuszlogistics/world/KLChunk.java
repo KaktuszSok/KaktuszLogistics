@@ -1,15 +1,11 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
-import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.CastingUtils;
-import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
@@ -183,19 +179,23 @@ public final class KLChunk {
         onLoaded();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void onChunkLoaded(ChunkLoadEvent e) {
         if(e.isNewChunk()) { //newly generated chunk - destroy any data that may have been put here before
             unload();
             //delete chunk data:
             File file = getFile(world, chunkPosX, chunkPosZ);
             if(file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
         }
         onLoaded();
     }
 
+    /**
+     * Called when this KL Chunk is loaded in
+     */
+    @SuppressWarnings("EmptyMethod")
     public void onLoaded() {
 
     }

@@ -17,6 +17,7 @@ import org.bukkit.inventory.RecipeChoice;
 
 import java.util.*;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class RecipeManager {
 	private static final List<CraftingRecipe> craftingTableRecipes = new ArrayList<>();
 	private static final List<SmeltingRecipe> furnaceRecipes = new ArrayList<>();

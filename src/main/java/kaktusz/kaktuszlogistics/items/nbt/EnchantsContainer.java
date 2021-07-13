@@ -12,7 +12,7 @@ import java.util.StringJoiner;
 
 public class EnchantsContainer implements PersistentDataType<String, EnchantsTupleCollection> {
 
-    public static EnchantsContainer ENCHANTMENTS = new EnchantsContainer();
+    public static final EnchantsContainer ENCHANTMENTS = new EnchantsContainer();
 
     @Override
     public Class<String> getPrimitiveType() {

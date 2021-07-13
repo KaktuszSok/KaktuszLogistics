@@ -1,7 +1,6 @@
 package kaktusz.kaktuszlogistics.world.multiblock.components;
 
 import kaktusz.kaktuszlogistics.util.SetUtils;
-import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.Material;

@@ -1,13 +1,9 @@
 package kaktusz.kaktuszlogistics.recipe;
 
-import kaktusz.kaktuszlogistics.recipe.ingredients.IRecipeIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.outputs.IRecipeOutput;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class CustomRecipe<OutputType extends IRecipeOutput> {
 

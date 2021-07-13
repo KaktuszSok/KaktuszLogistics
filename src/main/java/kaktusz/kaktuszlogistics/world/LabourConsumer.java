@@ -1,16 +1,16 @@
 package kaktusz.kaktuszlogistics.world;
 
-import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.bukkit.Location;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
 import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.blockToChunkCoord;
 
-@SuppressWarnings("UnnecessaryInterfaceModifier") //readability
+@SuppressWarnings({"UnnecessaryInterfaceModifier", "SameReturnValue"}) //readability
 public interface LabourConsumer {
-	static final int SEARCH_RADIUS = 3;
 
 	Set<BlockPosition> getLabourSuppliers();
 	Location getLocation();
@@ -46,83 +46,32 @@ public interface LabourConsumer {
 		Map<LabourSupplier, Double> suppliersToAdd = new HashMap<>();
 		int tierRequired = getTier();
 
-		Location location = getLocation();
-		KLWorld world = KLWorld.get(location.getWorld());
-		int chunkOffsetX = blockToChunkCoord(location.getBlockX());
-		int chunkOffsetZ = blockToChunkCoord(location.getBlockZ());
-		int searchDist = 0; //how far from the centre (in chunks) are we searching
-		while (amount > 0 && searchDist <= SEARCH_RADIUS) {
-			//search along borders starting from middle, then alternating left/right outwards until searchDist
-			for(int delta = 0; delta == 0 || delta < searchDist; delta = (delta >= 0) ? -(delta+1) : -delta) {
-				//search each border
-				int dx,dz;
-				for(int border = 0; border < 4; border++) {
-					if(searchDist == 0 && border > 0)
-						break;
-					switch (border) {
-						case 0: //north
-							dx = delta;
-							dz = -searchDist;
-							break;
-						case 1: //east
-							dx = searchDist;
-							dz = delta;
-							break;
-						case 2: //south
-							dx = delta;
-							dz = searchDist;
-							break;
-						case 3: //west
-							dx = -searchDist;
-							dz = delta;
-							break;
-						default:
-							dx = dz = 0;
-							break;
-					}
+		BlockPosition selfPos = new BlockPosition(getLocation());
+		MutableDouble amountLeft = new MutableDouble(amount);
+		return ChunkSupplySystem.requestFromNearbyChunks(getLocation(), "labourSuppliers",
+				(Function<LabourSupplier, Boolean>) supplier -> {
+					//test for labour availability
+					if(supplier.getLabourTier() < tierRequired)
+						return false;
 
-					KLChunk currChunk = world.getChunkAt(chunkOffsetX + dx, chunkOffsetZ + dz);
-					if(currChunk == null)
-						continue;
-					Set<BlockPosition> suppliersInChunk = currChunk.getExtraData("labourSuppliers");
-					if(suppliersInChunk == null)
-						continue;
-					suppliersInChunk = new HashSet<>(suppliersInChunk);
+					double labourAvailable = supplier.getLabourPerDay() - supplier.getTotalLabourSupplied();
+					if(labourAvailable <= 0)
+						return false;
 
-					for(BlockPosition supplierPos : suppliersInChunk) {
-						CustomBlock block = currChunk.getBlockAt(supplierPos.x, supplierPos.y, supplierPos.z);
-						if(!(block instanceof LabourSupplier)) { //bad data
-							currChunk.removeFromExtraDataSet("labourSuppliers", supplierPos); //fix data
-							continue;
+					//register with supplier
+					double labourUsed = Math.min(amountLeft.doubleValue(), labourAvailable);
+					amountLeft.setValue(amountLeft.doubleValue() - labourUsed);
+					suppliersToAdd.put(supplier, labourUsed);
+
+					if(amountLeft.doubleValue() <= 0) { //supply total meets or exceeds demand - register with suppliers
+						for (Map.Entry<LabourSupplier, Double> entry : suppliersToAdd.entrySet()) {
+							entry.getKey().getLabourConsumers().put(selfPos, entry.getValue()); //register self with supplier
+							getLabourSuppliers().add(new BlockPosition(entry.getKey().getLocation())); //register supplier with self
 						}
-						LabourSupplier supplier = (LabourSupplier) block;
-
-						//test for labour availability
-						if(supplier.getLabourTier() < tierRequired)
-							continue;
-
-						double labourAvailable = supplier.getLabourPerDay() - supplier.getTotalLabourSupplied();
-						if(labourAvailable <= 0)
-							continue;
-
-						//register with supplier
-						double labourUsed = Math.min(amount, labourAvailable);
-						amount -= labourUsed;
-						suppliersToAdd.put(supplier, labourUsed);
-
-						if(amount <= 0) { //supply total meets or exceeds demand - register with suppliers
-							for (Map.Entry<LabourSupplier, Double> entry : suppliersToAdd.entrySet()) {
-								entry.getKey().getLabourConsumers().put(new BlockPosition(location), entry.getValue()); //register self with supplier
-								getLabourSuppliers().add(new BlockPosition(entry.getKey().getLocation())); //register supplier with self
-							}
-							return true;
-						}
+						return true; //done!
 					}
-				}
-			}
-			searchDist++;
-		}
-		return false;
+					return false;
+				});
 	}
 
 	/**

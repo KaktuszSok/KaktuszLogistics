@@ -3,6 +3,7 @@ kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe.class
 kaktusz\kaktuszlogistics\world\CustomBlock.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\SignEventListener.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\PlaceableHouseSign.class
+kaktusz\kaktuszlogistics\recipe\ingredients\FoodIngredient$1.class
 kaktusz\kaktuszlogistics\util\minecraft\SFXCollection.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$MutableBlockPosition.class
 kaktusz\kaktuszlogistics\commands\KLCommand.class
@@ -31,6 +32,7 @@ kaktusz\kaktuszlogistics\modules\KModule.class
 kaktusz\kaktuszlogistics\modules\weaponry\projectiles\BulletProjectile.class
 kaktusz\kaktuszlogistics\items\FluidInputBarrel.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\ITriggerHeldListener.class
+kaktusz\kaktuszlogistics\util\minecraft\SerialisationUtils.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem.class
 kaktusz\kaktuszlogistics\commands\GiveQSubcommand.class
 kaktusz\kaktuszlogistics\modules\KaktuszModule.class
@@ -45,6 +47,7 @@ kaktusz\kaktuszlogistics\commands\Subcommand$ArgumentType.class
 kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class
 kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe$ConsumptionAftermath.class
 kaktusz\kaktuszlogistics\world\WorldEventsListener.class
+kaktusz\kaktuszlogistics\recipe\ingredients\FoodIngredient$FoodCategory.class
 kaktusz\kaktuszlogistics\world\KLChunk.class
 kaktusz\kaktuszlogistics\recipe\machine\SimpleMachineRecipe.class
 kaktusz\kaktuszlogistics\world\LabourConsumer.class
@@ -67,12 +70,14 @@ kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils.class
 kaktusz\kaktuszlogistics\gui\ListGUI.class
 kaktusz\kaktuszlogistics\gui\MultiPageGUI$1.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\RoomInfo.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\GoodsSupplySignBlock.class
 kaktusz\kaktuszlogistics\recipe\outputs\IRecipeOutput.class
 kaktusz\kaktuszlogistics\items\properties\TieredMetallic$MetalTiers.class
 kaktusz\kaktuszlogistics\gui\InteractableGUI$GUIButton.class
 kaktusz\kaktuszlogistics\recipe\inputs\ItemInput.class
 kaktusz\kaktuszlogistics\projectile\CustomProjectile$PrioritisedRayHit.class
 kaktusz\kaktuszlogistics\world\multiblock\components\MultiblockComponent.class
+kaktusz\kaktuszlogistics\world\ChunkSupplySystem.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener.class
 kaktusz\kaktuszlogistics\gui\CustomGUI.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockSounds.class
@@ -105,14 +110,18 @@ kaktusz\kaktuszlogistics\items\properties\ItemEnchants.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality$QualityTier.class
 kaktusz\kaktuszlogistics\util\Quaternion.class
 kaktusz\kaktuszlogistics\recipe\ingredients\WoodIngredient.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\PlaceableGoodsSupplySign.class
 kaktusz\kaktuszlogistics\util\CastingUtils.class
 kaktusz\kaktuszlogistics\items\events\IHeldListener.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem$1.class
 kaktusz\kaktuszlogistics\modules\nations\world\FlagBlock.class
 kaktusz\kaktuszlogistics\recipe\outputs\WoodOutput.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\LabourTierRequirements.class
+kaktusz\kaktuszlogistics\recipe\ingredients\FoodIngredient.class
 kaktusz\kaktuszlogistics\recipe\QualitySmeltingRecipe.class
 kaktusz\kaktuszlogistics\world\multiblock\MultiblockMachine.class
 kaktusz\kaktuszlogistics\items\CustomItem.class
+kaktusz\kaktuszlogistics\world\CustomSignBlock.class
 kaktusz\kaktuszlogistics\gui\ListGUI$ListElement.class
 kaktusz\kaktuszlogistics\items\events\ItemEventsListener$InventorySlotRange.class
 kaktusz\kaktuszlogistics\world\KLWorld$ChunkCoordinate.class

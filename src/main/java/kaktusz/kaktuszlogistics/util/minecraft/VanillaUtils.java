@@ -1,6 +1,5 @@
 package kaktusz.kaktuszlogistics.util.minecraft;
 
-import kaktusz.kaktuszlogistics.util.CastingUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.*;
@@ -13,16 +12,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 public class VanillaUtils {
@@ -30,7 +22,7 @@ public class VanillaUtils {
     private static final int MS_PER_TICK = 50;
     private static long tickTime = 0;
     public static void initialiseTickTime() {
-        tickTime = System.currentTimeMillis() * MS_PER_TICK;
+        tickTime = System.currentTimeMillis() / MS_PER_TICK;
     }
     public static void incrementTickTime() {
         tickTime++;
@@ -85,54 +77,6 @@ public class VanillaUtils {
         for (ItemStack failedStack : failedStacks.values()) {
             loc.getWorld().dropItemNaturally(loc, failedStack);
         }
-    }
-
-    public static <T> byte[] serialiseToBytes(T serialisable) {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try (BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(byteStream)) {
-            bukkitStream.writeObject(serialisable); //write serialisable
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return byteStream.toByteArray();
-    }
-    public static <T> byte[] serialisablesToBytes(List<T> serialisables) {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try (BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(byteStream)) {
-            bukkitStream.writeInt(serialisables.size()); //write int
-            for(T serialisable : serialisables) {
-                bukkitStream.writeObject(serialisable); //write serialisable (size times)
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return byteStream.toByteArray();
-    }
-
-    public static <T> T deserialiseFromBytes(byte[] bytes) {
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
-        try(BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(byteStream)) {
-            return CastingUtils.confidentCast(bukkitStream.readObject());
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-    public static <T> List<T> serialisablesFromBytes(byte[] bytes) {
-        List<T> result = new ArrayList<>();
-
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
-        try(BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(byteStream)) {
-            int size = bukkitStream.readInt(); //read int
-            for(int i = 0; i < size; i++) {
-                result.add(CastingUtils.confidentCast(bukkitStream.readObject())); //read serialisable (size times)
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return result;
     }
 
     //ENTITIES

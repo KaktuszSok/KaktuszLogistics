@@ -1,6 +1,5 @@
 package kaktusz.kaktuszlogistics.util;
 
-import kaktusz.kaktuszlogistics.util.MathsUtils;
 import org.bukkit.util.Vector;
 
 //code by KaktuszSok
@@ -10,9 +9,11 @@ import org.bukkit.util.Vector;
  */
 public class DDARaycast {
 
-	int currX, currY, currZ, stepX, stepY, stepZ;
-	double currDistance, maxDistanceSqr;
-	Vector rayUnitStepSize, rayLength;
+	int currX, currY, currZ;
+	final int stepX, stepY, stepZ;
+	double currDistance;
+	final double maxDistanceSqr;
+	final Vector rayUnitStepSize, rayLength;
 
 	public DDARaycast(Vector start, Vector end) {
 		Vector dir = MathsUtils.cloneVectorConfident(end).subtract(start);

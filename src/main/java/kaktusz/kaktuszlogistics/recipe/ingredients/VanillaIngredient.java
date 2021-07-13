@@ -1,13 +1,10 @@
 package kaktusz.kaktuszlogistics.recipe.ingredients;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.util.ListUtils;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.StringJoiner;
 

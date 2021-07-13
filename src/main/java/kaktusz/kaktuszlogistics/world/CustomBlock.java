@@ -29,6 +29,7 @@ public class CustomBlock implements Serializable {
 
     private transient ItemPlaceable type;
     private transient Location location;
+    @SuppressWarnings("CanBeFinal")
     public ItemMeta data;
 
     public CustomBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
@@ -58,7 +59,7 @@ public class CustomBlock implements Serializable {
         return true;
     }
 
-    public boolean verify() {
+    public final boolean verify() {
         return verify(Objects.requireNonNull(location.getWorld()).getBlockAt(location));
     }
     public boolean verify(Block block) {
@@ -105,7 +106,7 @@ public class CustomBlock implements Serializable {
     /**
      * Called when a player mines this block
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     public void onMined(BlockBreakEvent e) {
 
     }

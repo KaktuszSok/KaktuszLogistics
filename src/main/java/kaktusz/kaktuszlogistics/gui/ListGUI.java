@@ -21,7 +21,7 @@ public class ListGUI extends MultiPageGUI {
 	private final List<ListElement> elements = new ArrayList<>();
 
 	public ListGUI(int size, String title, CustomGUI previousGUI) {
-		super(Math.max(size, 4*INVENTORY_WIDTH), title, previousGUI); //size must be at least 4 rows (to accomodate for back button, next page, prev page and search)
+		super(Math.max(size, 4*INVENTORY_WIDTH), title, previousGUI); //size must be at least 4 rows (to accommodate for back button, next page, prev page and search)
 	}
 
 	protected void addElement(ListElement e) {

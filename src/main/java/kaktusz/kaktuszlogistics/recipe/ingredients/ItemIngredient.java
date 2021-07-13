@@ -4,9 +4,7 @@ import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
 
-import java.util.List;
 import java.util.Set;
 
 public abstract class ItemIngredient implements IRecipeIngredient {

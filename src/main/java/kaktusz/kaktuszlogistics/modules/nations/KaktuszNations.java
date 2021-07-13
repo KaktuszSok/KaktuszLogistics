@@ -1,21 +1,17 @@
 package kaktusz.kaktuszlogistics.modules.nations;
 
-import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.commands.KLCommand;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.nations.commands.FlagSubcommand;
 import kaktusz.kaktuszlogistics.modules.nations.items.FlagItem;
 import kaktusz.kaktuszlogistics.modules.nations.items.properties.FlagPlaceable;
-import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import org.bukkit.Material;
 
-import java.util.Arrays;
-
 public class KaktuszNations implements KaktuszModule {
-
+	@SuppressWarnings("unused")
 	public static KaktuszNations INSTANCE;
 
 	//config quick access

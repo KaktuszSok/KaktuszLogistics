@@ -2,7 +2,6 @@ package kaktusz.kaktuszlogistics.items;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.properties.*;
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.ingredients.CustomItemIngredient;
@@ -21,8 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomItemManager {
-    public static Map<String, CustomItem> CUSTOM_ITEMS = new HashMap<>();
+    public static final Map<String, CustomItem> CUSTOM_ITEMS = new HashMap<>();
 
+    @SuppressWarnings("SpellCheckingInspection")
     public static void initialise() {
         CustomItem.TYPE_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "CustomItemType");
         ItemEnchants.ENCHANTS_KEY = new NamespacedKey(KaktuszLogistics.INSTANCE, "DefaultEnchants");

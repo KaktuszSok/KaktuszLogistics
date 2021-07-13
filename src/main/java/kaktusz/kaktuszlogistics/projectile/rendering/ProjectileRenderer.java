@@ -7,6 +7,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+@SuppressWarnings("EmptyMethod")
 public abstract class ProjectileRenderer<P extends CustomProjectile> {
 
 	protected final P projectile;

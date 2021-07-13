@@ -10,7 +10,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
@@ -103,11 +102,6 @@ public class MultiblockBlock extends DurableBlock {
 				}
 			}
 		}
-	}
-
-	@Override
-	public void onInteracted(PlayerInteractEvent e) {
-
 	}
 
 	protected void onVerificationFailed() {

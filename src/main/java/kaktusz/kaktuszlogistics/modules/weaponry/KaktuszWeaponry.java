@@ -15,7 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 
 public class KaktuszWeaponry implements KaktuszModule {
-
+	@SuppressWarnings("unused")
 	public static KaktuszWeaponry INSTANCE;
 
 	public static final StringOption SHOT_MESSAGE = new StringOption("weaponry.shotMessage", "%k was shot by %s");

@@ -1,7 +1,5 @@
 package kaktusz.kaktuszlogistics.gui;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

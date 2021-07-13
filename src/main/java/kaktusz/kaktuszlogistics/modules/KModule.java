@@ -13,6 +13,7 @@ public enum KModule {
 	SURVIVAL("KSurvival", new KaktuszSurvival()),
 	WEAPONRY("KWeaponry", new KaktuszWeaponry());
 
+	@SuppressWarnings("unused")
 	public final String name;
 	public final KaktuszModule instance;
 	public final BooleanOption isEnabled;
