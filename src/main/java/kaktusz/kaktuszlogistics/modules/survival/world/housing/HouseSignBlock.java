@@ -8,10 +8,7 @@ import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.*;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Tag;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -48,11 +45,6 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 	}
 
 	//BEHAVIOUR
-	@Override
-	public ItemStack getDrop(Block block) {
-		return new ItemStack(block.getDrops().iterator().next()); //drop sign
-	}
-
 	@Override
 	public void onRemoved(KLWorld world, int x, int y, int z) {
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
@@ -166,7 +158,7 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 		else {
 			//consume goods based on tier
 			for(lastRecheckTier = houseInfoCache.getTier(); lastRecheckTier > 0; lastRecheckTier--) {
-				ItemIngredient[] goodsRequired = LabourTierRequirements.requirements.floorEntry(lastRecheckTier).getValue();
+				ItemIngredient[] goodsRequired = LabourTierRequirements.REQUIREMENTS.floorEntry(lastRecheckTier).getValue();
 				if(goodsRequired == null)
 					continue;
 
@@ -389,10 +381,34 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 		state.update(false, false);
 	}
 
+	/**
+	 * Sends a message to the player, listing the goods this house is consuming and the labour consumers this house is supplying
+	 */
 	private void sendLabourSummary(Player player) { //TODO colours
 		double labourSupplied = 0;
 
 		KLWorld world = KLWorld.get(getLocation().getWorld());
+		StringBuilder fullMessage = new StringBuilder(ChatColor.GRAY + "-------- Labour Summary --------\n");
+		//daily goods consumption
+		StringBuilder goodsList = new StringBuilder();
+		ItemIngredient[] goodsRequired = LabourTierRequirements.REQUIREMENTS.get(getLabourTier());
+		if(goodsRequired == null)
+			goodsRequired = new ItemIngredient[0];
+		for(ItemIngredient req : goodsRequired) {
+			goodsList.append("\n").append(ChatColor.GRAY).append(" - ").append(ChatColor.BOLD).append(req.getName())
+					.append(ChatColor.GRAY).append(" x").append(req.amount*houseInfoCache.getMaxPopulation());
+		}
+		if(goodsRequired.length > 0) {
+			fullMessage.append(ChatColor.GRAY).append("Every day, this house consumes:");
+			fullMessage.append(goodsList);
+			fullMessage.append("\n");
+		}
+		else if(houseInfoCache != null && getLabourTier() == 0 && houseInfoCache.getTier() > 0) {
+			fullMessage.append(ChatColor.RED).append("This house is lacking supplies! ").append(ChatColor.GRAY).append("There must be a goods supplier with appropriate goods nearby. Place a sign with the text \"Goods\" on the first line to mark a chest as a goods supplier.");
+			fullMessage.append("\n");
+		}
+
+		//labour consumers
 		StringBuilder consumersList = new StringBuilder();
 		for (Map.Entry<BlockPosition, Double> entry : new HashSet<>(getLabourConsumers().entrySet())) {
 			BlockPosition pos = entry.getKey();
@@ -407,21 +423,31 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 				getLabourConsumers().remove(pos);
 				consumer.validateAndFixSupply();
 				labourSupplied -= consumer.getRequiredLabour();
+				continue;
 			}
-			consumersList.append("\n - ")
-					.append(StringUtils.formatDouble(entry.getValue())) //labour/day
-					.append(" labour/day (T").append(consumer.getTier()) //labour tier
-					.append(") to ").append(block.getType().item.displayName) //name
-					.append(" at ").append(entry.getKey()); //position
+
+			//add to summary
+			consumersList.append(ChatColor.GRAY).append("\n - ")
+					.append(ChatColor.BOLD).append(StringUtils.formatDouble(entry.getValue())) //labour/day
+					.append(ChatColor.GRAY).append(" labour/day (T").append(consumer.getTier()) //labour tier
+					.append(ChatColor.GRAY).append(") to ").append(ChatColor.BOLD).append(block.getType().item.displayName) //name
+					.append(ChatColor.GRAY).append(" at ").append(entry.getKey()); //position
+
+
+			//play particles
+			world.world.spawnParticle(Particle.VILLAGER_HAPPY,
+					new Location(world.world, pos.x+0.5f, pos.y+0.5f, pos.z+0.5f),
+					15, 0.4d, 0.4d, 0.4d);
 		}
 		int consumerAmt = getLabourConsumers().size();
 		if(consumerAmt > 0) {
-			String messageHeader =
+			String consumersHeader =
 					ChatColor.GRAY + "This house provides " + StringUtils.formatDouble(labourSupplied)
 							+ " labour/day to " + consumerAmt + (consumerAmt == 1 ? " consumer:" : " consumers:");
-			player.sendMessage(messageHeader + consumersList);
+			fullMessage.append(consumersHeader).append(consumersList);
 		} else {
-			player.sendMessage(ChatColor.GRAY + "This house is not providing labour to any consumers.");
+			fullMessage.append(ChatColor.GRAY).append("This house is not providing labour to any consumers.");
 		}
+		player.sendMessage(fullMessage.toString());
 	}
 }

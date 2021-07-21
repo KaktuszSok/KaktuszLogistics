@@ -28,7 +28,9 @@ public class InspectionTool extends CustomItem {
             if(cb == null) {
                 e.getPlayer().sendMessage("This is " + b.getType().name());
             } else {
-                e.getPlayer().sendMessage("This is " + cb.getType().item.getFullDisplayName(cb.getDrop(b)));
+                ItemStack blockItem = cb.getType().item.createStack(1);
+                blockItem.setItemMeta(cb.data);
+                e.getPlayer().sendMessage("This is " + cb.getType().item.getFullDisplayName(blockItem));
                 //extra info:
                 List<String> lore = new ArrayList<>();
                 ItemQuality quality = cb.getType().item.findProperty(ItemQuality.class);

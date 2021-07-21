@@ -19,15 +19,13 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Place on a container to mark it as a goods supplier
  */
 public class GoodsSupplySignBlock extends CustomSignBlock {
+	private static final long serialVersionUID = 100L;
 
 	private transient Container containerCache = null;
 
@@ -61,7 +59,7 @@ public class GoodsSupplySignBlock extends CustomSignBlock {
 
 	@Override
 	public void onInteracted(PlayerInteractEvent e) {
-		//TODO house tier requirements GUI
+		LabourTierRequirements.REQUIREMENTS_GUI.open(e.getPlayer(), null);
 	}
 
 	public boolean consumeGoods(ItemIngredient[] goodsToConsume) {

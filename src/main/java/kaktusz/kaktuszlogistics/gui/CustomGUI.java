@@ -99,7 +99,9 @@ public abstract class CustomGUI {
 	}
 
 	//EVENTS
-	public abstract void onClick(ClickType type, int slot, HumanEntity player);
+	public void onClick(ClickType type, int slot, HumanEntity player) {
+		
+	}
 
 	/**
 	 * Called when the player quits out of this inventory, but not if it was caused by forceClose()

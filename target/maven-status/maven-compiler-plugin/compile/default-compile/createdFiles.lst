@@ -86,6 +86,7 @@ kaktusz\kaktuszlogistics\modules\nations\items\FlagItem.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\BulletContainer.class
 kaktusz\kaktuszlogistics\recipe\ingredients\WoodIngredient$WOOD_ITEM.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentCustomBlock.class
+kaktusz\kaktuszlogistics\modules\survival\world\housing\LabourTierRequirements$1.class
 kaktusz\kaktuszlogistics\gui\InteractableGUI.class
 kaktusz\kaktuszlogistics\recipe\SmeltingRecipe.class
 kaktusz\kaktuszlogistics\projectile\rendering\ProjectileRenderer.class

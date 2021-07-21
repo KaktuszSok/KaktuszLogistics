@@ -6,6 +6,8 @@ import kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpecialBloc
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemOutput implements IRecipeOutput {
@@ -39,6 +41,10 @@ public class ItemOutput implements IRecipeOutput {
 		BlockState state = world.getBlockAt(position.x, position.y, position.z).getState();
 		if(state instanceof Container) {
 			VanillaUtils.addItemsOrDrop(((Container)state).getInventory(), getStack());
+
+			if(state instanceof Dropper) {
+				((Dispenser)state).dispense();
+			}
 		}
 	}
 

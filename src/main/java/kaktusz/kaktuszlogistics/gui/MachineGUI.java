@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.gui;
 
 import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
+import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -88,7 +89,7 @@ public class MachineGUI extends InteractableGUI {
 		String automationString = automationColour.toString() + ChatColor.BOLD + "Automation" + ChatColor.GRAY + " requires:";
 		lore.add(automationString);
 		lore.add(normalColour + " - " + labelColour + "Labour Tier " + normalColour + machine.getTier());
-		lore.add(normalColour + " - " + machine.getRequiredLabour() + labelColour + " Labour/day");
+		lore.add(normalColour + " - " + StringUtils.formatDouble(machine.getRequiredLabour()) + labelColour + " Labour/day");
 		List<String> machineLore = machine.getLore();
 		if(machineLore != null)
 			lore.addAll(machineLore);
