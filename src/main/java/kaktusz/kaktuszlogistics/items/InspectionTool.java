@@ -1,8 +1,6 @@
 package kaktusz.kaktuszlogistics.items;
 
-import kaktusz.kaktuszlogistics.items.properties.ItemQuality;
 import kaktusz.kaktuszlogistics.world.CustomBlock;
-import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +9,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class InspectionTool extends CustomItem {
@@ -31,18 +28,8 @@ public class InspectionTool extends CustomItem {
                 ItemStack blockItem = cb.getType().item.createStack(1);
                 blockItem.setItemMeta(cb.data);
                 e.getPlayer().sendMessage("This is " + cb.getType().item.getFullDisplayName(blockItem));
-                //extra info:
-                List<String> lore = new ArrayList<>();
-                ItemQuality quality = cb.getType().item.findProperty(ItemQuality.class);
-                if(quality != null) {
-                    quality.modifyLore(lore, cb.getDrop(b));
-                }
-                if(cb instanceof DurableBlock) {
-                    DurableBlock db = (DurableBlock)cb;
-                    ItemStack dbItem = db.getType().item.createStack(1);
-                    dbItem.setItemMeta(db.data);
-                    db.getType().modifyLore(lore, dbItem);
-                }
+                //lore:
+                List<String> lore = cb.getType().item.getItemLore(blockItem);
                 for(String line : lore) {
                     e.getPlayer().sendMessage(line);
                 }
