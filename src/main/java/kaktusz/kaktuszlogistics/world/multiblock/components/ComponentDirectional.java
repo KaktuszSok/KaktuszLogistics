@@ -1,6 +1,6 @@
 package kaktusz.kaktuszlogistics.world.multiblock.components;
 
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.MultiblockTemplate;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -8,10 +8,10 @@ import org.bukkit.block.data.Directional;
 
 public class ComponentDirectional extends MultiblockComponent {
 
-	private final Multiblock.RELATIVE_DIRECTION direction;
+	private final MultiblockTemplate.RELATIVE_DIRECTION direction;
 	private boolean allowOpposite = false;
 
-	public ComponentDirectional(Multiblock.RELATIVE_DIRECTION direction) {
+	public ComponentDirectional(MultiblockTemplate.RELATIVE_DIRECTION direction) {
 		this.direction = direction;
 	}
 
@@ -27,10 +27,10 @@ public class ComponentDirectional extends MultiblockComponent {
 			BlockFace multiblockFacing = multiblock.getFacing();
 			BlockFace blockFacing = ((Directional)block.getBlockData()).getFacing();
 			if(!allowOpposite)
-				return Multiblock.relativeDirectionFromGlobal(multiblockFacing, blockFacing) == direction;
+				return MultiblockTemplate.relativeDirectionFromGlobal(multiblockFacing, blockFacing) == direction;
 			else
-				return Multiblock.relativeDirectionFromGlobal(multiblockFacing, blockFacing) == direction
-				|| Multiblock.relativeDirectionFromGlobal(multiblockFacing, blockFacing.getOppositeFace()) == direction;
+				return MultiblockTemplate.relativeDirectionFromGlobal(multiblockFacing, blockFacing) == direction
+				|| MultiblockTemplate.relativeDirectionFromGlobal(multiblockFacing, blockFacing.getOppositeFace()) == direction;
 		}
 
 		return false;

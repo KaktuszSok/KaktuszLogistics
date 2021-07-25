@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.items.properties;
+package kaktusz.kaktuszlogistics.items.properties.multiblock;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
@@ -15,7 +15,7 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
 /**
  * A multiblock which verifies based on a non-dynamic 3D component matrix built up of layers
  */
-public class MatrixMultiblock extends Multiblock {
+public class MatrixMultiblock extends MultiblockTemplate {
 
 	private boolean horizontalLayers = false;
 	private final ArrayList<MultiblockComponent[][]> layers = new ArrayList<>();
@@ -115,7 +115,7 @@ public class MatrixMultiblock extends Multiblock {
 		else {
 			offset = new BlockPosition(column - controllerBlockColumn, (short) (row - controllerBlockRow), layerIndex - controllerBlockLayer);
 		}
-		return Multiblock.getBlockAtRelativeOffset(multiblock.getLocation(), multiblock.getFacing(), offset.x, offset.y, offset.z);
+		return MultiblockTemplate.getBlockAtRelativeOffset(multiblock.getLocation(), multiblock.getFacing(), offset.x, offset.y, offset.z);
 	}
 
 	/**

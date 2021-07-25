@@ -12,10 +12,10 @@ kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerReloadManager.class
 kaktusz\kaktuszlogistics\KaktuszLogistics.class
 kaktusz\kaktuszlogistics\modules\survival\commands\RoomSubcommand.class
 kaktusz\kaktuszlogistics\recipe\RecipeManager.class
-kaktusz\kaktuszlogistics\items\properties\Multiblock$1.class
 kaktusz\kaktuszlogistics\recipe\ingredients\ItemIngredient.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\AmmoType.class
 kaktusz\kaktuszlogistics\util\minecraft\config\BooleanOption.class
+kaktusz\kaktuszlogistics\world\multiblock\CustomSupportedBlock.class
 kaktusz\kaktuszlogistics\recipe\CraftingRecipe.class
 kaktusz\kaktuszlogistics\gui\MachineGUI.class
 kaktusz\kaktuszlogistics\items\properties\ItemProperty.class
@@ -25,12 +25,12 @@ kaktusz\kaktuszlogistics\modules\weaponry\items\nbt\AmmoContainerNBT.class
 kaktusz\kaktuszlogistics\items\properties\BlockDurability$DurabilityState.class
 kaktusz\kaktuszlogistics\modules\nations\KaktuszNations.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseInfo.class
-kaktusz\kaktuszlogistics\items\properties\MatrixMultiblock.class
 kaktusz\kaktuszlogistics\gui\MultiPageGUI.class
 kaktusz\kaktuszlogistics\util\minecraft\config\ConfigOption.class
 kaktusz\kaktuszlogistics\modules\KModule.class
 kaktusz\kaktuszlogistics\modules\weaponry\projectiles\BulletProjectile.class
 kaktusz\kaktuszlogistics\items\FluidInputBarrel.class
+kaktusz\kaktuszlogistics\items\properties\multiblock\MatrixMultiblock.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\ITriggerHeldListener.class
 kaktusz\kaktuszlogistics\util\minecraft\SerialisationUtils.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem.class
@@ -47,6 +47,7 @@ kaktusz\kaktuszlogistics\commands\Subcommand$ArgumentType.class
 kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class
 kaktusz\kaktuszlogistics\recipe\machine\MachineRecipe$ConsumptionAftermath.class
 kaktusz\kaktuszlogistics\world\WorldEventsListener.class
+kaktusz\kaktuszlogistics\items\properties\multiblock\MultiblockTemplate$RELATIVE_DIRECTION.class
 kaktusz\kaktuszlogistics\recipe\ingredients\FoodIngredient$FoodCategory.class
 kaktusz\kaktuszlogistics\world\KLChunk.class
 kaktusz\kaktuszlogistics\recipe\machine\SimpleMachineRecipe.class
@@ -57,8 +58,8 @@ kaktusz\kaktuszlogistics\world\multiblock\components\ComponentDirectional.class
 kaktusz\kaktuszlogistics\world\multiblock\components\DecoratorSpecialBlock$SpecialType.class
 kaktusz\kaktuszlogistics\modules\weaponry\KaktuszWeaponry.class
 kaktusz\kaktuszlogistics\util\StringUtils.class
+kaktusz\kaktuszlogistics\items\properties\multiblock\SupportedBlockProperty.class
 kaktusz\kaktuszlogistics\world\DurableBlock.class
-kaktusz\kaktuszlogistics\items\properties\Multiblock$RELATIVE_DIRECTION.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentChoice.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentDecorator.class
 kaktusz\kaktuszlogistics\items\InspectionTool.class
@@ -75,6 +76,7 @@ kaktusz\kaktuszlogistics\recipe\outputs\IRecipeOutput.class
 kaktusz\kaktuszlogistics\items\properties\TieredMetallic$MetalTiers.class
 kaktusz\kaktuszlogistics\gui\InteractableGUI$GUIButton.class
 kaktusz\kaktuszlogistics\recipe\inputs\ItemInput.class
+kaktusz\kaktuszlogistics\items\properties\multiblock\MultiblockTemplate.class
 kaktusz\kaktuszlogistics\projectile\CustomProjectile$PrioritisedRayHit.class
 kaktusz\kaktuszlogistics\world\multiblock\components\MultiblockComponent.class
 kaktusz\kaktuszlogistics\world\ChunkSupplySystem.class
@@ -88,6 +90,7 @@ kaktusz\kaktuszlogistics\recipe\ingredients\WoodIngredient$WOOD_ITEM.class
 kaktusz\kaktuszlogistics\world\multiblock\components\ComponentCustomBlock.class
 kaktusz\kaktuszlogistics\modules\survival\world\housing\LabourTierRequirements$1.class
 kaktusz\kaktuszlogistics\gui\InteractableGUI.class
+kaktusz\kaktuszlogistics\items\properties\multiblock\MultiblockTemplate$1.class
 kaktusz\kaktuszlogistics\recipe\SmeltingRecipe.class
 kaktusz\kaktuszlogistics\projectile\rendering\ProjectileRenderer.class
 kaktusz\kaktuszlogistics\projectile\CustomProjectile.class
@@ -151,7 +154,6 @@ kaktusz\kaktuszlogistics\world\multiblock\components\DecoratorSpecialBlock.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerContinuousShootingManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem$2.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerTriggerHeldEvent.class
-kaktusz\kaktuszlogistics\items\properties\Multiblock.class
 kaktusz\kaktuszlogistics\modules\nations\commands\FlagSubcommand.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\AmmoContainer.class
 kaktusz\kaktuszlogistics\util\minecraft\config\IntegerOption.class

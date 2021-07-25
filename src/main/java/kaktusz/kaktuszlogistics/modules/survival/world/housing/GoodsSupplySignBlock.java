@@ -1,7 +1,6 @@
 package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
-import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
@@ -29,7 +28,7 @@ public class GoodsSupplySignBlock extends CustomSignBlock {
 
 	private transient Container containerCache = null;
 
-	public GoodsSupplySignBlock(ItemPlaceable prop, Location location, ItemMeta meta) {
+	public GoodsSupplySignBlock(PlaceableGoodsSupplySign prop, Location location, ItemMeta meta) {
 		super(prop, location, meta);
 	}
 
@@ -41,6 +40,10 @@ public class GoodsSupplySignBlock extends CustomSignBlock {
 
 	@Override
 	public void onSet(KLWorld world, int x, int y, int z) {
+		super.onSet(world, x, y, z);
+
+		if(!update())
+			return;
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
 		chunk.getOrCreateExtraDataSet("goodsSuppliers").add(new VanillaUtils.BlockPosition(getLocation()));
 		Bukkit.getScheduler().runTaskLater(KaktuszLogistics.INSTANCE, () -> {
@@ -53,6 +56,8 @@ public class GoodsSupplySignBlock extends CustomSignBlock {
 
 	@Override
 	public void onRemoved(KLWorld world, int x, int y, int z) {
+		super.onRemoved(world, x, y, z);
+
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
 		chunk.removeFromExtraDataSet("goodsSuppliers", new VanillaUtils.BlockPosition(getLocation()));
 	}

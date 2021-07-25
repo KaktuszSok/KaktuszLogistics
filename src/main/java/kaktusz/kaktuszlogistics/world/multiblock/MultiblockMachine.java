@@ -2,7 +2,7 @@ package kaktusz.kaktuszlogistics.world.multiblock;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.gui.MachineGUI;
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.MultiblockTemplate;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.inputs.IRecipeInput;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
@@ -67,7 +67,7 @@ public abstract class MultiblockMachine extends MultiblockBlock implements Ticki
 	private transient LivingEntity labourerEntity = null;
 	private UUID labourerUUID = null;
 
-	public MultiblockMachine(Multiblock property, Location location, ItemMeta meta) {
+	public MultiblockMachine(MultiblockTemplate property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 		initGUI();
 	}

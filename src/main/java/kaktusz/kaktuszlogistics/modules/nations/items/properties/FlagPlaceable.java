@@ -1,11 +1,10 @@
 package kaktusz.kaktuszlogistics.modules.nations.items.properties;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
-import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.SupportedBlockProperty;
 import kaktusz.kaktuszlogistics.modules.nations.world.ChunkClaimManager;
 import kaktusz.kaktuszlogistics.modules.nations.world.FlagBlock;
 import kaktusz.kaktuszlogistics.util.SetUtils;
-import kaktusz.kaktuszlogistics.world.CustomBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Set;
 
-public class FlagPlaceable extends ItemPlaceable {
+public class FlagPlaceable extends SupportedBlockProperty {
 
 	private static final Set<Material> BANNER_TYPES = SetUtils.setFromElements(
 			Material.WHITE_BANNER,
@@ -59,7 +58,7 @@ public class FlagPlaceable extends ItemPlaceable {
 	//PLACEMENT
 	@Override
 	public void onTryPlace(BlockPlaceEvent e, ItemStack stack) {
-		//TODO: disallow if the flag does not have a nation set (right-clicking the flag at air will give nation creation GUI)
+		//TODO: disallow if the flag does not have a nation set (right-clicking the flag will give nation creation GUI)
 		Block b = e.getBlockPlaced();
 		if(ChunkClaimManager.isChunkClaimed(KLWorld.get(b.getWorld()), b.getX(), b.getZ())) { //disallow placing flags on already claimed land
 			e.setCancelled(true);
@@ -82,7 +81,7 @@ public class FlagPlaceable extends ItemPlaceable {
 	}
 
 	@Override
-	public CustomBlock createCustomBlock(ItemMeta stackMeta, Location location) {
+	public FlagBlock createCustomBlock(ItemMeta stackMeta, Location location) {
 		return new FlagBlock(this, location, stackMeta);
 	}
 }

@@ -2,8 +2,8 @@ package kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
-import kaktusz.kaktuszlogistics.items.properties.MatrixMultiblock;
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.MatrixMultiblock;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.MultiblockTemplate;
 import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
 import kaktusz.kaktuszlogistics.util.ListUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
@@ -30,7 +30,7 @@ public class SawmillWood extends MultiblockMachine {
 	);
 	private static final BlockData RECIPE_DONE_PARTICLE_DATA = Material.OAK_PLANKS.createBlockData();
 
-	public SawmillWood(Multiblock property, Location location, ItemMeta meta) {
+	public SawmillWood(MultiblockTemplate property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 	}
 
@@ -80,7 +80,7 @@ public class SawmillWood extends MultiblockMachine {
 
 		ComponentCompound barrelStripesAlongAxis = new ComponentCompound(
 				new ComponentMaterial(Material.BARREL),
-				new ComponentDirectional(Multiblock.RELATIVE_DIRECTION.RIGHT).setAllowOpposite(true)
+				new ComponentDirectional(MultiblockTemplate.RELATIVE_DIRECTION.RIGHT).setAllowOpposite(true)
 		);
 		DecoratorSpecialBlock inputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_INPUT);
 		DecoratorSpecialBlock outputBarrel = new DecoratorSpecialBlock(barrelStripesAlongAxis, DecoratorSpecialBlock.SpecialType.ITEM_OUTPUT);

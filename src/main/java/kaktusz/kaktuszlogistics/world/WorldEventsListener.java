@@ -182,6 +182,39 @@ public class WorldEventsListener implements Listener {
         }
     }
 
+    private void onInventoryReceivedItem(Inventory inventory) {
+        if(inventory.getLocation() == null)
+            return;
+        //update multiblock machines when an item enters one of their inventories
+        CustomBlock multiblock = getMultiblockFromLocation(inventory.getLocation(), KLWorld.get(inventory.getLocation().getWorld()));
+        if(multiblock instanceof MultiblockMachine) {
+            MultiblockMachine machine = (MultiblockMachine) multiblock;
+            if(machine.isStructureValid_cached() && !machine.isProcessingRecipe())
+                machine.tryStartProcessingByAutomation();
+        }
+    }
+
+    /**
+     * Called when a hopper etc. puts an item into an inventory
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockReceivedItem(InventoryMoveItemEvent e) {
+        //block custom blocks from receiving items
+        Location destLocation = e.getDestination().getLocation();
+        if(destLocation != null)
+            if(!cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(destLocation), e)) {
+                onInventoryReceivedItem(e.getDestination());
+            }
+        //block extracting items from custom blocks
+        if(!e.isCancelled() && e.getSource().getLocation() != null)
+            cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getSource().getLocation()), e);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerCloseInventory(InventoryCloseEvent e) {
+        onInventoryReceivedItem(e.getInventory());
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onBlockMined(BlockBreakEvent e) {
         CustomBlock block = getCustomBlockFromEvent(e);
@@ -231,39 +264,6 @@ public class WorldEventsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlaced(BlockPlaceEvent e) {
         updateMultiblockValidity(getMultiblockFromBlock(e.getBlockPlaced(), KLWorld.get(e.getBlockAgainst().getWorld())), e.getBlockPlaced());
-    }
-
-    /**
-     * Called when a hopper etc. puts an item into an inventory
-     */
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockReceivedItem(InventoryMoveItemEvent e) {
-        //block custom blocks from receiving items
-        Location destLocation = e.getDestination().getLocation();
-        if(destLocation != null)
-            if(!cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(destLocation), e)) {
-                onInventoryReceivedItem(e.getDestination());
-            }
-        //block extracting items from custom blocks
-        if(!e.isCancelled() && e.getSource().getLocation() != null)
-            cancelCustomBlockEvent(getCustomBlockFromLocation_NoMultiblocks(e.getSource().getLocation()), e);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerCloseInventory(InventoryCloseEvent e) {
-        onInventoryReceivedItem(e.getInventory());
-    }
-
-    private void onInventoryReceivedItem(Inventory inventory) {
-        if(inventory.getLocation() == null)
-            return;
-        //update multiblock machines when an item enters one of their inventories
-        CustomBlock multiblock = getMultiblockFromLocation(inventory.getLocation(), KLWorld.get(inventory.getLocation().getWorld()));
-        if(multiblock instanceof MultiblockMachine) {
-            MultiblockMachine machine = (MultiblockMachine) multiblock;
-            if(machine.isStructureValid_cached() && !machine.isProcessingRecipe())
-                machine.tryStartProcessingByAutomation();
-        }
     }
 
     //General events that destroy (or otherwise mess up) our block

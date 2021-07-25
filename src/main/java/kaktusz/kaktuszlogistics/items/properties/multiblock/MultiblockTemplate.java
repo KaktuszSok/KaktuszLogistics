@@ -1,6 +1,7 @@
-package kaktusz.kaktuszlogistics.items.properties;
+package kaktusz.kaktuszlogistics.items.properties.multiblock;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.items.properties.BlockDurability;
 import kaktusz.kaktuszlogistics.util.minecraft.SFXCollection;
 import kaktusz.kaktuszlogistics.util.minecraft.SoundEffect;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
@@ -19,7 +20,7 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
  * A property which defines a template for a multiblock
  */
 @SuppressWarnings("UnusedReturnValue")
-public abstract class Multiblock extends BlockDurability {
+public abstract class MultiblockTemplate extends BlockDurability {
 
 	/**
 	 * A direction, relative to standing in front of and looking at the front face of a multiblock.
@@ -35,7 +36,7 @@ public abstract class Multiblock extends BlockDurability {
 	private Class<? extends MultiblockBlock> multiblockType;
 
 	//SETUP
-	public Multiblock(CustomItem item) {
+	public MultiblockTemplate(CustomItem item) {
 		super(item);
 		setMaxDurability(1);
 		setDamageSound(new SFXCollection(
@@ -46,7 +47,7 @@ public abstract class Multiblock extends BlockDurability {
 	/**
 	 * Set which kind of multiblock this item should represent
 	 */
-	public Multiblock setType(Class<? extends MultiblockBlock> type) {
+	public MultiblockTemplate setType(Class<? extends MultiblockBlock> type) {
 		multiblockType = type;
 
 		return this;
@@ -174,7 +175,7 @@ public abstract class Multiblock extends BlockDurability {
 	@Override
 	public MultiblockBlock createCustomBlock(ItemMeta stackMeta, Location location) {
 		try {
-			return multiblockType.getConstructor(Multiblock.class, Location.class, ItemMeta.class).newInstance(this, location, stackMeta);
+			return multiblockType.getConstructor(MultiblockTemplate.class, Location.class, ItemMeta.class).newInstance(this, location, stackMeta);
 		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 			e.printStackTrace();
 		}

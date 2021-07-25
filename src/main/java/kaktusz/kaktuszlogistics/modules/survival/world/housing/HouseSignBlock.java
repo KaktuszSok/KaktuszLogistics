@@ -45,6 +45,8 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 	//BEHAVIOUR
 	@Override
 	public void onRemoved(KLWorld world, int x, int y, int z) {
+		super.onRemoved(world, x, y, z);
+
 		KLChunk chunk = world.getChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
 		if(chunk == null) return;
 

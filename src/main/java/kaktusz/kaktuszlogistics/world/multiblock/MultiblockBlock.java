@@ -1,6 +1,6 @@
 package kaktusz.kaktuszlogistics.world.multiblock;
 
-import kaktusz.kaktuszlogistics.items.properties.Multiblock;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.MultiblockTemplate;
 import kaktusz.kaktuszlogistics.world.DurableBlock;
 import kaktusz.kaktuszlogistics.world.KLChunk;
 import kaktusz.kaktuszlogistics.world.KLWorld;
@@ -27,13 +27,13 @@ import static kaktusz.kaktuszlogistics.world.multiblock.components.DecoratorSpec
 public class MultiblockBlock extends DurableBlock {
 	private static final long serialVersionUID = 100L;
 
-	private transient Multiblock property;
+	private transient MultiblockTemplate property;
 	private BlockFace facing;
 	private boolean structureValidCache = false;
 	private BlockAABB aabbCache = null;
 	protected final HashMap<SpecialType, Set<BlockPosition>> specialBlocksCache = new HashMap<>();
 
-	public MultiblockBlock(Multiblock property, Location location, ItemMeta meta) {
+	public MultiblockBlock(MultiblockTemplate property, Location location, ItemMeta meta) {
 		super(property, location, meta);
 		this.property = property;
 	}
@@ -41,12 +41,13 @@ public class MultiblockBlock extends DurableBlock {
 	@Override
 	protected void setUpTransients() {
 		super.setUpTransients();
-		property = (Multiblock)getType();
+		property = (MultiblockTemplate)getType();
 	}
 
 	//BEHAVIOUR
 	@Override
 	public void onPlaced(BlockPlaceEvent e) {
+		super.onPlaced(e);
 		setFacingFromPlaceEvent(e);
 		reverifyStructure();
 	}
@@ -61,13 +62,6 @@ public class MultiblockBlock extends DurableBlock {
 			facing = facingVector.getZ() > 0 ? BlockFace.SOUTH : BlockFace.NORTH;
 		}
 		setFacing(facing);
-
-		//make placed block match
-		BlockData blockData = e.getBlockPlaced().getBlockData();
-		if(blockData instanceof Directional) {
-			((Directional) blockData).setFacing(facing);
-			e.getBlockPlaced().setBlockData(blockData);
-		}
 	}
 
 	@Override
@@ -109,14 +103,32 @@ public class MultiblockBlock extends DurableBlock {
 	}
 
 	//GETTERS & SETTERS
+	/**
+	 * Get the direction that this multiblock is facing
+	 */
 	public BlockFace getFacing() {
 		return facing;
 	}
+
+	/**
+	 * Set the direction that this multiblock is facing
+	 */
 	public void setFacing(BlockFace facing) {
 		this.facing = facing;
+
+		//make block match
+		Block block = getLocation().getBlock();
+		BlockData blockData = block.getBlockData();
+		if(blockData instanceof Directional) {
+			((Directional) blockData).setFacing(facing);
+			block.setBlockData(blockData);
+		}
 	}
 
 	//INFO
+	/**
+	 * Get the name of this multiblock
+	 */
 	public String getName() {
 		return getProperty().getName();
 	}
@@ -132,7 +144,7 @@ public class MultiblockBlock extends DurableBlock {
 	/**
 	 * Re-verifies the structure and (de)registers it with the appropriate chunks
 	 */
-	public boolean reverifyStructure() {
+	public final boolean reverifyStructure() {
 		//1. de-register from currently registered chunks and then clear the cache
 		registerWithChunks(false);
 		structureValidCache = false;
@@ -167,11 +179,21 @@ public class MultiblockBlock extends DurableBlock {
 		return structureValidCache;
 	}
 
+	/**
+	 * Gets the axis-aligned bounding box which tightly encompasses this structure
+	 */
 	public BlockAABB getAABB() {
 		if(aabbCache != null)
 			return aabbCache;
 
 		return aabbCache = getProperty().getAABB(this);
+	}
+
+	/**
+	 * Gets the cached AABB (may be null)
+	 */
+	protected BlockAABB getCachedAABB() {
+		return aabbCache;
 	}
 
 	/**
@@ -212,7 +234,7 @@ public class MultiblockBlock extends DurableBlock {
 	/**
 	 * Gets the property which is responsible for handling the multiblock data
 	 */
-	public Multiblock getProperty() {
+	public MultiblockTemplate getProperty() {
 		return property;
 	}
 }
