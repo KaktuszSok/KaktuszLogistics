@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+//TODO: allow for non-player usage
 @SuppressWarnings("unused")
 public class GunItem extends CustomItem implements ITriggerHeldListener {
 	public static NamespacedKey LAST_SHOOT_TIME_KEY;
@@ -134,6 +135,8 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	@Override
 	public void onTryUse(PlayerInteractEvent e, ItemStack stack) {
 		e.setUseItemInHand(Event.Result.DENY);
+		if(stack.getAmount() > 1)
+			return; //don't allow using stacked guns
 
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable() && !e.getPlayer().isSneaking()) {
 			return; //dont shoot if interacting with a block
@@ -171,6 +174,9 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 
 	//ACTIONS
 	private void triggerDown(Player player, ItemStack stack) {
+		if(stack.getAmount() > 1)
+			return; //don't allow using stacked guns
+
 		PlayerContinuousShootingManager.pullTrigger(player);
 	}
 
@@ -217,6 +223,9 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	 * Loads/unloads the gun appropriately
 	 */
 	private void reload(PlayerInteractEvent e, ItemStack stack) {
+		if(stack.getAmount() > 1)
+			return; //don't allow using stacked guns
+
 		if(GunActionsManager.isReloading(e.getPlayer()))
 			return;
 
