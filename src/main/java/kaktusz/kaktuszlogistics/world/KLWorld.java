@@ -117,7 +117,8 @@ public class KLWorld {
     }
 
     public void loadChunk(KLChunk chunk) {
-        loadedChunks.put(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk);
+        if(loadedChunks.put(new ChunkCoordinate(chunk.chunkPosX, chunk.chunkPosZ), chunk) == null)
+            chunk.onLoaded();
     }
 
     /**

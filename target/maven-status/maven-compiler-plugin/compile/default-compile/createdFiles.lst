@@ -8,7 +8,6 @@ kaktusz\kaktuszlogistics\util\minecraft\SFXCollection.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$MutableBlockPosition.class
 kaktusz\kaktuszlogistics\commands\KLCommand.class
 kaktusz\kaktuszlogistics\items\properties\ItemPlaceable.class
-kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerReloadManager.class
 kaktusz\kaktuszlogistics\KaktuszLogistics.class
 kaktusz\kaktuszlogistics\modules\survival\commands\RoomSubcommand.class
 kaktusz\kaktuszlogistics\recipe\RecipeManager.class
@@ -155,6 +154,7 @@ kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerContinuousShootingManager.
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem$2.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerTriggerHeldEvent.class
 kaktusz\kaktuszlogistics\modules\nations\commands\FlagSubcommand.class
+kaktusz\kaktuszlogistics\modules\weaponry\input\GunActionsManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\AmmoContainer.class
 kaktusz\kaktuszlogistics\util\minecraft\config\IntegerOption.class
 kaktusz\kaktuszlogistics\world\KLWorld.class

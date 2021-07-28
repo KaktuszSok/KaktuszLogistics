@@ -2,7 +2,7 @@ package kaktusz.kaktuszlogistics.modules.weaponry.items;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.ITriggerHeldListener;
-import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerReloadManager;
+import kaktusz.kaktuszlogistics.modules.weaponry.input.GunActionsManager;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.items.CustomItem;
@@ -175,7 +175,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	}
 
 	private void tryShoot(Player player, ItemStack stack) {
-		if(PlayerReloadManager.isPlayerReloading(player))
+		if(GunActionsManager.isReloading(player))
 			return;
 
 		if(VanillaUtils.getTickTime() - getLastShootTime(stack) < shootDelay) //still in cooldown
@@ -217,7 +217,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	 * Loads/unloads the gun appropriately
 	 */
 	private void reload(PlayerInteractEvent e, ItemStack stack) {
-		if(PlayerReloadManager.isPlayerReloading(e.getPlayer()))
+		if(GunActionsManager.isReloading(e.getPlayer()))
 			return;
 
 		Player p = e.getPlayer();
@@ -228,7 +228,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 	}
 
 	private void loadGun(Player p, ItemStack stack) {
-		if(PlayerReloadManager.isPlayerReloading(p))
+		if(GunActionsManager.isReloading(p))
 			return;
 
 		//search player hotbar for valid magazine
@@ -249,7 +249,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 
 			//else, successfully found valid magazine!
 			setLoadedMag(stack, mag); //load new magazine into weapon
-			PlayerReloadManager.startReload(p, reloadTime); //mark player as reloading
+			GunActionsManager.startReload(p, reloadTime); //mark player as reloading
 			//do slowness effect & audio:
 			p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, reloadTime, 1, true, false, false));
 			playReloadSounds(p);
@@ -260,7 +260,7 @@ public class GunItem extends CustomItem implements ITriggerHeldListener {
 		reloadFailedSFX.playAll(p.getEyeLocation().add(p.getEyeLocation().getDirection()));
 	}
 	private void unloadGun(Player p, ItemStack stack) {
-		if(PlayerReloadManager.isPlayerReloading(p))
+		if(GunActionsManager.isReloading(p))
 			return;
 
 		removeLoadedMag(stack, p.getInventory());

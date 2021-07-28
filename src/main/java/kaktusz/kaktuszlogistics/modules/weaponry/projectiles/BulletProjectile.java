@@ -4,10 +4,13 @@ import kaktusz.kaktuszlogistics.modules.weaponry.KaktuszWeaponry;
 import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer_Particles;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -92,11 +95,24 @@ public class BulletProjectile extends CustomProjectile {
 
 		effectiveDamage *= (penetration / maxPenetration); //reduce damage as pen drops
 		effectiveDamage *= getVel().length() / startSpeed; //reduce damage as velocity drops
+		effectiveDamage *= VanillaUtils.getProjectileProtectionMultiplier(entity); //reduce damage with projectile protection
+
+		EntityDamageEvent dmgEvent;
 
 		if(getOwner() == null)
-			entity.damage(effectiveDamage);
+			dmgEvent = new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.PROJECTILE, effectiveDamage);
 		else
-			VanillaUtils.damageEntity(entity, getOwner(), Math.round(effectiveDamage), killMessage);
+			dmgEvent = new EntityDamageByEntityEvent(getOwner(), entity, EntityDamageEvent.DamageCause.PROJECTILE, effectiveDamage);
+
+		Bukkit.getPluginManager().callEvent(dmgEvent);
+		if(dmgEvent.isCancelled())
+			return;
+
+		if(getOwner() == null)
+			entity.damage(Math.round(dmgEvent.getFinalDamage()));
+		else
+			VanillaUtils.damageEntity(entity, getOwner(), (int)Math.round(dmgEvent.getFinalDamage()), killMessage);
+
 		entity.setNoDamageTicks(0);
 	}
 

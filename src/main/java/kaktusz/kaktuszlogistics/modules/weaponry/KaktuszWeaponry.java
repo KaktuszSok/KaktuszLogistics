@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
+import kaktusz.kaktuszlogistics.modules.weaponry.input.GunActionsManager;
 import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerContinuousShootingManager;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo.AmmoContainer;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.ammo.BulletContainer;
@@ -11,6 +12,7 @@ import kaktusz.kaktuszlogistics.modules.weaponry.items.GunItem;
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.StringOption;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 
@@ -24,6 +26,7 @@ public class KaktuszWeaponry implements KaktuszModule {
 	public void initialise() {
 		INSTANCE = this;
 
+		Bukkit.getPluginManager().registerEvents(new GunActionsManager(), KaktuszLogistics.INSTANCE);
 		PlayerContinuousShootingManager.INPUT_EVENTS_DELAY = INPUT_EVENTS_DELAY.getValue();
 
 		initKeys();

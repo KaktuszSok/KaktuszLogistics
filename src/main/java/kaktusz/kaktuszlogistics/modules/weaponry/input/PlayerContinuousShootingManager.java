@@ -22,7 +22,6 @@ public class PlayerContinuousShootingManager {
 
 	public static void onTick() {
 		List<Player> trackedPlayers = new ArrayList<>(playerTriggerTicks.keySet());
-		int size = trackedPlayers.size();
 
 		for (Player p : trackedPlayers) {
 			if (!p.isOnline()) { //remove offline players

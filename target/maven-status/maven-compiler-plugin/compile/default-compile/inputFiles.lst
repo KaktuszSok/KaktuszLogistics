@@ -13,7 +13,6 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\multiblock\CustomSupportedBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\gui\MachineGUI.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\WorldEventsListener.java
-C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerReloadManager.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\multiblock\components\ComponentCustomBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\nbt\EnchantsTupleCollection.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\GiveSubcommand.java
@@ -54,6 +53,7 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\recipe\outputs\WoodOutput.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\survival\commands\RoomSubcommand.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\input\GunActionsManager.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\minecraft\DDABlockIterator.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\properties\multiblock\MatrixMultiblock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\recipe\QualityPersistingRecipe.java

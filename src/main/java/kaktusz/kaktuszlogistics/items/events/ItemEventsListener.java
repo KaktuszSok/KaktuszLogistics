@@ -21,6 +21,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.*;
 
 import java.util.Map;
@@ -54,6 +55,7 @@ public class ItemEventsListener implements Listener {
 
         /**
          * @return True if the inventory's class matches and the target slot is less than or equal the tuple's max slot
+         * @param targetSlot The slot that is being inserted into. -1 indicates unknown slot.
          */
         public boolean check(Inventory targetInventory, int targetSlot) {
             return (targetSlot == -1 || targetSlot >= inventoryMinSlot && targetSlot <= inventoryMaxSlot) && targetInventory.getType() == inventoryType;
@@ -162,26 +164,15 @@ public class ItemEventsListener implements Listener {
         }
     }
 
-    //MODULE EVENTS
+    //PLAYER EVENTS
     @EventHandler(ignoreCancelled = true)
-    public void onTriggerHeld(PlayerTriggerHeldEvent e) {
-        ItemStack main = e.getPlayer().getInventory().getItemInMainHand();
-        ItemStack secondary = e.getPlayer().getInventory().getItemInOffHand();
-        onTriggerHeldForItem(e, main);
-        onTriggerHeldForItem(e, secondary);
-    }
-    private void onTriggerHeldForItem(PlayerTriggerHeldEvent e, ItemStack stack) {
-        CustomItem customItem = CustomItem.getFromStack(stack);
-        if(customItem == null)
-            return;
-        //item
-        if(customItem instanceof ITriggerHeldListener)
-            ((ITriggerHeldListener)customItem).onTriggerHeld(e, stack);
-        //properties
-        for(ItemProperty p : customItem.getAllProperties()) {
-            if(p instanceof ITriggerHeldListener) {
-                ((ITriggerHeldListener)p).onTriggerHeld(e, stack);
-            }
+    public void onPlayerLoggedIn(PlayerLoginEvent e) {
+        for (ItemStack item : e.getPlayer().getInventory()) {
+            CustomItem customItem = CustomItem.getFromStack(item);
+            if(customItem == null)
+                continue;
+
+            customItem.updateStack(item);
         }
     }
 

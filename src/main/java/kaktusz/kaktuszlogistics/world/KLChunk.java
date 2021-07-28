@@ -176,7 +176,7 @@ public final class KLChunk {
      */
     @SuppressWarnings("unused")
     public void onChunkPreloaded(Chunk c) {
-        onLoaded();
+
     }
 
     public void onChunkLoaded(ChunkLoadEvent e) {
@@ -189,7 +189,6 @@ public final class KLChunk {
                 file.delete();
             }
         }
-        onLoaded();
     }
 
     /**

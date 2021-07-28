@@ -121,6 +121,25 @@ public class VanillaUtils {
         Bukkit.broadcastMessage(killMessage);
     }
 
+    /**
+     * Get the multiplier for damage by projectiles on the given entity
+     */
+    public static float getProjectileProtectionMultiplier(Entity entity) {
+        if(entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if(livingEntity.getEquipment() == null)
+                return 1f;
+
+            float totalProjProtection = 0;
+            for(ItemStack armour : livingEntity.getEquipment().getArmorContents()) {
+                totalProjProtection += armour.getEnchantmentLevel(Enchantment.PROTECTION_PROJECTILE);
+            }
+            return 1.0f - Math.min(0.8f, totalProjProtection*0.08f);
+        }
+
+        return 1f;
+    }
+
     //SOUNDS
     public enum BlockSounds {
         HIT,
