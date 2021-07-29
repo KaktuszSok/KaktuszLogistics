@@ -22,6 +22,7 @@ import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -194,6 +195,24 @@ public class WorldEventsListener implements Listener {
         }
     }
 
+    private void onExplosion(List<Block> blocksExploded, float yield) {
+        boolean didSound = false;
+        List<Block> blocksOriginal = new ArrayList<>(blocksExploded);
+        for(Block b : blocksOriginal) {
+            CustomBlock cb = getCustomBlockFromLocation(b.getLocation());
+            if(cb != null) {
+                blocksExploded.remove(b);
+                blocksExploded.remove(cb.getLocation().getBlock()); //in case it is a multiblock so cb is not the same block as b
+                if(cb instanceof ExplodableBlock) {
+                    ((ExplodableBlock) cb).onExploded(yield);
+                    continue;
+                }
+                cb.onDamaged((int)(1 + (2.5f/yield)), !didSound, null, false); //yield is inverted?
+                didSound = true;
+            }
+        }
+    }
+
     /**
      * Called when a hopper etc. puts an item into an inventory
      */
@@ -233,7 +252,8 @@ public class WorldEventsListener implements Listener {
 
         //damage tool
         ItemStack held = e.getPlayer().getInventory().getItemInMainHand();
-        damageTool(held, e.getPlayer());
+        if(held.getItemMeta() instanceof Damageable)
+            damageTool(held, e.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -273,20 +293,11 @@ public class WorldEventsListener implements Listener {
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent e) {
-        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
+        onExplosion(e.blockList(), e.getYield());
     }
     @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent e) {
-        List<Block> blocks = new ArrayList<>(e.blockList());
-        boolean didSound = false;
-        for(Block b : blocks) {
-            CustomBlock cb = getCustomBlockFromLocation(b.getLocation());
-            if(cb != null) {
-                e.blockList().remove(b);
-                cb.onDamaged((int)(1 + (2.5f/e.getYield())), !didSound, null, false); //yield is inverted?
-                didSound = true;
-            }
-        }
+        onExplosion(e.blockList(), e.getYield());
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockFaded(BlockFadeEvent e) {

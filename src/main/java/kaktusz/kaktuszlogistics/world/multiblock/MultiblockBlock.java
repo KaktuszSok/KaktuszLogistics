@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
@@ -53,6 +54,24 @@ public class MultiblockBlock extends DurableBlock {
 	}
 
 	public void setFacingFromPlaceEvent(BlockPlaceEvent e) {
+		if(e.getBlockPlaced().getBlockData() instanceof FaceAttachable) {
+			FaceAttachable.AttachedFace attachedFace = ((FaceAttachable)e.getBlockPlaced().getBlockData()).getAttachedFace();
+			switch (attachedFace) {
+				case FLOOR:
+					setFacing(BlockFace.UP);
+					return;
+				case CEILING:
+					setFacing(BlockFace.DOWN);
+					return;
+				default:
+					break;
+			}
+		}
+		if(e.getBlockPlaced().getBlockData() instanceof Directional) {
+			setFacing(((Directional)e.getBlockPlaced().getBlockData()).getFacing());
+			return;
+		}
+
 		BlockFace facing;
 		Vector facingVector = e.getPlayer().getEyeLocation().getDirection().setY(0).multiply(-1);
 		if(Math.abs(facingVector.getX()) > Math.abs(facingVector.getZ())) { //facing east/west
@@ -120,6 +139,9 @@ public class MultiblockBlock extends DurableBlock {
 		Block block = getLocation().getBlock();
 		BlockData blockData = block.getBlockData();
 		if(blockData instanceof Directional) {
+			if(!((Directional)blockData).getFaces().contains(facing)) //not a valid facing
+				return;
+
 			((Directional) blockData).setFacing(facing);
 			block.setBlockData(blockData);
 		}

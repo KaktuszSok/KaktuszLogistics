@@ -156,6 +156,11 @@ public class KLWorld {
         return chunk.getBlockAt(x, y, z);
     }
 
+    /**
+     * Set the block at some position to the desired custom block.
+     * Does not affect the physical world! The block must be set there appropriately.
+     * @return The block that was set
+     */
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         KLChunk chunk = getOrCreateChunkAt(VanillaUtils.blockToChunkCoord(x), VanillaUtils.blockToChunkCoord(z));
         if(block == null) {

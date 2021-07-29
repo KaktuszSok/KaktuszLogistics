@@ -12,6 +12,7 @@ kaktusz\kaktuszlogistics\KaktuszLogistics.class
 kaktusz\kaktuszlogistics\modules\survival\commands\RoomSubcommand.class
 kaktusz\kaktuszlogistics\recipe\RecipeManager.class
 kaktusz\kaktuszlogistics\recipe\ingredients\ItemIngredient.class
+kaktusz\kaktuszlogistics\world\multiblock\MultiblockBlock$1.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\AmmoType.class
 kaktusz\kaktuszlogistics\util\minecraft\config\BooleanOption.class
 kaktusz\kaktuszlogistics\world\multiblock\CustomSupportedBlock.class
@@ -28,6 +29,7 @@ kaktusz\kaktuszlogistics\gui\MultiPageGUI.class
 kaktusz\kaktuszlogistics\util\minecraft\config\ConfigOption.class
 kaktusz\kaktuszlogistics\modules\KModule.class
 kaktusz\kaktuszlogistics\modules\weaponry\projectiles\BulletProjectile.class
+kaktusz\kaktuszlogistics\modules\weaponry\items\properties\PlaceableProximityMine.class
 kaktusz\kaktuszlogistics\items\FluidInputBarrel.class
 kaktusz\kaktuszlogistics\items\properties\multiblock\MatrixMultiblock.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\ITriggerHeldListener.class
@@ -134,6 +136,7 @@ kaktusz\kaktuszlogistics\world\multiblock\components\ComponentAgnostic.class
 kaktusz\kaktuszlogistics\commands\Subcommand.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockAABB.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$BlockPosition.class
+kaktusz\kaktuszlogistics\modules\weaponry\blocks\ProximityMineBlock.class
 kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils$1.class
 kaktusz\kaktuszlogistics\items\events\IPlacedListener.class
 kaktusz\kaktuszlogistics\util\minecraft\config\StringOption.class
@@ -153,6 +156,7 @@ kaktusz\kaktuszlogistics\world\multiblock\components\DecoratorSpecialBlock.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerContinuousShootingManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\GunItem$2.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\PlayerTriggerHeldEvent.class
+kaktusz\kaktuszlogistics\world\ExplodableBlock.class
 kaktusz\kaktuszlogistics\modules\nations\commands\FlagSubcommand.class
 kaktusz\kaktuszlogistics\modules\weaponry\input\GunActionsManager.class
 kaktusz\kaktuszlogistics\modules\weaponry\items\properties\ammo\AmmoContainer.class

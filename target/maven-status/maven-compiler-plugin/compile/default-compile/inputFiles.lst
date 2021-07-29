@@ -84,6 +84,7 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\CustomSignBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\CustomBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\multiblock\MultiblockMachine.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\blocks\ProximityMineBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\projectile\rendering\ProjectileRenderer.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\minecraft\VanillaUtils.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\survival\world\housing\PlaceableHouseSign.java
@@ -97,6 +98,7 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\properties\PlaceableOpenBarrel.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\DurableBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\multiblock\components\ComponentDecorator.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\world\ExplodableBlock.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\KLCommand.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\items\nbt\AmmoContainerNBT.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\recipe\inputs\ItemInput.java
@@ -127,6 +129,7 @@ C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktusz
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\minecraft\SoundEffect.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\MathsUtils.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\items\properties\ItemQuality.java
+C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\modules\weaponry\items\properties\PlaceableProximityMine.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\recipe\outputs\IRecipeOutput.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\util\SetUtils.java
 C:\Users\eevee\Desktop\MC Plugins\KaktuszLogistics\src\main\java\kaktusz\kaktuszlogistics\commands\GiveQSubcommand.java

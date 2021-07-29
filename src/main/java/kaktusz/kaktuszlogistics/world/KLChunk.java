@@ -2,6 +2,7 @@ package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.util.CastingUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -15,7 +16,8 @@ import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.*;
 
-import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
+import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition;
+import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.chunkToBlockCoord;
 
 @SuppressWarnings("UnusedReturnValue")
 public final class KLChunk {
@@ -72,6 +74,12 @@ public final class KLChunk {
     }
 
     //WORLD INTERACTION
+
+    /**
+     * Set the block at some position to the desired custom block.
+     * Does not affect the physical world! The block must be set there appropriately.
+     * @return The block that was set
+     */
     public CustomBlock setBlock(CustomBlock block, int x, int y, int z) {
         blocks.put(new LocalCoordinate(x, y, z), block);
         if(block instanceof TickingBlock)
@@ -283,7 +291,8 @@ public final class KLChunk {
                         result.addTickingBlock((TickingBlock) block);
                     }
                 } catch (Exception e) {
-                    KaktuszLogistics.LOGGER.warning("Couldn't load block at " + coord.toString() + " in chunk " + chunkX + "," + chunkZ + ":");
+                    BlockPosition fullCoord = new BlockPosition(VanillaUtils.chunkToBlockCoord(coord.x), coord.y, VanillaUtils.chunkToBlockCoord(coord.z));
+                    KaktuszLogistics.LOGGER.warning("Couldn't load block at " + fullCoord.toString() + " in chunk " + chunkX + "," + chunkZ + ":");
                     e.printStackTrace();
                 }
             }

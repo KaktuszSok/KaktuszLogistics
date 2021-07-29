@@ -52,8 +52,11 @@ public class CustomBlock implements Serializable {
      */
     public boolean update() {
         if(!verify()) {
-            KLWorld.get(location.getWorld()).setBlock(null, location.getBlockX(), location.getBlockY(), location.getBlockZ());
-            KaktuszLogistics.LOGGER.info("Removing CustomBlock at " + new VanillaUtils.BlockPosition(location) + " as verification failed.");
+            KLWorld world = KLWorld.get(location.getWorld());
+            if(world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ()) != null) {
+                world.setBlock(null, location.getBlockX(), location.getBlockY(), location.getBlockZ());
+                KaktuszLogistics.LOGGER.info("Removing CustomBlock at " + new VanillaUtils.BlockPosition(location) + " as verification failed.");
+            }
             return false;
         }
         return true;
