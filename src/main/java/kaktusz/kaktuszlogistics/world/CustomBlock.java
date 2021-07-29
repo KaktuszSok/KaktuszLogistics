@@ -44,7 +44,11 @@ public class CustomBlock implements Serializable {
     }
 
     protected void setUpTransients() {
-        type = CustomItem.getFromMeta(data).findProperty(ItemPlaceable.class);
+        CustomItem ci = CustomItem.getFromMeta(data);
+        if(ci != null)
+            type = ci.findProperty(ItemPlaceable.class);
+        else
+            type = null;
     }
 
     /**
@@ -63,6 +67,8 @@ public class CustomBlock implements Serializable {
     }
 
     public final boolean verify() {
+        if(getType() == null)
+            return false;
         return verify(Objects.requireNonNull(location.getWorld()).getBlockAt(location));
     }
     public boolean verify(Block block) {

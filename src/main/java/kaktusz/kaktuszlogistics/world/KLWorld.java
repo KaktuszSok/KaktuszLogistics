@@ -1,11 +1,14 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.World;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.blockToChunkCoord;
 
 public class KLWorld {
 
@@ -154,6 +157,39 @@ public class KLWorld {
         }
 
         return chunk.getBlockAt(x, y, z);
+    }
+
+    /**
+     * Gets the multiblock that the block at the given position is a part of, or null
+     */
+    public MultiblockBlock getMultiblockAt(int x, int y, int z) {
+        KLChunk chunk = getLoadedChunkAt(blockToChunkCoord(x), blockToChunkCoord(z));
+        if(chunk != null) {
+            Set<VanillaUtils.BlockPosition> multiblocks = chunk.getExtraData("multiblocks");
+            if(multiblocks != null) {
+                for (VanillaUtils.BlockPosition pos : multiblocks) {
+                    CustomBlock multiblock = getBlockAt(pos.x, pos.y, pos.z);
+                    if(multiblock instanceof MultiblockBlock
+                            && ((MultiblockBlock)multiblock).isPosPartOfMultiblock(new VanillaUtils.BlockPosition(x,y,z))) {
+                        return (MultiblockBlock)multiblock;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the multiblock at the given position or, if the position is not part of any multiblocks,
+     * the custom block at that position (or null)
+     */
+    public CustomBlock getBlockOrMultiblockAt(int x, int y, int z) {
+        CustomBlock cb = getMultiblockAt(x,y,z);
+        if(cb != null)
+            return cb;
+        else
+            return getBlockAt(x,y,z);
     }
 
     /**

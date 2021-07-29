@@ -2,8 +2,6 @@ package kaktusz.kaktuszlogistics.items.events;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
-import kaktusz.kaktuszlogistics.modules.weaponry.input.ITriggerHeldListener;
-import kaktusz.kaktuszlogistics.modules.weaponry.input.PlayerTriggerHeldEvent;
 import kaktusz.kaktuszlogistics.recipe.CraftingRecipe;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;
 import kaktusz.kaktuszlogistics.recipe.SmeltingRecipe;
@@ -22,7 +20,9 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.FurnaceInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.Objects;

@@ -2,7 +2,9 @@ package kaktusz.kaktuszlogistics.modules;
 
 import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 
+import java.util.List;
+
 public interface KaktuszModule {
 	void initialise();
-	ConfigOption<?>[] getAllOptions();
+	List<ConfigOption<?>> getAllOptions();
 }

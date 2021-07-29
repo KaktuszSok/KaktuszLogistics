@@ -10,10 +10,12 @@ import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.recipe.machine.MachineRecipe;
 import kaktusz.kaktuszlogistics.recipe.outputs.ItemOutput;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.*;
 
@@ -26,8 +28,40 @@ public class RecipeManager {
 	private static final Map<List<? extends CustomRecipe<?>>, CustomRecipe<?>> recipesCache = new HashMap<>(); //cache last used recipe from each list
 
 	//CRAFTING
-	public static void addCraftingRecipe(CraftingRecipe r) {
+	public static void addCraftingRecipe(CraftingRecipe r, String keySuffix) {
 		craftingTableRecipes.add(r);
+
+		//make vanilla recipe (superset of our custom recipe) to fix spigot crafting bug
+		ShapedRecipe recipe = new ShapedRecipe(
+				new NamespacedKey(KaktuszLogistics.INSTANCE, "craft_" + keySuffix),
+				r.getQuickOutput().getStack()
+		);
+		//generate shape
+		StringBuilder shape = new StringBuilder();
+		int num = 0;
+		for(int y = 0; y < r.getSizeY(); y++) {
+			for (int x = 0; x < r.getSizeX(); x++) {
+				shape.append((char)('a' + num));
+				num++;
+			}
+			shape.append("/");
+		}
+		recipe.shape(shape.substring(0, shape.length()-1).split("/"));
+		//set ingredients
+		num = 0;
+		for(int y = 0; y < r.getSizeY(); y++) {
+			for (int x = 0; x < r.getSizeX(); x++) {
+				ItemIngredient ingredient = r.getIngredientAt(x, y, 0, 0);
+				if(ingredient != null) {
+					recipe.setIngredient((char)('a' + num), ingredient.getVanillaRecipeChoice());
+				} else {
+					recipe.setIngredient((char)('a' + num), Material.AIR);
+				}
+				num++;
+			}
+		}
+
+		Bukkit.addRecipe(recipe);
 	}
 	public static CraftingRecipe matchCraftingRecipe(ItemInput... inputs) {
 		return matchInputsToRecipeList(craftingTableRecipes, inputs);
@@ -109,8 +143,8 @@ public class RecipeManager {
 			inverseRecipe = new QualityPersistingRecipe(inverseMatrix, singleOutput);
 		}
 
-		addCraftingRecipe(recipe);
-		addCraftingRecipe(inverseRecipe);
+		addCraftingRecipe(recipe, "block_9x" + single.type + "_1x" + block.type);
+		addCraftingRecipe(inverseRecipe, "block_1x" + block.type + "_9x" + single.type);
 	}
 
 	@SuppressWarnings("unchecked") //as long as we only fill the cache with the proper typed variables, there should be no problems

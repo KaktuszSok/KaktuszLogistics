@@ -10,15 +10,20 @@ import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigOption;
 import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class KaktuszNations implements KaktuszModule {
 	@SuppressWarnings("unused")
 	public static KaktuszNations INSTANCE;
 
-	//config quick access
+	//item quick access
 	public static FlagItem FLAG_ITEM;
 
-	public static final IntegerOption CLAIM_DISTANCE = new IntegerOption("nations.claim.radius", 3);
-	public static final IntegerOption OUTSKIRTS_DISTANCE = new IntegerOption("nations.claims.outskirtsDepth", 4);
+	//config
+	private static final List<ConfigOption<?>> ALL_OPTIONS = new ArrayList<>();
+	public static final IntegerOption CLAIM_DISTANCE = new IntegerOption("nations.claims.radius", 3, ALL_OPTIONS);
+	public static final IntegerOption OUTSKIRTS_DISTANCE = new IntegerOption("nations.claims.outskirtsDepth", 4, ALL_OPTIONS);
 
 	public void initialise() {
 		INSTANCE = this;
@@ -33,10 +38,7 @@ public class KaktuszNations implements KaktuszModule {
 	}
 
 	@Override
-	public ConfigOption<?>[] getAllOptions() {
-		return new ConfigOption[] {
-				CLAIM_DISTANCE,
-				OUTSKIRTS_DISTANCE
-		};
+	public List<ConfigOption<?>> getAllOptions() {
+		return ALL_OPTIONS;
 	}
 }

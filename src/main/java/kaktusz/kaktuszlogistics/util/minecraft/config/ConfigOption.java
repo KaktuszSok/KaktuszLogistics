@@ -2,14 +2,21 @@ package kaktusz.kaktuszlogistics.util.minecraft.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.List;
+
 public abstract class ConfigOption<T> {
 
 	public final String path;
 	protected T value;
 
-	public ConfigOption(String path, T defaultValue) {
+	/**
+	 * @param optionsList The list that this option will add itself to
+	 */
+	public ConfigOption(String path, T defaultValue, List<ConfigOption<?>> optionsList) {
 		this.path = path;
 		this.value = defaultValue;
+		if(optionsList != null)
+			optionsList.add(this);
 	}
 
 	/**

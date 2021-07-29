@@ -43,6 +43,7 @@ kaktusz\kaktuszlogistics\modules\survival\world\housing\HouseSignBlock$1.class
 kaktusz\kaktuszlogistics\items\nbt\EnchantsContainer.class
 kaktusz\kaktuszlogistics\gui\RecipeListGUI.class
 kaktusz\kaktuszlogistics\KaktuszLogistics$1.class
+kaktusz\kaktuszlogistics\recipe\ingredients\TaggedIngredient.class
 kaktusz\kaktuszlogistics\items\properties\ItemQuality.class
 kaktusz\kaktuszlogistics\commands\Subcommand$ArgumentType.class
 kaktusz\kaktuszlogistics\commands\Subcommand$CommandArg.class

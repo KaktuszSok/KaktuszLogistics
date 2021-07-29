@@ -16,8 +16,8 @@ public class PlaceableProximityMine extends SupportedBlockProperty {
 	public PlaceableProximityMine(CustomItem item) {
 		super(item);
 		setDamageSound(new SFXCollection(
-			new SoundEffect(Sound.BLOCK_GRAVEL_BREAK, 0.5f, 0.925f),
-			new SoundEffect(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.5f, 1.8f)
+			new SoundEffect(Sound.BLOCK_GRAVEL_BREAK, 0.7f, 0.925f),
+			new SoundEffect(Sound.ENTITY_CREEPER_DEATH, 0.7f, 1.35f)
 		));
 	}
 

@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.modules.weaponry.blocks;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.modules.weaponry.KaktuszWeaponry;
 import kaktusz.kaktuszlogistics.modules.weaponry.items.properties.PlaceableProximityMine;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
 import kaktusz.kaktuszlogistics.world.ExplodableBlock;
@@ -8,6 +9,7 @@ import kaktusz.kaktuszlogistics.world.KLWorld;
 import kaktusz.kaktuszlogistics.world.TickingBlock;
 import kaktusz.kaktuszlogistics.world.multiblock.CustomSupportedBlock;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -47,7 +49,7 @@ public class ProximityMineBlock extends CustomSupportedBlock implements TickingB
 	@Override
 	public void onExploded(float yield) {
 		breakBlock(false);
-		Bukkit.getScheduler().runTaskLater(KaktuszLogistics.INSTANCE, this::createExplosion, 2);
+		Bukkit.getScheduler().runTaskLater(KaktuszLogistics.INSTANCE, this::createExplosion, 4);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -56,17 +58,18 @@ public class ProximityMineBlock extends CustomSupportedBlock implements TickingB
 				getLocation().clone().add(0.5d, 0.5d, 0.5d), 0.5d, 0.5d, 0.5d,
 				entity -> entity instanceof LivingEntity
 						&& !entity.isInvulnerable()
-						&& (entity instanceof Player || ((LivingEntity) entity).hasAI()));
+						&& (
+							entity instanceof Player && ((Player) entity).getGameMode() != GameMode.SPECTATOR
+							|| KaktuszWeaponry.MOBS_TRIGGER_LANDMINES.getValue() && ((LivingEntity) entity).hasAI()
+						));
 
 		return !nearbyEntities.isEmpty();
 	}
 
 	public void detonate() {
-		if(!update())
-			return;
 		KLWorld world = KLWorld.get(getLocation().getWorld());
 		world.runAtEndOfTick(() -> {
-			if(!verify())
+			if(!update())
 				return;
 			breakBlock(false);
 			createExplosion();

@@ -4,7 +4,8 @@ import kaktusz.kaktuszlogistics.KaktuszLogistics;
 import kaktusz.kaktuszlogistics.modules.KModule;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class responsible for interfacing with the plugin configuration
@@ -12,10 +13,14 @@ import java.util.*;
 public class ConfigManager {
 
 	private FileConfiguration fileConfig = null;
+	/**
+	 * All registered options
+	 */
 	private final List<ConfigOption<?>> configOptions = new ArrayList<>();
 
-	public static final BooleanOption BROADCAST_PLAYER_KILLS = new BooleanOption("messages.broadcastKillMessages.players",true);
-	public static final BooleanOption BROADCAST_NAMED_MOB_KILLS = new BooleanOption("messages.broadcastKillMessages.namedMobs",false);
+	private static final List<ConfigOption<?>> GENERAL_OPTIONS = new ArrayList<>();
+	public static final BooleanOption BROADCAST_PLAYER_KILLS = new BooleanOption("messages.broadcastKillMessages.players",true, GENERAL_OPTIONS);
+	public static final BooleanOption BROADCAST_NAMED_MOB_KILLS = new BooleanOption("messages.broadcastKillMessages.namedMobs",false, GENERAL_OPTIONS);
 
 	public void initialise() {
 		fileConfig = KaktuszLogistics.INSTANCE.getConfig();
@@ -26,7 +31,7 @@ public class ConfigManager {
 		}
 
 		//add general options
-		registerOptions(BROADCAST_PLAYER_KILLS, BROADCAST_NAMED_MOB_KILLS);
+		registerOptions(GENERAL_OPTIONS);
 
 		//add module options
 		for (KModule module : KModule.values()) {
@@ -44,12 +49,14 @@ public class ConfigManager {
 	public <T extends ConfigOption<?>> T registerOption(T option) {
 		configOptions.add(option);
 		fileConfig.addDefault(option.path, option.getValue());
+		KaktuszLogistics.LOGGER.info("Registering option " + option.path);
 		return option;
 	}
 
-	public void registerOptions(ConfigOption<?>... options) {
-		if(options != null)
-			Arrays.stream(options).iterator().forEachRemaining(this::registerOption);
+	public void registerOptions(List<ConfigOption<?>> options) {
+		for (ConfigOption<?> option : options) {
+			registerOption(option);
+		}
 	}
 
 	/**

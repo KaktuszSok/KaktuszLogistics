@@ -52,7 +52,7 @@ public class CustomItemManager {
         CustomItem fluidInput = registerItem(new FluidInputBarrel("fluidInput", "Fluid Input"));
         ItemIngredient bucket = new VanillaIngredient(Material.BUCKET);
         ItemIngredient barrel = new VanillaIngredient(Material.BARREL);
-        RecipeManager.addCraftingRecipe(new CraftingRecipe(new ItemIngredient[][] {{bucket},{barrel}}, new ItemOutput(fluidInput.createStack(1))));
+        RecipeManager.addCraftingRecipe(new CraftingRecipe(new ItemIngredient[][] {{bucket},{barrel}}, new ItemOutput(fluidInput.createStack(1))), "fluidInput");
 
         registerItem(new InspectionTool("inspectionTool", "Inspection Tool", Material.OAK_SIGN))
                 .addEnchantment(Enchantment.LOYALTY, 1)

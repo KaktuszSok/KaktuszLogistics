@@ -1,8 +1,8 @@
 package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.KaktuszLogistics;
+import kaktusz.kaktuszlogistics.modules.survival.KaktuszSurvival;
 import kaktusz.kaktuszlogistics.util.SetUtils;
-import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
@@ -26,19 +26,6 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.*;
 public class RoomInfo implements Serializable {
 	private static final long serialVersionUID = 100L;
 	private static final boolean DEBUG_MODE = false;
-
-	/**
-	 * Maximum extents of room, including walls. An enclosed area bigger than this is considered outside.
-	 */
-	public static final IntegerOption MAX_SIZE_HORIZONTAL = new IntegerOption("survival.housing.room.maxSizeHorizontal", 33);
-	/**
-	 * Maximum extents of room, including floor and ceiling. An enclosed area bigger than this is considered outside.
-	 */
-	public static final IntegerOption MAX_SIZE_VERTICAL = new IntegerOption("survival.housing.room.maxSizeVertical", 12);
-	/**
-	 * Maximum volume of room, including walls, floors and ceilings. An enclosed area bigger than this is considered outside.
-	 */
-	public static int MAX_VOLUME = MAX_SIZE_HORIZONTAL.getValue() * MAX_SIZE_VERTICAL.getValue() * MAX_SIZE_HORIZONTAL.getValue() /3;
 
 	public static final Set<Material> SOLID_FALSE_POSITIVES = SetUtils.setFromElements(
 			Material.OAK_SIGN,
@@ -130,30 +117,30 @@ public class RoomInfo implements Serializable {
 
 			//update bounds and volume and check if we didn't violate the maximum values
 			volume++;
-			if(volume > MAX_VOLUME) { //room too big
+			if(volume > KaktuszSurvival.ROOM_MAX_VOLUME) { //room too big
 				if(DEBUG_MODE)
-					Bukkit.broadcastMessage("Volume exceeded " + MAX_VOLUME + " at " + currBlock);
+					Bukkit.broadcastMessage("Volume exceeded " + KaktuszSurvival.ROOM_MAX_VOLUME + " at " + currBlock);
 				return null;
 			}
 			minimumCorner.x = Math.min(minimumCorner.x, currBlock.x);
 			maximumCorner.x = Math.max(maximumCorner.x, currBlock.x);
-			if(maximumCorner.x - minimumCorner.x > MAX_SIZE_HORIZONTAL.getValue()) {//room too big
+			if(maximumCorner.x - minimumCorner.x > KaktuszSurvival.ROOM_MAX_SIZE_HORIZONTAL.getValue()) {//room too big
 				if(DEBUG_MODE)
-					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
+					Bukkit.broadcastMessage("Width exceeded " + KaktuszSurvival.ROOM_MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;
 			}
 			minimumCorner.y = (short)Math.min(minimumCorner.y, currBlock.y);
 			maximumCorner.y = (short)Math.max(maximumCorner.y, currBlock.y);
-			if(maximumCorner.y - minimumCorner.y > MAX_SIZE_VERTICAL.getValue()) { //room too big
+			if(maximumCorner.y - minimumCorner.y > KaktuszSurvival.ROOM_MAX_SIZE_VERTICAL.getValue()) { //room too big
 				if(DEBUG_MODE)
-					Bukkit.broadcastMessage("Height exceeded " + MAX_SIZE_VERTICAL + " at " + currBlock);
+					Bukkit.broadcastMessage("Height exceeded " + KaktuszSurvival.ROOM_MAX_SIZE_VERTICAL + " at " + currBlock);
 				return null;
 			}
 			minimumCorner.z = Math.min(minimumCorner.z, currBlock.z);
 			maximumCorner.z = Math.max(maximumCorner.z, currBlock.z);
-			if(maximumCorner.z - minimumCorner.z > MAX_SIZE_HORIZONTAL.getValue()) { //room too big
+			if(maximumCorner.z - minimumCorner.z > KaktuszSurvival.ROOM_MAX_SIZE_HORIZONTAL.getValue()) { //room too big
 				if(DEBUG_MODE)
-					Bukkit.broadcastMessage("Width exceeded " + MAX_SIZE_HORIZONTAL + " at " + currBlock);
+					Bukkit.broadcastMessage("Width exceeded " + KaktuszSurvival.ROOM_MAX_SIZE_HORIZONTAL + " at " + currBlock);
 				return null;
 			}
 

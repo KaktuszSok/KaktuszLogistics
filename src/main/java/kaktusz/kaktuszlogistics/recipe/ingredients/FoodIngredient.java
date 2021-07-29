@@ -3,6 +3,7 @@ package kaktusz.kaktuszlogistics.recipe.ingredients;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
 import java.util.Set;
 
@@ -13,7 +14,6 @@ public class FoodIngredient extends ItemIngredient {
 		T3("Tier 3 Food (Cooked Food)"),
 		T4("Tier 4 Food (Large Meals)"),
 		DELICACIES("Delicacies");
-		;
 
 		public final String name;
 		FoodCategory(String name) {
@@ -81,5 +81,10 @@ public class FoodIngredient extends ItemIngredient {
 				return SetUtils.setFromElements();
 		}
 
+	}
+
+	@Override
+	public RecipeChoice getVanillaRecipeChoice() {
+		return new RecipeChoice.MaterialChoice(getValidInputMaterials().toArray(new Material[0]));
 	}
 }

@@ -4,11 +4,18 @@ import kaktusz.kaktuszlogistics.modules.weaponry.KaktuszWeaponry;
 import kaktusz.kaktuszlogistics.projectile.CustomProjectile;
 import kaktusz.kaktuszlogistics.projectile.rendering.ProjectileRenderer_Particles;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.world.CustomBlock;
+import kaktusz.kaktuszlogistics.world.ExplodableBlock;
+import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.RayTraceResult;
@@ -17,7 +24,7 @@ import org.bukkit.util.Vector;
 @SuppressWarnings("unused")
 public class BulletProjectile extends CustomProjectile {
 
-	private final static double MAX_DIST_THROUGH_BLOCK = Math.sqrt(3);
+	private static final double MAX_DIST_THROUGH_BLOCK = Math.sqrt(3);
 
 	//SETTINGS
 	private float damage = 3f;
@@ -56,6 +63,7 @@ public class BulletProjectile extends CustomProjectile {
 	//EVENTS
 	@Override
 	protected boolean onCollideBlock(RayTraceResult hit, Block block) {
+		//penetration loss:
 		float penLost = block.getType().getBlastResistance();
 
 		//raytrace in the opposite direction, so that we know at which point we exit the block
@@ -73,8 +81,23 @@ public class BulletProjectile extends CustomProjectile {
 		}
 
 		penLost *= Math.min(distanceThroughBlock, MAX_DIST_THROUGH_BLOCK);
+		boolean destroyed = losePenetration(penLost);
 
-		return losePenetration(penLost);
+		//handling explosives:
+		Location loc = block.getLocation();
+		CustomBlock cb = KLWorld.get(loc.getWorld()).getBlockOrMultiblockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+		if(cb != null) {
+			if(cb instanceof ExplodableBlock) {
+				((ExplodableBlock)cb).onExploded(1);
+			}
+		}
+		else if(block.getType() == Material.TNT) {
+			block.setType(Material.AIR);
+			TNTPrimed tntEntity = (TNTPrimed) block.getWorld().spawnEntity(loc.clone().add(0.5d,0.5d,0.5d), EntityType.PRIMED_TNT);
+			tntEntity.setFuseTicks(0);
+		}
+
+		return destroyed;
 	}
 
 	@Override

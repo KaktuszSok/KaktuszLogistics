@@ -309,7 +309,7 @@ public class WorldEventsListener implements Listener {
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent e) {
-        cancelCustomBlockEvent(getCustomBlockFromEvent(e), e);
+        cancelCustomBlockEvent(getCustomBlockFromLocation(e.getToBlock().getLocation()), e);
     }
     @EventHandler(ignoreCancelled = true)
     public void onBlockGrow(BlockGrowEvent e) {

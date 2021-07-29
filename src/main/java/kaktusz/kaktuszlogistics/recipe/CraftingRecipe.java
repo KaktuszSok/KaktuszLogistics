@@ -38,8 +38,8 @@ public class CraftingRecipe extends CustomRecipe<ItemOutput> {
 		int inputsSideLength = (int)Math.sqrt(inputs.length); //side length of the square produced by arranging the inputs in a square shape
 		int wiggleroomX = inputsSideLength - getSizeX();
 		int wiggleroomY = inputsSideLength - getSizeY();
-		for(int y = 0; y <= wiggleroomX; y++) {
-			for(int x = 0; x <= wiggleroomY; x++) {
+		for(int y = 0; y <= wiggleroomY; y++) {
+			for(int x = 0; x <= wiggleroomX; x++) {
 				List<? extends ItemOutput> outputs = getOutputs(inputsSideLength, x, y, inputs);
 				if(outputs != null)
 					return outputs;

@@ -6,7 +6,6 @@ import kaktusz.kaktuszlogistics.recipe.ingredients.ItemIngredient;
 import kaktusz.kaktuszlogistics.recipe.inputs.ItemInput;
 import kaktusz.kaktuszlogistics.util.StringUtils;
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
-import kaktusz.kaktuszlogistics.util.minecraft.config.IntegerOption;
 import kaktusz.kaktuszlogistics.world.*;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -28,10 +27,6 @@ import static kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils.BlockPosition
  */
 public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, TickingBlock {
 	private static final long serialVersionUID = 100L;
-	/**
-	 * How often the house is re-checked, in seconds
-	 */
-	public static final IntegerOption HOUSE_RECHECK_FREQUENCY = new IntegerOption("survival.housing.houseRecheckFrequency", 20*60);
 
 	private HouseInfo houseInfoCache;
 	private long nextRecheckTime;
@@ -99,8 +94,8 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 	@Override
 	public void onTick() {
 		//recheck house if it is time or if we are suspiciously far behind the recheck time (which ideally wouldn't happen)
-		if(VanillaUtils.getTickTime() > nextRecheckTime || nextRecheckTime - VanillaUtils.getTickTime() > 20L*HOUSE_RECHECK_FREQUENCY.getValue()*2) {
-			nextRecheckTime = VanillaUtils.getTickTime() + 20L*HOUSE_RECHECK_FREQUENCY.getValue();
+		if(VanillaUtils.getTickTime() > nextRecheckTime || nextRecheckTime - VanillaUtils.getTickTime() > 20L* KaktuszSurvival.HOUSE_RECHECK_FREQUENCY.getValue()*2) {
+			nextRecheckTime = VanillaUtils.getTickTime() + 20L* KaktuszSurvival.HOUSE_RECHECK_FREQUENCY.getValue();
 			KLWorld.get(getLocation().getWorld()).runAtEndOfTick(this::recheckHouse);
 		}
 	}
@@ -110,7 +105,7 @@ public class HouseSignBlock extends CustomSignBlock implements LabourSupplier, T
 	 * Checks if the house is valid and updates the houseInfoCache and sign text accordingly
 	 */
 	private void recheckHouse() {
-		nextRecheckTime = VanillaUtils.getTickTime() + 20L*HOUSE_RECHECK_FREQUENCY.getValue();
+		nextRecheckTime = VanillaUtils.getTickTime() + 20L* KaktuszSurvival.HOUSE_RECHECK_FREQUENCY.getValue();
 		if(!update())
 			return;
 

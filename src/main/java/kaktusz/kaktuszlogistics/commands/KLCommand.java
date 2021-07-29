@@ -16,7 +16,7 @@ public class KLCommand implements CommandExecutor, TabCompleter {
 
     public static void registerSubcommand(Subcommand sub) {
         SUBCOMMANDS.put(sub.name, sub);
-        KaktuszLogistics.LOGGER.info("Registering command " + sub.name + " of type " + sub.toString());
+        KaktuszLogistics.LOGGER.info("Registering command " + sub.name + " of type " + sub.getClass().getSimpleName());
     }
 
     private Subcommand tryGetSubcommand(String name) {

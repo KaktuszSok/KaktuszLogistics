@@ -1,12 +1,13 @@
 package kaktusz.kaktuszlogistics.recipe.ingredients;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
+import kaktusz.kaktuszlogistics.util.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringJoiner;
 
 public class WoodIngredient extends ItemIngredient {
 
@@ -80,6 +81,11 @@ public class WoodIngredient extends ItemIngredient {
 		return validInputMaterials;
 	}
 
+	@Override
+	public RecipeChoice getVanillaRecipeChoice() {
+		return new RecipeChoice.MaterialChoice(validInputMaterials.toArray(new Material[0]));
+	}
+
 	public static String getWoodType(Material material) {
 		String name = material.name();
 		for (String wood : WOOD_TYPES) {
@@ -102,14 +108,7 @@ public class WoodIngredient extends ItemIngredient {
 	@Override
 	public String getName() {
 		String[] words = item.name().replace("XXX_", "").split("_");
-		StringJoiner name = new StringJoiner(" ");
-		for (String word : words) {
-			String capitalisedWord = word.substring(0, 1);
-			if(word.length() > 1)
-				capitalisedWord += word.substring(1).toLowerCase();
-			name.add(capitalisedWord);
-		}
-
-		return name.toString() + " x" + amount;
+		String name = StringUtils.fixCapitalisation(words);
+		return name + " x" + amount;
 	}
 }

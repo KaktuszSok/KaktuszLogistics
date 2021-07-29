@@ -21,6 +21,6 @@ public enum KModule {
 	KModule(String name, KaktuszModule moduleInstance) {
 		this.name = name;
 		this.instance = moduleInstance;
-		this.isEnabled = new BooleanOption("modules.enable" + name, true);
+		this.isEnabled = new BooleanOption("modules.enable" + name, true, null);
 	}
 }

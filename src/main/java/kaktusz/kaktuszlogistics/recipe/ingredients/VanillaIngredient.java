@@ -4,6 +4,7 @@ import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.util.SetUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
 import java.util.Set;
 import java.util.StringJoiner;
@@ -28,6 +29,11 @@ public class VanillaIngredient extends ItemIngredient {
 	@Override
 	public Set<Material> getValidInputMaterials() {
 		return SetUtils.setFromElements(type);
+	}
+
+	@Override
+	public RecipeChoice getVanillaRecipeChoice() {
+		return new RecipeChoice.MaterialChoice(type);
 	}
 
 	@Override

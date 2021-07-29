@@ -29,13 +29,13 @@ public class KaktuszLogistics extends JavaPlugin {
     public static KaktuszLogistics INSTANCE;
     public static Logger LOGGER;
 
-    public final ConfigManager config = new ConfigManager();
+    public static final ConfigManager CONFIG = new ConfigManager();
 
     @Override
     public void onEnable() {
         INSTANCE = this;
         LOGGER = getLogger();
-        config.initialise(); //init config
+        CONFIG.initialise(); //init config
 
         //register serialisable classes
         ConfigurationSerialization.registerClass(ItemInput.class);
