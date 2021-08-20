@@ -5,6 +5,7 @@ import kaktusz.kaktuszlogistics.world.multiblock.MultiblockMachine;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
@@ -335,5 +338,4 @@ public class WorldEventsListener implements Listener {
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         cancelCustomBlockEvent(getCustomBlockFromLocation(e.getBlock().getLocation()), e);
     }
-
 }

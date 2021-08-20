@@ -58,9 +58,9 @@ public class SFXCollection {
 	private Location fixLocationIfBlock(Location where) {
 		//check if location is a block position
 		if(where.getPitch() == 0 && where.getYaw() == 0
-				&& where.getX() % 1d < 0.01d
-				&& where.getY() % 1d < 0.01d
-				&& where.getZ() % 1d < 0.01d)
+				&& where.getX() % 1d < 0.01d || where.getX() % 1d > 0.99d
+				&& where.getY() % 1d < 0.01d || where.getY() % 1d > 0.99d
+				&& where.getZ() % 1d < 0.01d || where.getZ() % 1d > 0.99d)
 			return where.clone().add(0.5d, 0.5d, 0.5d); //convert to centre of block
 		return where;
 	}

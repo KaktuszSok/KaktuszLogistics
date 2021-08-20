@@ -6,7 +6,7 @@ import kaktusz.kaktuszlogistics.items.CustomItemManager;
 import kaktusz.kaktuszlogistics.modules.KaktuszModule;
 import kaktusz.kaktuszlogistics.modules.survival.commands.HouseSubcommand;
 import kaktusz.kaktuszlogistics.modules.survival.commands.RoomSubcommand;
-import kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking.SawmillWood;
+import kaktusz.kaktuszlogistics.modules.survival.world.multiblocks.woodworking.SawmillWood;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.RoomInfo;
 import kaktusz.kaktuszlogistics.modules.survival.world.housing.SignEventListener;
 import kaktusz.kaktuszlogistics.recipe.RecipeManager;

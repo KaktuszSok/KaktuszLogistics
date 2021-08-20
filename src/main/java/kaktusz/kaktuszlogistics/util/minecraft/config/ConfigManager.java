@@ -21,6 +21,7 @@ public class ConfigManager {
 	private static final List<ConfigOption<?>> GENERAL_OPTIONS = new ArrayList<>();
 	public static final BooleanOption BROADCAST_PLAYER_KILLS = new BooleanOption("messages.broadcastKillMessages.players",true, GENERAL_OPTIONS);
 	public static final BooleanOption BROADCAST_NAMED_MOB_KILLS = new BooleanOption("messages.broadcastKillMessages.namedMobs",false, GENERAL_OPTIONS);
+	public static final IntegerOption CHUNK_UNLOAD_FREQUENCY = new IntegerOption("world.chunk_unload_frequency",15, GENERAL_OPTIONS);
 
 	public void initialise() {
 		fileConfig = KaktuszLogistics.INSTANCE.getConfig();

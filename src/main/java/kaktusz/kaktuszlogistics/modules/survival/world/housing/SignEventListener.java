@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.modules.survival.world.housing;
 
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
+import kaktusz.kaktuszlogistics.items.properties.multiblock.SupportedBlockProperty;
 import kaktusz.kaktuszlogistics.world.CustomSignBlock;
 import kaktusz.kaktuszlogistics.world.KLWorld;
 import org.bukkit.Material;
@@ -10,12 +11,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class SignEventListener implements Listener {
 
 	public static final PlaceableHouseSign HOUSE_SIGN_PROPERTY = new PolymorphicItem("houseSign", "House", Material.OAK_SIGN).getOrAddProperty(PlaceableHouseSign.class);
 	public static final PlaceableGoodsSupplySign GOODS_SIGN_PROPERTY = new PolymorphicItem("goodsSign", "Goods Supplier", Material.OAK_SIGN).getOrAddProperty(PlaceableGoodsSupplySign.class);
+	private static final Map<String, SupportedBlockProperty> SPECIAL_SIGNS = new HashMap<>();
+	static {
+		SPECIAL_SIGNS.put("house", HOUSE_SIGN_PROPERTY);
+		SPECIAL_SIGNS.put("goods", GOODS_SIGN_PROPERTY);
+	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onSignWritten(SignChangeEvent e) {
@@ -29,16 +37,12 @@ public class SignEventListener implements Listener {
 			return;
 
 		if(b.getBlockData() instanceof WallSign) {
-			switch (firstLine.toLowerCase(Locale.ROOT)) {
-				case "house":
-					setCustomSignBlock(world, HOUSE_SIGN_PROPERTY.createCustomBlock(HOUSE_SIGN_PROPERTY.item.createStack(1).getItemMeta(), b.getLocation()), b);
-					return;
-				case "goods":
-					setCustomSignBlock(world, GOODS_SIGN_PROPERTY.createCustomBlock(GOODS_SIGN_PROPERTY.item.createStack(1).getItemMeta(), b.getLocation()), b);
-					return;
-				default:
-					break;
-			}
+			String firstLineLowercase = firstLine.toLowerCase(Locale.ROOT);
+			SupportedBlockProperty correspondingCustomSign = SPECIAL_SIGNS.get(firstLineLowercase);
+			if(correspondingCustomSign == null)
+				return;
+			setCustomSignBlock(world, (CustomSignBlock) correspondingCustomSign.createCustomBlock(correspondingCustomSign.item.createStack(1).getItemMeta(), b.getLocation()), b);
+										//^ if the casting fails, we want an error
 		}
 	}
 

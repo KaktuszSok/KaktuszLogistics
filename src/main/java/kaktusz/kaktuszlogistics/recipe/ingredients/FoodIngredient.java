@@ -9,10 +9,10 @@ import java.util.Set;
 
 public class FoodIngredient extends ItemIngredient {
 	public enum FoodCategory {
-		T1("Tier 1 Food (Unprepared Fruit/Veg)"),
-		T2("Tier 2 Food (Simple Prepared Food)"),
-		T3("Tier 3 Food (Cooked Food)"),
-		T4("Tier 4 Food (Large Meals)"),
+		T1("Unprepared Fruit/Veg"),
+		T2("Simple Prepared Food"),
+		T3("Cooked Food"),
+		T4("Large Meal"),
 		DELICACIES("Delicacies");
 
 		public final String name;

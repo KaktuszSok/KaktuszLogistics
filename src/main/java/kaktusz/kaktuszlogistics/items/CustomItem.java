@@ -3,12 +3,15 @@ package kaktusz.kaktuszlogistics.items;
 import kaktusz.kaktuszlogistics.items.events.IHeldListener;
 import kaktusz.kaktuszlogistics.items.events.IPlacedListener;
 import kaktusz.kaktuszlogistics.items.events.IUseListener;
+import kaktusz.kaktuszlogistics.items.properties.ItemAttributes;
 import kaktusz.kaktuszlogistics.items.properties.ItemEnchants;
 import kaktusz.kaktuszlogistics.items.properties.ItemPlaceable;
 import kaktusz.kaktuszlogistics.items.properties.ItemProperty;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -16,11 +19,15 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class CustomItem implements IHeldListener, IUseListener, IPlacedListener {
@@ -119,6 +126,12 @@ public class CustomItem implements IHeldListener, IUseListener, IPlacedListener 
 	public CustomItem addEnchantment(Enchantment enchantment, int level) {
 		ItemEnchants e = getOrAddProperty(ItemEnchants.class);
 		e.addEnchantment(enchantment, level);
+
+		return this;
+	}
+
+	public CustomItem addAttribute(Attribute attribute, double amount, AttributeModifier.Operation operation, EquipmentSlot slot) {
+		getOrAddProperty(ItemAttributes.class).addAttribute(attribute, amount, operation, slot);
 
 		return this;
 	}

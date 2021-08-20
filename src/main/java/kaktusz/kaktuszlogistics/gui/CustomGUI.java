@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @SuppressWarnings("SameParameterValue")
-public abstract class CustomGUI {
+public abstract class CustomGUI implements InventoryHolder {
 
 	protected static final int INVENTORY_WIDTH = 9;
 	protected final Inventory inventory;
@@ -27,7 +28,7 @@ public abstract class CustomGUI {
 
 	//SETUP
 	public CustomGUI(int size, String title) {
-		this.inventory = Bukkit.createInventory(null, size, title);
+		this.inventory = Bukkit.createInventory(this, size, title);
 	}
 
 	protected void setSlot(int row, int column, ItemStack stack) {
@@ -70,7 +71,6 @@ public abstract class CustomGUI {
 			clearInventory();
 		}
 		viewer.openInventory(inventory);
-		GUIListener.registerOpenGUI(inventory, this);
 	}
 
 	public void close(HumanEntity viewer) {
@@ -86,8 +86,6 @@ public abstract class CustomGUI {
 			entry.getValue().forceClose();
 		}
 
-		//close self for all viewers
-		GUIListener.deregisterGUI(inventory);
 		new ArrayList<>(inventory.getViewers()).forEach(v -> {
 				close(v);
 				onClosedForcefully(v);
@@ -107,9 +105,6 @@ public abstract class CustomGUI {
 	 * Called when the player quits out of this inventory, but not if it was caused by forceClose()
 	 */
 	public void onClosed(HumanEntity viewer) {
-		if(inventory.getViewers().size() <= 1) //last viewer closing inventory
-			GUIListener.deregisterGUI(inventory);
-
 		deregisterFromParent(viewer);
 	}
 
@@ -129,6 +124,11 @@ public abstract class CustomGUI {
 	}
 
 	//HELPER
+	@Override
+	public Inventory getInventory() {
+		return inventory;
+	}
+
 	@SuppressWarnings("ConstantConditions")
 	protected static void setName(ItemStack stack, String name) {
 		name = ChatColor.WHITE + name;

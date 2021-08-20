@@ -1,6 +1,7 @@
 package kaktusz.kaktuszlogistics.world;
 
 import kaktusz.kaktuszlogistics.util.minecraft.VanillaUtils;
+import kaktusz.kaktuszlogistics.util.minecraft.config.ConfigManager;
 import kaktusz.kaktuszlogistics.world.multiblock.MultiblockBlock;
 import org.bukkit.World;
 
@@ -63,9 +64,7 @@ public class KLWorld {
     }
 
     public void save() {
-        for(KLChunk c : loadedChunks.values()) {
-            c.save();
-        }
+        saveAllLoadedChunks();
     }
 
     /**
@@ -210,6 +209,27 @@ public class KLWorld {
     public static void onTick() {
         for (KLWorld world : loadedWorlds.values()) {
             world.tick();
+        }
+        //unload chunks/worlds which are no longer loaded
+        if(VanillaUtils.getTickTime() % (20L * ConfigManager.CHUNK_UNLOAD_FREQUENCY.getValue()) == 0) {
+            Set<KLWorld> worldsToUnload = new HashSet<>();
+            for (KLWorld world : loadedWorlds.values()) {
+                Set<KLChunk> chunksToUnload = new HashSet<>();
+                for (KLChunk chunk : world.loadedChunks.values()) {
+                    if(!world.world.isChunkLoaded(chunk.chunkPosX, chunk.chunkPosZ)) { //unload chunks that aren't loaded in the physical game world
+                        chunksToUnload.add(chunk);
+                    }
+                }
+                for (KLChunk chunk : chunksToUnload) {
+                    world.save();
+                    world.unloadChunk(chunk);
+                }
+                if(world.loadedChunks.isEmpty()) //unload worlds with no loaded chunks
+                    worldsToUnload.add(world);
+            }
+            for (KLWorld world : worldsToUnload) {
+                world.unload();
+            }
         }
     }
 

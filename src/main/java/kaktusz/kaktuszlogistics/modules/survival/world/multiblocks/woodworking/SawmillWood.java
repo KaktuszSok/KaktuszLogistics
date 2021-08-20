@@ -1,4 +1,4 @@
-package kaktusz.kaktuszlogistics.modules.survival.multiblocks.woodworking;
+package kaktusz.kaktuszlogistics.modules.survival.world.multiblocks.woodworking;
 
 import kaktusz.kaktuszlogistics.items.CustomItem;
 import kaktusz.kaktuszlogistics.items.PolymorphicItem;
